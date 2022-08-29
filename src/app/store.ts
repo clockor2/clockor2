@@ -1,9 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import treeReducer from '../features/tree/treeSlice';
 import counterReducer from '../features/counter/counterSlice';
+import regressionReducer from '../features/regression/regressionSlice';
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    tree: treeReducer,
+    regression: regressionReducer,
+    counter: counterReducer, // here for demo only
   },
 });
 

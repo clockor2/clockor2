@@ -1,0 +1,1 @@
+declare module '@phylocanvas/phylocanvas.gl';
