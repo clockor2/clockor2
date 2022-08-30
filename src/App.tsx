@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Tree } from './features/tree/Tree';
 import { Regression } from './features/regression/Regression';
 import './App.css';
-import { useAppSelector } from './app/hooks';
-import { selectSelectedIds } from './features/tree/treeSlice';
 import { Footer } from 'flowbite-react';
 
 
@@ -32,14 +30,12 @@ function App() {
                 interactive
                 selectedIds={[]}
                 size={size} 
-
               />
           </div>
           <div className='h-full w-1/2 border-b'>
             <Regression size={size} />
           </div>
         </main>
-        
         <Footer container={true}>
           <Footer.Copyright
             href="#"

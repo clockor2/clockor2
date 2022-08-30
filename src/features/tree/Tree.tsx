@@ -12,7 +12,7 @@ export function Tree(props: any) {
     // Anything in here is fired on component mount.
     const canvas = document.querySelector("#tree")
     
-    treeRef.current = new PhylocanvasGL(canvas, props)
+    treeRef.current = new PhylocanvasGL(canvas, props) // TODO setProps and render 
 
     treeRef.current.addClickHandler((info: any, event: any) => {
       // save the selectedIds in the state
