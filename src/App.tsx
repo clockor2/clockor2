@@ -3,12 +3,14 @@ import { Tree } from './features/tree/Tree';
 import { Regression } from './features/regression/Regression';
 import './App.css';
 import { Footer } from 'flowbite-react';
+import { selectSource } from './features/tree/treeSlice';
+import { useAppSelector } from './app/hooks';
 
 
 function App() {
 
   const [size, setSize] = useState<object | null>({});
-
+  const newick = useAppSelector(selectSource);
 
   useEffect(() => {
     const gridRef = document.querySelector("#treeContainer")
@@ -24,7 +26,7 @@ function App() {
         <main className='flex h-full'>
           <div id="treeContainer" className='h-full w-1/2 bottom-2 border'>
             <Tree 
-                source="(Bovine:0.69395,(Gibbon:0.36079,(Orangutan:0.33636,(Gorilla:0.17147,(Chimp:0.19268,Human:0.11927):0.08386):0.06124):0.15057):0.54939,Mouse:1.21460);"
+                source={newick}
                 showLabels
                 showLeafLabels
                 interactive

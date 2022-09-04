@@ -19,13 +19,17 @@ export const treeSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
      // Use the PayloadAction type to declare the contents of `action.payload`
-     setSelectedIds: (state, action: PayloadAction<Array<string>>) => {
+    setSelectedIds: (state, action: PayloadAction<Array<string>>) => {
       state.selectedIds = action.payload;
+    },
+    setSource: (state, action: PayloadAction<string>) => {
+      // validate newick?
+      state.source = action.payload;
     },
   },
 });
 
-export const { setSelectedIds } = treeSlice.actions;
+export const { setSelectedIds, setSource } = treeSlice.actions;
 
 // The functions below are called selectors and allow us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
