@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Tree } from './features/tree/Tree';
+import { TreeInput } from './features/tree/TreeInput';
 import { Regression } from './features/regression/Regression';
 import './App.css';
 import { Footer } from 'flowbite-react';
@@ -9,23 +10,36 @@ import { useAppSelector } from './app/hooks';
 
 function App() {
 
-  const [size, setSize] = useState<object | null>({});
+  const [size, setSize] = useState<object | null>(null);
   const newick = useAppSelector(selectSource);
 
   useEffect(() => {
-    const gridRef = document.querySelector("#treeContainer")
-    setSize({height: gridRef?.getBoundingClientRect().height, width: gridRef?.getBoundingClientRect().width})    
-  }, [])
+    if (!size) {
+      const gridRef = document.querySelector("#main")
+      let height = gridRef?.getBoundingClientRect().height
+      let width = gridRef?.getBoundingClientRect().width
+        setSize({height: height, width: width ? width/2 : undefined})    
+    }
+  }, [size])
 
   useEffect(() => {
     console.log(size);
   })
+
+
   return (
     <div className="App h-screen overflow-hidden">
       <div className='flex flex-col justify-between h-full'>
-        <main className='flex h-full'>
-          <div id="treeContainer" className='h-full w-1/2 bottom-2 border'>
-            <Tree 
+        <main id="main" className='flex h-full'>
+          {newick === ""?
+          <div className='flex flex-col items-center w-full h-full bottom-2 border'>
+            <div className='h-full w-full lg:w-1/3' >
+              <TreeInput  />
+            </div>
+          </div>
+          :
+            <div className='w-1/2 h-full bottom-2 border'>
+              <Tree 
                 source={newick}
                 showLabels
                 showLeafLabels
@@ -33,11 +47,15 @@ function App() {
                 selectedIds={[]}
                 size={size} 
               />
-          </div>
-          <div className='h-full w-1/2 border-b'>
-            <Regression size={size} />
-          </div>
-        </main>
+            </div>
+          }
+          
+          {newick?
+            <div className='w-1/2 h-full border-b'><Regression size={size} /></div>
+          :
+            <div></div>
+          }
+        </main>   
         <Footer container={true}>
           <Footer.Copyright
             href="#"
