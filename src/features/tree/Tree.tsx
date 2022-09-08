@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useAppDispatch } from '../../app/hooks';
 import { PhylocanvasGL } from './PhylocanvasGL'
-import { setSelectedIds, setSource  } from './treeSlice';
+import { setSelectedIds  } from './treeSlice';
 
 export function Tree(props: any) {
   const dispatch = useAppDispatch();

@@ -32,8 +32,8 @@ export function TreeInput(props: any) {
     }, [acceptedFiles, dispatch])
 
     return (
-        <section className="flex items-center h-full mx-6">
-        <div {...getRootProps({className: styles.dropzone})}>
+        <section className="flex items-center h-full mx-6 text-slate-500">
+        <div {...getRootProps({className: styles.dropzone + " bg-slate-100 border-zinc-500"})}>
             <input {...getInputProps()} />
             <p>Drag 'n' drop newick file here</p>
         </div>

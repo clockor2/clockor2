@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Tree } from './features/tree/Tree';
 import { TreeInput } from './features/tree/TreeInput';
-import { Regression } from './features/regression/Regression';
+// import { Regression } from './features/regression/Regression';
+import { RegressionInput } from './features/regression/RegressionInput';
 import './App.css';
 import { Footer } from 'flowbite-react';
 import { selectSource } from './features/tree/treeSlice';
@@ -51,7 +52,12 @@ function App() {
           }
           
           {newick?
-            <div className='w-1/2 h-full border-b'><Regression size={size} /></div>
+            <div className='flex flex-col items-center justify-center w-1/2 h-full border-b'>
+              <div className="w-1/2">
+                <RegressionInput />
+              </div>
+              
+            </div>
           :
             <div></div>
           }
