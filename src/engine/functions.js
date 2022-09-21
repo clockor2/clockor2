@@ -12,8 +12,11 @@ const nwk = fs.readFileSync("egTree.nwk").toString();
 const tree = new phylotree.phylotree(nwk);
 // const dates = tree.getTips().map((tip) => tip.data.decimal_date_value);
 // dummy dates for now
-const dates = _.range(1, tree.getTips().length+1);
-
+// const dates = _.range(1, tree.getTips().length+1);
+const del = '_'
+const group = 10
+const dates = tree.getTips().map( (x) => new Date(x.data.name.split(del).pop()))
+console.log(dates);
 
 // Function to return array of heights and dates for a given tree (plotly points)
 // coming once I can work how how bloody extract_dates() works.

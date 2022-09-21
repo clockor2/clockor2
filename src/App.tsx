@@ -13,7 +13,6 @@ function App() {
 
   const [size, setSize] = useState<object | null>(null);
   const newick = useAppSelector(selectSource);
-
   useEffect(() => {
     if (!size) {
       const gridRef = document.querySelector("#main")

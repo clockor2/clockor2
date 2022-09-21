@@ -1,20 +1,24 @@
 import {PhylocanvasGL as Base} from "@phylocanvas/phylocanvas.gl";
 
 export class PhylocanvasGL extends Base {
-    // this derived class allows us to monkey patch the PhylocanvasGL methods 
-    constructor(view: any, props: any, plugins = []) {
+    // this derived class allows us to monkey patch the PhylocanvasGL methods and add our own
+    constructor(view: any, props: any, plugins:Array<any> = []) {
       super(view , props, plugins)
       this.clickHandlers = [];
       this.view.style.backgroundImage = ''; // remove logo
+
+      this.addClickHandler((info: any, event: any) => {
+        // select internal nodes
+        const node = this.pickNodeFromLayer(info);
+        this.selectInternalNode(
+          node,
+          event.srcEvent.metaKey || event.srcEvent.ctrlKey,
+        )
+      })
+
     }
     handleClick(info: any, event: any) {
       super.handleClick(info, event);
-      // select internal nodes
-      const node = this.pickNodeFromLayer(info);
-      this.selectInternalNode(
-        node,
-        event.srcEvent.metaKey || event.srcEvent.ctrlKey,
-      )
       this.clickHandlers.forEach((fn: Function) => fn(info, event));
     }
 
