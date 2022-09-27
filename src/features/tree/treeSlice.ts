@@ -1,14 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-
+import {phylotree} from "phylotree"
 
 export interface TreeState {
-  source: string;
-  selectedIds: string[],
+  source: string
+  tipNames: string[]
+  selectedIds: string[]
 }
 
 const initialState: TreeState = {
   source: '',
+  tipNames: [],
   selectedIds: [],
 };
 
@@ -24,7 +26,9 @@ export const treeSlice = createSlice({
     },
     setSource: (state, action: PayloadAction<string>) => {
       // validate newick?
+      const phylotreeTree = new phylotree(action.payload)
       state.source = action.payload;
+      state.tipNames = phylotreeTree.getTips().map((tip: any) => tip.data.name);
     },
   },
 });
@@ -35,6 +39,7 @@ export const { setSelectedIds, setSource } = treeSlice.actions;
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectSource = (state: RootState) => state.tree.source;
+export const selectTipNames = (state: RootState) => state.tree.tipNames;
 export const selectSelectedIds = (state: RootState) => state.tree.selectedIds;
 
 export default treeSlice.reducer;
