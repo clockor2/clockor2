@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Tree } from './features/tree/Tree';
 import { TreeInput } from './features/tree/TreeInput';
-// import { Regression } from './features/regression/Regression';
+import { Regression } from './features/regression/Regression';
 import { RegressionInput } from './features/regression/RegressionInput';
 import './App.css';
 import { Footer } from 'flowbite-react';
 import { selectSource } from './features/tree/treeSlice';
 import { useAppSelector } from './app/hooks';
+import { selectData } from './features/regression/regressionSlice';
 
 
 function App() {
 
   const [size, setSize] = useState<object | null>(null);
   const newick = useAppSelector(selectSource);
+  const regressionData = useAppSelector(selectData);
+
   useEffect(() => {
     if (!size) {
       const gridRef = document.querySelector("#main")
@@ -51,11 +54,16 @@ function App() {
           }
           
           {newick?
-            <div className='flex flex-col items-center justify-center w-1/2 h-full border-b'>
-              <div className="w-1/2">
-                <RegressionInput />
-              </div>
-              
+            <div className='w-full h-full border-b'>
+              {regressionData.length ?  
+                  <Regression size={size} />
+                  :
+                  <div className='flex flex-col items-center justify-center h-full'>
+                    <div className="w-1/2">
+                      <RegressionInput />
+                    </div>
+                  </div>
+              }
             </div>
           :
             <div></div>

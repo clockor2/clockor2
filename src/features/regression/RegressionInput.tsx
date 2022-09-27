@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
 import { TextInput, Label } from 'flowbite-react';
-import { useAppSelector } from '../../app/hooks';
-import { selectTipNames } from '../tree/treeSlice';
+import { useAppSelector, useAppDispatch } from '../../app/hooks';
+import { selectTipNames, selectSource } from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
+import { something } from '../engine/core';
+import { setData } from './regressionSlice';
+
 
 export function RegressionInput(props: any) {
   const [format, setFormat] = useState<string>('');
   const [delimiter, setDelimiter] = useState<string>('');
   const [group, setGroup] = useState<string>('');
   const tipNames = useAppSelector(selectTipNames);
+  const newick = useAppSelector(selectSource);
+  const dispatch = useAppDispatch();
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
     console.log(event);
     console.log(format, delimiter, group);
     
-    const dates = tipNames.map( (name) => {
+    const decimal_dates = tipNames.map( (name) => {
       let g
       if (group === '-1') {
         g = name.split(delimiter).length - 1
@@ -27,8 +32,8 @@ export function RegressionInput(props: any) {
       const date = name.split(delimiter)[g]
       return decimal_date(new Date(date))
     })
-    console.log(dates);
-    
+    const regression_data = something(decimal_dates, decimal_dates.map(() => 1), newick)
+    dispatch(setData(regression_data))
   }
 
   return (  

@@ -2,13 +2,19 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
 
+interface  RegressionData {
+  x?: Array<number>;
+  y?: Array<number>;
+  mode?: string
+}
+
 export interface RegressionState {
-  data: object;
+  data: Array<RegressionData>;
   selectedIds: string[],
 }
 
 const initialState: RegressionState = {
-  data: {},
+  data: [],
   selectedIds: [],
 };
 
@@ -19,7 +25,7 @@ export const regressionSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
      // Use the PayloadAction type to declare the contents of `action.payload`
-     setData: (state, action: PayloadAction<Array<string>>) => {
+     setData: (state, action: PayloadAction<Array<RegressionData>>) => {
       state.data = action.payload;
     },
   },
