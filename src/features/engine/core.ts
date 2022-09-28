@@ -1,12 +1,13 @@
 // eslint-disable-next-line 
-import {phylotree} from "phylotree"
+import {phylotree, rootToTip} from "phylotree"
 
-export const something = (x: Array<number>, group: Array<number>, tree: string) => {
+export const something = (x: Array<number>, group: Array<number>, nwk: string) => {
+    const tree = new phylotree(nwk);
     const data = [
         {
-          x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-          y: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-          mode: "lines",
+          x: x,
+          y: rootToTip(tree).getTips().map((tip: any) => tip.data.rootToTip),
+          mode: "markers",
         },
       ];
     return data
