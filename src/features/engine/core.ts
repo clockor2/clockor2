@@ -76,7 +76,7 @@ function linearRegression(points: plotData){
   let fitY = [
     x[0] * slope + intercept,
     x[x.length - 1] * slope + intercept
-  ]
+  ];
   
   const lr = new plotData();
   lr.x = [x[0], x[x.length - 1]];
