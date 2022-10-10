@@ -38,7 +38,7 @@ class plotData {
 // function gets base points for whole regression. Later subdivided by `group`
 const basePoints = (nwk: string, dates: Array<number>) => { 
   const tree = new phylotree(nwk);
-  let y = phylotree.rootToTip(tree).getTips().map((tip: any) => tip.data.rootToTip); // TODO: find tip type
+  let y =   rootToTip(tree).getTips().map((tip: any) => tip.data.rootToTip); // TODO: find tip type
   let x = dates;
   const points = new plotData()
   points.x = x;
