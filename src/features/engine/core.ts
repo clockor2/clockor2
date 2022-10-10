@@ -81,7 +81,7 @@ function linearRegression(points: plotData){
   const lr = new plotData();
   lr.x = x;
   lr.y = fitY;
-  lr.mode = "lines";
+  lr.mode = "lines+markers";
 
   return lr;
 }
