@@ -74,7 +74,7 @@ function linearRegression(points: plotData){
   let r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
 
   const lr = new plotData();
-  lr.x = [x[0], x[x.length - 1]];
+  lr.x = [x.sort((a, b) => a - b)[0], x.sort((a, b) => a - b)[x.length - 1]];
   lr.y = [
     x[0] * slope + intercept,
     x[x.length - 1] * slope + intercept
