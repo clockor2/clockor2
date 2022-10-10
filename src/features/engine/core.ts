@@ -76,8 +76,8 @@ function linearRegression(points: plotData){
   const lr = new plotData();
   lr.x = [x.sort((a, b) => a - b)[0], x.sort((a, b) => a - b)[x.length - 1]];
   lr.y = [
-    x[0] * slope + intercept,
-    x[x.length - 1] * slope + intercept
+    x.sort((a, b) => a - b)[0] * slope + intercept,
+    x.sort((a, b) => a - b)[x.length - 1] * slope + intercept
     ];
   lr.mode = "lines+markers";
 
