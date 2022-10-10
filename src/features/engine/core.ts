@@ -74,13 +74,12 @@ function linearRegression(points: plotData){
   let r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
 
   let fitY = []
-  for (var i = 0; i < x.length; i++) {
-      fitY[i] = x[i] * slope + intercept;
-  }
+  fitY[0] = x[0] * slope + intercept;
+  fitY[1] = x[x.length - 1] * slope + intercept;
   
   const lr = new plotData();
   lr.x = [x[0], x[x.length - 1]];
-  lr.y = [fitY[0], fitY[fitY.length - 1]];
+  lr.y = fitY;
   lr.mode = "lines";
 
   return lr;
