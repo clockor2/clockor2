@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
 
-interface  RegressionData {
+export interface  RegressionData {
   x?: Array<number>;
   y?: Array<number>;
   mode?: string
