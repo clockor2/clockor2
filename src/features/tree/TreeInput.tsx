@@ -46,7 +46,7 @@ export function TreeInput(props: any) {
                 </div>
                 
                 <div className='flex justify-center p-2'>
-                    <button className='text-slate-400 hover:text-slate-500' onClick={loadExample}>Load example (SARS-CoV-1)</button>
+                    <button className='text-slate-400 hover:text-slate-500' onClick={loadExample}>Load example (MERS-CoV)</button>
                 </div>
                 
             </div>
