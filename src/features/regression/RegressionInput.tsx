@@ -41,7 +41,6 @@ export function RegressionInput(props: any) {
       let date = extractPartOfTipName(name, delimiter, loc)
       return decimal_date(new Date(date))
     })
-    console.log(group);
     
     let groups
     if (group) {
@@ -52,11 +51,9 @@ export function RegressionInput(props: any) {
     } else {
       groups = tipNames.map(() => 0)
     }
-
-    console.log(groups);
     
     const regression_data = something(decimal_dates, groups, newick)
-    console.log(regression_data);
+    
     dispatch(setData(regression_data))
   }
 
