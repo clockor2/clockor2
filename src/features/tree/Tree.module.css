@@ -25,7 +25,6 @@
     outline: none;
     transition: border .24s ease-in-out;
     justify-content: space-around;
-    height: 33.333333%;
 }
 
 .dropzone:focus {

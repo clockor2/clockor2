@@ -3,6 +3,7 @@ import { useAppDispatch } from '../../app/hooks';
 import { setSource  } from './treeSlice';
 import {useDropzone} from 'react-dropzone';
 import styles from './Tree.module.css';
+import {exampleNewick} from './exampleNewick'
 
 function validateNewickString(text: string) {
   console.log("Skipping newick validation!");
@@ -16,6 +17,11 @@ export function TreeInput(props: any) {
         multiple: false,
         }
     );
+
+    const loadExample = () => {
+
+        dispatch(setSource(exampleNewick))
+    }
 
     useEffect(() => {
         const reader = new FileReader()
@@ -32,11 +38,18 @@ export function TreeInput(props: any) {
     }, [acceptedFiles, dispatch])
 
     return (
-        <section className="flex items-center h-full mx-6 text-slate-500">
-        <div {...getRootProps({className: styles.dropzone + " bg-slate-100 border-zinc-500"})}>
-            <input {...getInputProps()} />
-            <p>Drag 'n' drop newick file here</p>
-        </div>
+        <section className="flex flex-col justify-center h-full mx-6 text-slate-500">
+            <div className=' h-1/3 ' >
+                <div {...getRootProps({className: styles.dropzone + " h-full bg-slate-100 border-zinc-500 hover:cursor-pointer hover:shadow-md"})}>
+                    <input {...getInputProps()} />
+                    <p className='text-3xl'>Drag 'n' drop newick file here</p>
+                </div>
+                
+                <div className='flex justify-center p-2'>
+                    <button className='text-slate-400 hover:text-slate-500' onClick={loadExample}>Load example (SARS-CoV-1)</button>
+                </div>
+                
+            </div>
         </section>
     )
 
