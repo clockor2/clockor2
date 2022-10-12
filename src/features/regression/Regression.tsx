@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
-import Plot from "react-plotly.js"
+import createPlotlyComponent from "react-plotly.js/factory"
 
 import { selectData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
 
-//const Plot = createPlotlyComponent(Plotly)
+const Plot = createPlotlyComponent(Plotly)
 
 export function Regression(props: any) {
   
@@ -28,7 +28,6 @@ export function Regression(props: any) {
   }
   
   useEffect(() => {    
-    
     if (isMounted.current) {
       highlightPoint(highlightedId, tipNames);
     } else {
@@ -37,7 +36,11 @@ export function Regression(props: any) {
   }, [highlightedId, tipNames])
   
   
-  const layout = { width: props.size.width, height: props.size.height };
+  const layout = { 
+    width: props.size.width, 
+    height: props.size.height,
+    uirevision: 'time',
+  };
 
   return (
     <div>

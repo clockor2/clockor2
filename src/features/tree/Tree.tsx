@@ -10,9 +10,7 @@ export function Tree(props: any) {
 
   let treeRef = useRef<PhylocanvasGL | null>(null); // store mutable values in treeRef.current
 
-  useEffect(() => {
-    console.log(highlightedId);
-    
+  useEffect(() => {    
     const node = treeRef.current?.findNodeById(highlightedId);
     treeRef.current?.highlightNode(node)
   }, [highlightedId])
