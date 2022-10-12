@@ -1,13 +1,22 @@
 import React, { useEffect, useRef } from 'react';
-import { useAppDispatch } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { PhylocanvasGL } from './PhylocanvasGL'
 import { plugins } from "@phylocanvas/phylocanvas.gl";
-import { setHighlightedId, setSelectedIds  } from './treeSlice';
+import { selectHighlightedId, setHighlightedId, setSelectedIds  } from './treeSlice';
 
 export function Tree(props: any) {
   const dispatch = useAppDispatch();
+  const highlightedId = useAppSelector(selectHighlightedId)
 
   let treeRef = useRef<PhylocanvasGL | null>(null); // store mutable values in treeRef.current
+
+  useEffect(() => {
+    console.log(highlightedId);
+    
+    const node = treeRef.current?.findNodeById(highlightedId);
+    treeRef.current?.highlightNode(node)
+  }, [highlightedId])
+
   useEffect(() => {      
     // Anything in here is fired on component mount.
     
@@ -32,7 +41,7 @@ export function Tree(props: any) {
     }
   }, [props, dispatch]); // rerender when props change
 
-    return (
+  return (
       <div >
         <div id="tree" />
       </div>

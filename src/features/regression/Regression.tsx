@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
-import createPlotlyComponent from "react-plotly.js/factory"
+import Plot from "react-plotly.js"
 
-import { RegressionData, selectData } from './regressionSlice';
-import { useAppSelector } from '../../app/hooks';
-import { selectHighlightedId, selectTipNames } from '../tree/treeSlice';
+import { selectData } from './regressionSlice';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
 
-const Plot = createPlotlyComponent(Plotly)
+//const Plot = createPlotlyComponent(Plotly)
 
 export function Regression(props: any) {
   
@@ -14,6 +14,7 @@ export function Regression(props: any) {
   const data = useAppSelector(selectData);
   const isMounted = useRef(false);
   const tipNames = useAppSelector(selectTipNames);
+  const dispatch = useAppDispatch();
 
   const highlightPoint = (id: null | string, tipNames: Array<string>) => {
     let hoverPoints: Array<object>
@@ -34,12 +35,13 @@ export function Regression(props: any) {
       isMounted.current = true;
     }
   }, [highlightedId, tipNames])
-
+  
   
   const layout = { width: props.size.width, height: props.size.height };
+
   return (
     <div>
-      <Plot divId='regression' data={data} layout={layout} />
+      <Plot divId='regression' onUnhover={() => dispatch(setHighlightedId(null))} onHover={(event) => dispatch(setHighlightedId(tipNames[event.points[0].pointIndex]))} data={data} layout={layout} />
     </div>
   );
 }
