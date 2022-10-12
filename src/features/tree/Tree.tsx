@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useAppDispatch } from '../../app/hooks';
 import { PhylocanvasGL } from './PhylocanvasGL'
 import { plugins } from "@phylocanvas/phylocanvas.gl";
-import { setSelectedIds  } from './treeSlice';
+import { setHighlightedId, setSelectedIds  } from './treeSlice';
 
 export function Tree(props: any) {
   const dispatch = useAppDispatch();
@@ -18,6 +18,11 @@ export function Tree(props: any) {
       treeRef.current.addClickHandler((info: any, event: any) => {
         // save the selectedIds in the state
         dispatch(setSelectedIds(treeRef.current?.props.selectedIds))
+      }) 
+
+      treeRef.current.addHoverHandler((info: any, event: any) => {
+        // save the hovered node in the state
+        dispatch(setHighlightedId(treeRef.current?.props.highlightedId))
       }) 
     }
     

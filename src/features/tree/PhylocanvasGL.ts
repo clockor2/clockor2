@@ -5,6 +5,7 @@ export class PhylocanvasGL extends Base {
     constructor(view: any, props: any, plugins:Array<any> = []) {
       super(view , props, plugins)
       this.clickHandlers = [];
+      this.hoverHandlers = [];
       this.view.style.backgroundImage = ''; // remove logo
 
       this.addClickHandler((info: any, event: any) => {
@@ -22,8 +23,17 @@ export class PhylocanvasGL extends Base {
       this.clickHandlers.forEach((fn: Function) => fn(info, event));
     }
 
+    handleHover(info: any, event: any) {
+      super.handleHover(info, event);
+      this.hoverHandlers.forEach((fn: Function) => fn(info, event));
+    }
+
     addClickHandler(fn: Function) {
       this.clickHandlers.push(fn);
+    }
+
+    addHoverHandler(fn: Function) {
+      this.hoverHandlers.push(fn);
     }
 
     getLeafNodeIds(node: any) {
@@ -42,9 +52,7 @@ export class PhylocanvasGL extends Base {
       return ids;
     }
 
-    selectInternalNode(node: any, append=false) {
-      console.log(node);
-      
+    selectInternalNode(node: any, append=false) {      
       if (node && !node.isLeaf) {
         const ids = this.getLeafNodeIds(node)
         this.selectLeafNodes(ids, append)

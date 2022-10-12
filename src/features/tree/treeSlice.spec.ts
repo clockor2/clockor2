@@ -7,12 +7,14 @@ describe('tree reducer', () => {
     source: '',
     tipNames: [],
     selectedIds: [],
+    highlightedId: null,
   };
   it('should handle initial state', () => {
     expect(treeReducer(undefined, { type: 'unknown' })).toEqual({
       source: '',
       tipNames: [],
       selectedIds: [],
+      highlightedId: null,
     });
   });
 
