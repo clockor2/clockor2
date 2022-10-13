@@ -3,9 +3,10 @@ import { RootState } from '../../app/store';
 
 
 export interface  RegressionData {
-  x?: Array<number>;
-  y?: Array<number>;
-  mode?: string
+  x: Array<number>;
+  y: Array<number>;
+  mode: string;
+  text?: Array<string>;
 }
 
 export interface RegressionState {

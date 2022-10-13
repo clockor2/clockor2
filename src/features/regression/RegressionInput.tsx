@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectTipNames, selectSource, selectTipHeights } from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
 import { something } from '../engine/core';
-import { setData } from './regressionSlice';
+import { RegressionData, setData } from './regressionSlice';
 
 
 export function RegressionInput(props: any) {
@@ -55,6 +55,8 @@ export function RegressionInput(props: any) {
     console.log(tipHeights);
     
     const regression_data = something(tipHeights, decimal_dates)
+    
+    regression_data[0].text = tipNames
     
     dispatch(setData(regression_data))
   }
