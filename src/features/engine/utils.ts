@@ -9,7 +9,7 @@ export const decimal_date = (date: Date) => {
     return decimal_date_value;
   };
 
-const createGroups = (decimal_dates:number[], tipHeights: number[], tipNames: number[], groupings:number[]) => {
+export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNames: number[], groupings:number[]) => {
     /**
      * Splits arrays into groups 
      * This method returns a array of group objects
