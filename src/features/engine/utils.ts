@@ -8,3 +8,25 @@ export const decimal_date = (date: Date) => {
 
     return decimal_date_value;
   };
+
+const createGroups = (decimal_dates:number[], tipHeights: number[], tipNames: number[], groupings:number[]) => {
+    /**
+     * Splits arrays into groups 
+     * This method returns a array of group objects
+     */
+    let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
+    let groups = unique.map(() => {return {tipHeights:[] as number[], decimal_dates:[] as number[], tipNames: [] as number[]}})
+
+    for (let index = 0; index < groupings.length; index++) {
+      groups[groupings[index]].decimal_dates.push(
+        decimal_dates[index]
+      )
+      groups[groupings[index]].tipHeights.push(
+        tipHeights[index]
+      )
+      groups[groupings[index]].tipNames.push(
+        tipNames[index]
+      )
+    }
+    return groups
+  }
