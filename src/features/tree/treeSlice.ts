@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-import {phylotree} from "phylotree"
+import {phylotree, rootToTip} from "phylotree"
 
 export interface TreeState {
   source: string
   tipNames: string[]
+  tipHeights: number[]
   selectedIds: string[]
   highlightedId: null | string
 }
@@ -12,6 +13,7 @@ export interface TreeState {
 const initialState: TreeState = {
   source: '',
   tipNames: [],
+  tipHeights: [],
   selectedIds: [],
   highlightedId: null,
 };
@@ -34,6 +36,7 @@ export const treeSlice = createSlice({
       const phylotreeTree = new phylotree(action.payload)
       state.source = action.payload;
       state.tipNames = phylotreeTree.getTips().map((tip: any) => tip.data.name);
+      state.tipHeights = rootToTip(phylotreeTree).getTips().map((tip: any) => tip.data.rootToTip)
     },
   },
 });
@@ -45,6 +48,7 @@ export const { setSelectedIds, setHighlightedId, setSource } = treeSlice.actions
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectSource = (state: RootState) => state.tree.source;
 export const selectTipNames = (state: RootState) => state.tree.tipNames;
+export const selectTipHeights = (state: RootState) => state.tree.tipHeights;
 export const selectSelectedIds = (state: RootState) => state.tree.selectedIds;
 export const selectHighlightedId = (state: RootState) => state.tree.highlightedId;
 

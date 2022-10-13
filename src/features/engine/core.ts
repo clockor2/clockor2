@@ -5,17 +5,14 @@
 - Add core function for tree clock search
 */
 
-
-import {phylotree, rootToTip} from "phylotree"
-
 //////////////////////////////////////////////////////
 // BELOW: CORE ENGINE FUNCTIONS SUCH AS SOMETHING() //
 // INCORPORATE FUNCTIONS DEFINED BELOW              //
 //////////////////////////////////////////////////////
 
 // Core function. Functionality for groups to be added
-export const something = (dates: Array<number>, group: Array<number>, nwk: string) => {
-  var dataPoints = basePoints(nwk, dates);
+export const something = (tipHeights: Array<number>, dates: Array<number>) => {
+  var dataPoints = basePoints(tipHeights, dates);
   const data = [
     dataPoints,
     linearRegression(dataPoints)
@@ -36,9 +33,8 @@ class plotData {
 
 
 // function gets base points for whole regression. Later subdivided by `group`
-const basePoints = (nwk: string, dates: Array<number>) => { 
-  const tree = new phylotree(nwk);
-  let y =   rootToTip(tree).getTips().map((tip: any) => tip.data.rootToTip); // TODO: find tip type
+const basePoints = (tipHeights: Array<number>, dates: Array<number>) => { 
+  let y = tipHeights; // TODO: find tip type
   let x = dates;
   const points = new plotData()
   points.x = x;

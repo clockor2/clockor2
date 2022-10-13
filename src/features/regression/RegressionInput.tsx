@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextInput, Label } from 'flowbite-react';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { selectTipNames, selectSource } from '../tree/treeSlice';
+import { selectTipNames, selectSource, selectTipHeights } from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
 import { something } from '../engine/core';
 import { setData } from './regressionSlice';
@@ -13,12 +13,13 @@ export function RegressionInput(props: any) {
   const [loc, setLoc] = useState<string>('');
   const [group, setGroup] = useState<string>('');
   const tipNames = useAppSelector(selectTipNames);
-  const newick = useAppSelector(selectSource);
+  const tipHeights = useAppSelector(selectTipHeights);
+
   const dispatch = useAppDispatch();
 
-  const createNumericGroups = (groups: Array<string>) => {
-    let unique = groups.filter((v, i, a) => a.indexOf(v) === i);
-    return groups.map(group => unique.indexOf(group))
+  const createNumericGroups = (groupings: Array<string>) => {
+    let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
+    return groupings.map(group => unique.indexOf(group))
   }
 
   const handelNegativeIndexes = (splitTipName: Array<string>, delimiter: string, loc: number): number => {
@@ -42,17 +43,18 @@ export function RegressionInput(props: any) {
       return decimal_date(new Date(date))
     })
     
-    let groups
+    let groupings
     if (group) {
-      groups = tipNames.map( (name) => {
+      groupings = tipNames.map( (name) => {
         return extractPartOfTipName(name, delimiter, group)
       })
-      groups = createNumericGroups(groups)
+      groupings = createNumericGroups(groupings)
     } else {
-      groups = tipNames.map(() => 0)
+      groupings = tipNames.map(() => 0)
     }
+    console.log(tipHeights);
     
-    const regression_data = something(decimal_dates, groups, newick)
+    const regression_data = something(tipHeights, decimal_dates)
     
     dispatch(setData(regression_data))
   }
