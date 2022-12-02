@@ -6,7 +6,9 @@ export interface  RegressionData {
   x: Array<number>;
   y: Array<number>;
   mode: string;
-  text?: Array<string>;
+  text: Array<string>;
+  name: string;
+  logLik: number; // want to use ?: later
 }
 
 export interface RegressionState {
