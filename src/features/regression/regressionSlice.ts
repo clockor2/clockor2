@@ -9,6 +9,7 @@ export interface  RegressionData {
   text: Array<string>;
   name: string;
   logLik: number; // want to use ?: later
+  r2?: number;
 }
 
 export interface RegressionState {

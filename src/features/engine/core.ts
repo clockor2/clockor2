@@ -2,6 +2,8 @@
 
 import { register } from "plotly.js";
 import { RegressionData } from "../regression/regressionSlice";
+import {phylotree, rootToTip} from "phylotree" // for clock search
+import { group } from "console";
 
 /* TO DO LIST @ 2022-10-10
 - Add if/for flow control to handle groups
@@ -28,6 +30,8 @@ export const regression = (tipHeights: Array<number>, dates: Array<number>, grou
     ];*/
   return dataPoints;
 }
+
+
 
 ////////////////////////////////////////////////////////
 // BELOW: FUNCTIONS USED INSIDE CORE ENGINE FUNCTIONS //
@@ -85,7 +89,7 @@ function linearRegression(points: RegressionData[]){
     // Include these later after agreeing on how to pass to front end
     let slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
     let intercept = (sum_y - slope * sum_x)/n;
-    let r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+    
     let fitY = x.map(x => ((slope * x) + intercept));
     let error = y.map((n, i, a) => y[i] - fitY[i]); 
     // estiamted variance of error
@@ -100,12 +104,12 @@ function linearRegression(points: RegressionData[]){
       x.sort((a, b) => a - b)[0] * slope + intercept,
       x.sort((a, b) => a - b)[x.length - 1] * slope + intercept
       ];
-    lr.mode = "lines+markers";
+    lr.mode = "lines";
     lr.name = `Clock: ${i}`; // Later change group names so there's no 0th clock
     //lr.logLik = Math.log(lik); // adding loglik
     lr.logLik = logLik;
     //lr.text = fitY.map(() => `sigmaHat: ${sigSq}`); // Later change or add  AICc, BIC, or whatever depending on input
-
+    lr.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
     reg.push(lr)
   }
 
@@ -114,7 +118,7 @@ function linearRegression(points: RegressionData[]){
   let aic = AIC(reg);
   let bic = BIC(reg);
   for (let i = 0; i < reg.length; i++) {
-    reg[i].text = reg[i].y.map(() => `Log-Lik = ${lr.logLik.toFixed(3)}, AICc = ${aicc.toFixed(3)},<br> AIC = ${aic.toFixed(3)}, BIC = ${bic.toFixed(3)}`);
+    reg[i].text = reg[i].y.map(() => `Log-Lik = ${lr?.logLik?.toFixed(3)}, AICc = ${aicc.toFixed(3)},<br>AIC = ${aic.toFixed(3)}, BIC = ${bic.toFixed(3)},<br>R<sup>2</sup> = ${lr?.r2?.toFixed(3)}`);
   }
   return reg;
 }
@@ -170,3 +174,114 @@ function BIC(regs: RegressionData[]): number {
 }
 // TODO:
 // - sort out issue with ?: RegressionData[] elements. Would be nice to use optional chaining
+
+//// Functions below relate to traversing the tree to determing groups for clade search 
+// phylotree obj is a d3 hierarchy object, so I use a lot of methods from there
+
+// Just some commands that help
+//var tips = []; 
+// Array of array of tip-node objects from each node
+//tree.nodes.each(d => tips.push(d.leaves())); 
+
+// number of tips descended 
+//tips.map(e => e.length)
+
+// getting names of tips
+//tips.map(e0 => e0.map(e1 => e1.data.name))
+
+//var allGroups = tips.map(e0 => e0.map(e1 => e1.data.name));
+// filtering to unique groups - i.e. repoving duplicate tips
+//let unique = groupings.filter((e, i, a) => a.indexOf(e) === i); // come back to understand this later
+// remains to sort 
+
+
+function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Array<Array<number>> { // TODO: Review type declarations here
+  // NB. Tips from tree are in identical order to that extected by regression. 
+  // Conferred with L38 @ ../tree/treeSlice.ts/
+
+  // Clades descending from each node
+  var tips: any = [];
+  tree.nodes.each((node: any) => tips.push(node.leaves())); 
+  var tips = tips.map((e0: any) => e0.map((e1: any) => e1.data.name));
+
+  // De-duplicate clades (artefact from d3 hierarchy)
+  // Have verified that length of output = num internal nodes
+  var uniqueTips = tips.map(
+    (e: string[]) => JSON.stringify(e)
+    ).filter(
+      (e: string[], i: number, a: string[][]) => {return a.indexOf(e) == i}
+      ).map(
+       (e: string) => JSON.parse(e)
+        )
+
+  // Sort clades based on size. Largest (all tips) goes first
+  var sortedUniqueTips = uniqueTips.sort((a: string[], b: string[]) => {return b.length - a.length});
+
+  // Filter out all clades below certain ${minCladeSize} in size;
+  var finalClades = sortedUniqueTips.filter((e: string[]) => e.length >= minCladeSize);
+
+  // Now generate groups
+  let comb = combn(Array.from(Array(finalClades.length).keys()).map((e: number, i: number ) => i+1), (maxNumClocks - 1));
+  // add 0th clade for background rate
+  // Issue us here adding zero!. the .unshift method modified combn in place. 
+  //Assigning to a new variable only assigns lengths
+  comb.map((e: number[]) => e.unshift(0)); 
+
+  // Convert number combinations to clade combinations
+  let allGroups: string[][][] = [];
+  for (let i = 0; i < comb.length; i++){
+    var tmp = comb[i];
+    allGroups[i] = tmp.map((e: number) => finalClades[e]);
+  }
+
+
+  // Defining output array
+  let groupings: number[][] = []; 
+
+  // Generate grouping arrays
+  //TODO: Finish this loop to complete getGroups() Function
+  for (let i = 0; i < allGroups.length; i++){
+    groupings[i] = allGroups[i][0].map((e: string) => 0); // map all to zero as default
+    for (let j = 0; j < tips.length; j++){
+      for (let k = 1; k < allGroups[i].length; k++) {
+        if (allGroups[i][k].indexOf(tips[j]) > 0) {
+          continue;
+        } else {
+          groupings[i][j] = k;
+          break;
+        }
+      }
+    }
+  }
+
+  // Take not-intersection of each successive group from the last to
+  // @Maybe: Ensure non-intersection groups are of size > minCladeSize
+  // return array
+  return groupings;
+}
+
+// generating combinations of groups
+function combn(arr: any[], k: number): number[][] {
+  // Store all possible combinations in a result array
+  const result: number[][] = [];
+
+  // Generate all combinations using a recursive helper function
+  function generateCombinations(currentIndex: number, currentCombination: any[]): void {
+    // If the current combination has the desired length, add it to the result array
+    if (currentCombination.length === k) {
+      result.push(currentCombination);
+      return;
+    }
+
+    // Generate all possible combinations starting from the next element in the array
+    for (let i = currentIndex; i < arr.length; i++) {
+      generateCombinations(i + 1, currentCombination.concat(arr[i]));
+    }
+  }
+
+  // Start the recursive process with the first element in the array
+  generateCombinations(0, []);
+
+  // Return the result array
+  return result;
+}
