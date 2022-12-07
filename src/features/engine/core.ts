@@ -234,31 +234,25 @@ function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Arra
     allGroups[i] = tmp.map((e: number) => finalClades[e]);
   }
 
+  let allGroupsNumber = allGroups.map((e: string[][]) => groupToNum(e, tips));
+  return allGroupsNumber;
+}
 
-  // Defining output array
-  let groupings: number[][] = []; 
+  // A function that takes a list of tips and returns group number based on an element of allGroups
+function groupToNum(arr: string[][], tips: string[]): number[] {
+    let groupings: number[] = []; 
 
-  // Generate grouping arrays
-  //TODO: Finish this loop to complete getGroups() Function
-  for (let i = 0; i < allGroups.length; i++){
-    groupings[i] = allGroups[i][0].map((e: string) => 0); // map all to zero as default
-    for (let j = 0; j < tips.length; j++){
-      for (let k = 1; k < allGroups[i].length; k++) {
-        if (allGroups[i][k].indexOf(tips[j]) > 0) {
-          continue;
-        } else {
-          groupings[i][j] = k;
-          break;
-        }
+    for (let i = 0; i < tips.length; i++){
+      var tmp = [];
+      for (let j = 0; j < arr.length; j++) {
+        if (arr[j].indexOf(tips[i]) > -1) {
+          groupings[i] = j;
+        } 
       }
     }
-  }
-
-  // Take not-intersection of each successive group from the last to
-  // @Maybe: Ensure non-intersection groups are of size > minCladeSize
-  // return array
   return groupings;
-}
+} // TODO: Include a test here to check that output is all integers
+
 
 // generating combinations of groups
 function combn(arr: any[], k: number): number[][] {
