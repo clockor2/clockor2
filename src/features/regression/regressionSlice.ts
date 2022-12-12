@@ -10,6 +10,9 @@ export interface  RegressionData {
   name: string;
   logLik: number; // want to use ?: later
   r2?: number;
+  aic?: number;
+  aicc?: number;
+  bic?: number;
 }
 
 export interface RegressionState {

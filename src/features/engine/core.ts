@@ -4,11 +4,12 @@ import { register } from "plotly.js";
 import { RegressionData } from "../regression/regressionSlice";
 import {phylotree, rootToTip} from "phylotree" // for clock search
 import { group } from "console";
+import { maxHeaderSize } from "http";
 
-/* TO DO LIST @ 2022-10-10
-- Add if/for flow control to handle groups
+
+
+/* TO DO LIST @ 2022-09-12
 - Add core function for tree clock search
-- Add calculations for likelihood and ICs - finish from resid point
 */
 
 //////////////////////////////////////////////////////
@@ -24,19 +25,46 @@ export const regression = (tipHeights: Array<number>, dates: Array<number>, grou
   for (let i = 0; i < regPoints.length; i++){
     dataPoints.push(regPoints[i]);
   };
-  /*const data = [
-    dataPoints,
-    linearRegression(dataPoints)
-    ];*/
   return dataPoints;
 }
 
+// Clock search function. Conver to a generator later
+// icMetric is the information criterion used to find 'best' state. TODO: Need to read these as part of input: aic | aicc | bic
+export const clockSearch = (tree: any, minCladeSize: number, numClocks: number, tipHeights: Array<number>,
+  dates: Array<number>, groupings: Array<number>, tipNames: Array<string>,
+  icMetric: string) => {
 
+      // generate possibilities for group
+  let groups = getGroups(tree, minCladeSize, numClocks);
+
+  // Loop through group possibilities and append to fits
+  let fits: RegressionData[][] = [];
+  for (let i = 0; i < groups.length; i++){
+      fits.push(regression(tipHeights, dates, groups[i], tipNames)); 
+  }
+
+  // Now find the most supported configuration
+  // starting at first state
+  var step: number = 0;
+
+  // Since IC's are duplicated in RegressionData[] Arrays, we find the first element it's defined in and pill out the value
+  let metric = 'aicc'
+  const ic = fits.map(
+    (e: RegressionData[]) => e[e.findIndex(
+      x => (typeof x[icMetric as keyof RegressionData] === 'number')
+      )]
+      ).map(
+        e => e[icMetric as keyof RegressionData]
+        );
+
+  var icMaxStep = ic.indexOf(Math.max(...(ic as number[]))); // TODO: This might throw an error if we never see output
+
+  return fits[icMaxStep];
+}
 
 ////////////////////////////////////////////////////////
 // BELOW: FUNCTIONS USED INSIDE CORE ENGINE FUNCTIONS //
 ////////////////////////////////////////////////////////
-
 
 // function gets base points for whole regression. Later subdivided by `group`
 const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: Array<number>, tipNames: Array<string>): RegressionData[] => { 
@@ -65,7 +93,7 @@ const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: 
 }
 
 // regression function takes basePoints() output as input
-function linearRegression(points: RegressionData[]){
+function linearRegression(points: RegressionData[]) { // TODO: Sort out why this won't work with the type declaration of RegressionData[]
   const reg: RegressionData[] = [];
   for (let i = 0; i < points.length; i++) {
     let x = points[i].x;
@@ -99,11 +127,8 @@ function linearRegression(points: RegressionData[]){
     let logLik = y.map((e, i) => Math.log(normalDensity(e, fitY[i], sigSq))).reduce((a, b) => a + b); 
 
     var lr = {} as RegressionData;
-    lr.x = [x.sort((a, b) => a - b)[0], x.sort((a, b) => a - b)[x.length - 1]];
-    lr.y = [
-      x.sort((a, b) => a - b)[0] * slope + intercept,
-      x.sort((a, b) => a - b)[x.length - 1] * slope + intercept
-      ];
+    lr.x = x;
+    lr.y = x.map(e => (slope * e + intercept));
     lr.mode = "lines";
     lr.name = `Clock: ${i}`; // Later change group names so there's no 0th clock
     //lr.logLik = Math.log(lik); // adding loglik
@@ -114,11 +139,18 @@ function linearRegression(points: RegressionData[]){
   }
 
   // adding IC to text
-  let aicc = AICc(reg);
-  let aic = AIC(reg);
-  let bic = BIC(reg);
+  var aicc = AICc(reg);
+  var aic = AIC(reg);
+  var bic = BIC(reg);
+
   for (let i = 0; i < reg.length; i++) {
-    reg[i].text = reg[i].y.map(() => `Log-Lik = ${lr?.logLik?.toFixed(3)}, AICc = ${aicc.toFixed(3)},<br>AIC = ${aic.toFixed(3)}, BIC = ${bic.toFixed(3)},<br>R<sup>2</sup> = ${lr?.r2?.toFixed(3)}`);
+    reg[i].aicc = aicc;
+    reg[i].aic = aic;
+    reg[i].bic = bic;
+    reg[i].text = reg[i].y.map(() => 
+      `Log-Lik = ${reg[i]?.logLik?.toFixed(3)}, AICc = ${reg[i]?.aicc?.toFixed(3)},<br>
+      AIC = ${reg[i]?.aic?.toFixed(3)}, BIC = ${reg[i]?.bic?.toFixed(3)},<br>
+      R<sup>2</sup> = ${reg[i]?.r2?.toFixed(3)}`); 
   }
   return reg;
 }
@@ -172,27 +204,7 @@ function BIC(regs: RegressionData[]): number {
   }
     return (3 * f * Math.log(n) - (-2 * totLogLik)); 
 }
-// TODO:
-// - sort out issue with ?: RegressionData[] elements. Would be nice to use optional chaining
-
-//// Functions below relate to traversing the tree to determing groups for clade search 
-// phylotree obj is a d3 hierarchy object, so I use a lot of methods from there
-
-// Just some commands that help
-//var tips = []; 
-// Array of array of tip-node objects from each node
-//tree.nodes.each(d => tips.push(d.leaves())); 
-
-// number of tips descended 
-//tips.map(e => e.length)
-
-// getting names of tips
-//tips.map(e0 => e0.map(e1 => e1.data.name))
-
-//var allGroups = tips.map(e0 => e0.map(e1 => e1.data.name));
-// filtering to unique groups - i.e. repoving duplicate tips
-//let unique = groupings.filter((e, i, a) => a.indexOf(e) === i); // come back to understand this later
-// remains to sort 
+// TODO: sort out issue with ?: RegressionData[] elements. Would be nice to use optional chaining
 
 
 function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Array<Array<number>> { // TODO: Review type declarations here
@@ -238,7 +250,7 @@ function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Arra
   return allGroupsNumber;
 }
 
-  // A function that takes a list of tips and returns group number based on an element of allGroups
+// A function that takes a list of tips and returns group number based on an element of allGroups
 function groupToNum(arr: string[][], tips: string[]): number[] {
     let groupings: number[] = []; 
 
