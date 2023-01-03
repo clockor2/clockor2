@@ -26,8 +26,12 @@ export function Regression(props: any) {
   const highlightedId = useAppSelector(selectHighlightedId)
   const data = useAppSelector(selectData);
   const isMounted = useRef(false);
-  const tipNames = useAppSelector(selectTipNames);
   const dispatch = useAppDispatch();
+
+  const onHover = (event:Plotly.PlotHoverEvent) => {
+    // @ts-ignore
+    dispatch(setHighlightedId(event.points[0].text))
+  }
 
   const highlightPoint = (id: null | string, data: RegressionData[]) => {
     let hoverPoints: Array<object>
@@ -60,7 +64,7 @@ export function Regression(props: any) {
       <Plot 
         divId='regression' 
         onUnhover={() => dispatch(setHighlightedId(null))} 
-        onHover={(event) => dispatch(setHighlightedId(tipNames[event.points[0].pointIndex]))} // Bug: it's setting tips at an index but not per curve
+        onHover={(event) => onHover(event)}
         data={data} 
         layout={layout} 
       />
