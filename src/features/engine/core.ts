@@ -1,10 +1,10 @@
 // eslint-disable-next-line 
 
-import { register } from "plotly.js";
+// import { register } from "plotly.js";
 import { RegressionData } from "../regression/regressionSlice";
-import {phylotree, rootToTip} from "phylotree" // for clock search
-import { group } from "console";
-import { maxHeaderSize } from "http";
+// import {phylotree, rootToTip} from "phylotree" // for clock search
+// import { group } from "console";
+// import { maxHeaderSize } from "http";
 
 
 
