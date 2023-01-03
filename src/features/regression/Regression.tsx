@@ -2,11 +2,24 @@ import React, { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
 import createPlotlyComponent from "react-plotly.js/factory"
 
-import { selectData } from './regressionSlice';
+import { RegressionData, selectData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
 
 const Plot = createPlotlyComponent(Plotly)
+
+function getPointNumber(id:string, data: RegressionData[]) {
+  let i = -1
+  let curve = 0
+  for (const d of data) {
+    i = d.text.indexOf(id)
+    if (i >= 0) {
+      return [{curveNumber:curve, pointNumber: i}]
+    }
+    curve++
+  }
+  return []
+}
 
 export function Regression(props: any) {
   
@@ -16,12 +29,12 @@ export function Regression(props: any) {
   const tipNames = useAppSelector(selectTipNames);
   const dispatch = useAppDispatch();
 
-  const highlightPoint = (id: null | string, tipNames: Array<string>) => {
+  const highlightPoint = (id: null | string, data: RegressionData[]) => {
     let hoverPoints: Array<object>
     if (id === null) {
       hoverPoints = []
     } else {
-      hoverPoints = [{curveNumber:0, pointNumber: tipNames.indexOf(id)}]
+      hoverPoints = getPointNumber(id, data)
     }
     // @ts-ignore
     Plotly.Fx.hover('regression', hoverPoints);
@@ -29,11 +42,11 @@ export function Regression(props: any) {
   
   useEffect(() => {    
     if (isMounted.current) {
-      highlightPoint(highlightedId, tipNames);
+      highlightPoint(highlightedId, data);
     } else {
       isMounted.current = true;
     }
-  }, [highlightedId, tipNames])
+  }, [highlightedId, data])
   
   
   const layout = { 
@@ -44,7 +57,13 @@ export function Regression(props: any) {
 
   return (
     <div>
-      <Plot divId='regression' onUnhover={() => dispatch(setHighlightedId(null))} onHover={(event) => dispatch(setHighlightedId(tipNames[event.points[0].pointIndex]))} data={data} layout={layout} />
+      <Plot 
+        divId='regression' 
+        onUnhover={() => dispatch(setHighlightedId(null))} 
+        onHover={(event) => dispatch(setHighlightedId(tipNames[event.points[0].pointIndex]))} // Bug: it's setting tips at an index but not per curve
+        data={data} 
+        layout={layout} 
+      />
     </div>
   );
 }
