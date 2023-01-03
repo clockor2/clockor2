@@ -4,10 +4,10 @@ import { TreeInput } from './features/tree/TreeInput';
 import { Regression } from './features/regression/Regression';
 import { RegressionInput } from './features/regression/RegressionInput';
 import './App.css';
-import { Footer } from 'flowbite-react';
 import { selectSource } from './features/tree/treeSlice';
 import { useAppSelector } from './app/hooks';
 import { selectData } from './features/regression/regressionSlice';
+import { Menu } from './features/menu/menu';
 
 
 function App() {
@@ -33,15 +33,16 @@ function App() {
   return (
     <div className="App h-screen overflow-hidden">
       <div className='flex flex-col justify-between h-full'>
+        <Menu></Menu>
         <main id="main" className='flex h-full'>
           {newick === ""?
-          <div className='flex flex-col items-center w-full h-full bottom-2 border'>
+          <div className='flex flex-col items-center w-full h-full border-t-2 '>
             <div className='h-full w-full lg:w-1/3' >
               <TreeInput  />
             </div>
           </div>
           :
-            <div className='w-1/2 h-full bottom-2 border'>
+            <div className='w-1/2 h-full border-t-2 border-r-2'>
               <Tree 
                 source={newick}
                 showLabels
@@ -54,7 +55,7 @@ function App() {
           }
           
           {newick?
-            <div className='w-full h-full border-b'>
+            <div className='w-full h-full border-t-2'>
               {regressionData.length ?  
                   <Regression size={size} />
                   :
@@ -69,27 +70,6 @@ function App() {
             <div></div>
           }
         </main>   
-        <Footer container={true}>
-          <Footer.Copyright
-            href="#"
-            by="Clockor2™"
-            year={2022}
-          />
-          <Footer.LinkGroup>
-            <Footer.Link href="#">
-              About
-            </Footer.Link>
-            <Footer.Link href="#">
-              Privacy Policy
-            </Footer.Link>
-            <Footer.Link href="#">
-              Licensing
-            </Footer.Link>
-            <Footer.Link href="#">
-              Contact
-            </Footer.Link>
-          </Footer.LinkGroup>
-        </Footer>
       </div>
     </div>
   );
