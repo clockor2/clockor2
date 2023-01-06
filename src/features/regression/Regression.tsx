@@ -2,13 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
 import createPlotlyComponent from "react-plotly.js/factory"
 
-import { RegressionData, selectData } from './regressionSlice';
+import { selectData } from './regressionSlice';
+import { plotly } from '../engine/core';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
 
 const Plot = createPlotlyComponent(Plotly)
 
-function getPointNumber(id:string, data: RegressionData[]) {
+function getPointNumber(id:string, data: plotly[]) {
   let i = -1
   let curve = 0
   for (const d of data) {
@@ -33,7 +34,7 @@ export function Regression(props: any) {
     dispatch(setHighlightedId(event.points[0].text))
   }
 
-  const highlightPoint = (id: null | string, data: RegressionData[]) => {
+  const highlightPoint = (id: null | string, data: plotly[]) => {
     let hoverPoints: Array<object>
     if (id === null) {
       hoverPoints = []
