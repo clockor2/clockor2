@@ -1,16 +1,87 @@
 // eslint-disable-next-line 
 
 // import { register } from "plotly.js";
-import { RegressionData } from "../regression/regressionSlice";
-// import {phylotree, rootToTip} from "phylotree" // for clock search
+// import {phylotree, rootToTip} from "phylotree" // for clock search TODO: Add best fitting root soon!
 // import { group } from "console";
 // import { maxHeaderSize } from "http";
 
+// class to contain local clock model, incl. data points and information criteria
+export class localClockModel {
+  clocks: regression[];
+  aic: number;
+  aicc: number;
+  bic: number;
+
+  constructor(data: dataGroup[]) {
+    this.clocks = data.map(e => linearRegression(e));
+    this.aic = AIC(this.clocks);
+    this.aicc = AICc(this.clocks);
+    this.bic = BIC(this.clocks);
+  };
+
+  // method for plotly plotting
+  plotify () {
+    const plot: plotly[] = [];
+
+    for (let i = 0; i < this.clocks.length; i++) {
+      var tmp = {} as plotly;
+      tmp.x = this.clocks[i].x;
+      tmp.y = this.clocks[i].y;
+      tmp.text = this.clocks[i].tip;
+      tmp.mode = "markers";
+      //tmp.marker.color = 'blue' // TODO: Add colour later. Fix optional chaining
+      plot.push(tmp);
+
+      var tmp = {} as plotly;
+      tmp.x = this.clocks[i].x;
+      tmp.y = this.clocks[i].fitY;
+      tmp.text = this.clocks[i].tip;
+      tmp.mode = "lines"
+      //tmp.line.color = 'blue' // TODO: Add colour later. Fix optional chaining
+      plot.push(tmp);
+    }
+      return plot;
+    }
+}
 
 
-/* TO DO LIST @ 2022-09-12
-- Add core function for tree clock search
-*/
+
+// Class to pass back to plot later. Will be produced by plotify method in 
+// flcModel class
+export interface plotly {
+  x: Array<number>;
+  y: Array<number>;
+  mode: "lines" | "markers";
+  type: 'scatter';
+  text: Array<string>;
+  // optional chaining depending on whether obj is for points or lines
+  /*marker: {
+    color: string;
+  }
+  line: {
+    color: string;
+  };*/
+}
+
+// class regression for storing the points, r^2, slope, fit for a set of points x, y
+// inferface for ouput of regression functions
+interface regression {
+  x: Array<number>;
+  y: Array<number>;
+  tip: Array<string>;
+  fitY: Array<number>;
+  slope: number;
+  r2: number;
+  logLik: number;
+}
+
+// Groups of points pertaining to one local clock
+// To be apended in array for linearRegression()
+interface dataGroup {
+  x: Array<number>;
+  y: Array<number>;
+  tip: Array<string>;
+}
 
 //////////////////////////////////////////////////////
 // BELOW: CORE ENGINE FUNCTIONS SUCH AS SOMETHING() //
@@ -20,42 +91,35 @@ import { RegressionData } from "../regression/regressionSlice";
 // Core function. Functionality for groups to be added
 export const regression = (tipHeights: Array<number>, dates: Array<number>, groupings: Array<number>, tipNames: Array<string>) => {
   var dataPoints = basePoints(tipHeights, dates, groupings, tipNames);
-  var regPoints = linearRegression(dataPoints);
-  // Below we add each RegresionData Object in regPoints to dataPoints
-  for (let i = 0; i < regPoints.length; i++){
-    dataPoints.push(regPoints[i]);
-  };
-  return dataPoints;
+  
+  return new localClockModel(dataPoints);
 }
 
 // Clock search function. Conver to a generator later
 // icMetric is the information criterion used to find 'best' state. TODO: Need to read these as part of input: aic | aicc | bic
-export const clockSearch = (tree: any, minCladeSize: number, numClocks: number, tipHeights: Array<number>,
-  dates: Array<number>, groupings: Array<number>, tipNames: Array<string>,
+export const clockSearch = (tree: any,
+  minCladeSize: number,
+  numClocks: number,
+  tipHeights: Array<number>,
+  dates: Array<number>,
+  tipNames: Array<string>,
   icMetric: string) => {
 
-      // generate possibilities for group
-  let groups = getGroups(tree, minCladeSize, numClocks);
+  // generate all possibilities for groupings
+  let allGroups = getGroups(tree, minCladeSize, numClocks);
 
   // Loop through group possibilities and append to fits
-  let fits: RegressionData[][] = [];
-  for (let i = 0; i < groups.length; i++){
-      fits.push(regression(tipHeights, dates, groups[i], tipNames)); 
+  let fits: localClockModel[] = [];
+  for (let i = 0; i < allGroups.length; i++){
+      fits.push(regression(tipHeights, dates, allGroups[i], tipNames)); 
   }
 
   // Now find the most supported configuration
   // starting at first state
   var step: number = 0;
 
-  // Since IC's are duplicated in RegressionData[] Arrays, we find the first element it's defined in and pill out the value
-  let metric = 'aicc'
-  const ic = fits.map(
-    (e: RegressionData[]) => e[e.findIndex(
-      x => (typeof x[icMetric as keyof RegressionData] === 'number')
-      )]
-      ).map(
-        e => e[icMetric as keyof RegressionData]
-        );
+  // Getting array of IC values based on selected IC TODO: Add capability for multiple ICs
+  const ic = fits.map(e => e[icMetric as keyof localClockModel]) // TODO: Test here!
 
   var icMaxStep = ic.indexOf(Math.max(...(ic as number[]))); // TODO: This might throw an error if we never see output
 
@@ -67,17 +131,16 @@ export const clockSearch = (tree: any, minCladeSize: number, numClocks: number, 
 ////////////////////////////////////////////////////////
 
 // function gets base points for whole regression. Later subdivided by `group`
-const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: Array<number>, tipNames: Array<string>): RegressionData[] => { 
+const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: Array<number>, tipNames: Array<string>): dataGroup[] => { 
   let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
-  //let points = unique.map(() => {} as RegressionData);
-  //let points:[] Array<RegressionData>
-  //let groups = unique.map(() => {return {y: Array<number>; x: Array<number>}})
 
-  const points: RegressionData[] = [];
+  const points: dataGroup[] = [];
+
   for (let i = 0; i < unique.length; i++) {
-    var tmp: RegressionData = {x: [], y: [], mode: "markers", text: [], name: `Clock: ${unique[i]}`, logLik: 0};
+    var tmp: dataGroup = {x: [], y: [], tip: []};
     points.push(tmp);
   }
+
   for (let i = 0; i < groupings.length; i++) {
     points[groupings[i]].x.push(
       dates[i]
@@ -85,73 +148,53 @@ const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: 
     points[groupings[i]].y.push(
       tipHeights[i]
     )
-    points[groupings[i]].text.push(
+    points[groupings[i]].tip.push(
       tipNames[i]
     )
   }
   return points;
 }
 
-// regression function takes basePoints() output as input
-function linearRegression(points: RegressionData[]) { // TODO: Sort out why this won't work with the type declaration of RegressionData[]
-  const reg: RegressionData[] = [];
-  for (let i = 0; i < points.length; i++) {
-    let x = points[i].x;
-    let y = points[i].y;
+// regression function 
+function linearRegression(points: dataGroup) {
+  const reg = {} as regression;
 
-    var n = y.length;
-    var sum_x = 0;
-    var sum_y = 0;
-    var sum_xy = 0;
-    var sum_xx = 0;
-    var sum_yy = 0;
+  // carrying tips over first
+  reg.tip = points.tip;
 
-    for (let j = 0; j < y.length; j++) {
-        sum_x += x[j];
-        sum_y += y[j];
-        sum_xy += (x[j]*y[j]);
-        sum_xx += (x[j]*x[j]);
-        sum_yy += (y[j]*y[j]);
-    } 
+  let x = points.x;
+  let y = points.y;
 
-    // Include these later after agreeing on how to pass to front end
-    let slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
-    let intercept = (sum_y - slope * sum_x)/n;
-    
-    let fitY = x.map(x => ((slope * x) + intercept));
-    let error = y.map((n, i, a) => y[i] - fitY[i]); 
-    // estiamted variance of error
-    let sigSq = error.map(n => Math.pow(n, 2)).reduce(
-      (a, b) => a + b, 0) * (1 / fitY.length);
-    // likelihood
-    let logLik = y.map((e, i) => Math.log(normalDensity(e, fitY[i], sigSq))).reduce((a, b) => a + b); 
+  var n = y.length;
+  var sum_x = 0;
+  var sum_y = 0;
+  var sum_xy = 0;
+  var sum_xx = 0;
+  var sum_yy = 0;
 
-    var lr = {} as RegressionData;
-    lr.x = x;
-    lr.y = x.map(e => (slope * e + intercept));
-    lr.mode = "lines";
-    lr.name = `Clock: ${i}`; // Later change group names so there's no 0th clock
-    //lr.logLik = Math.log(lik); // adding loglik
-    lr.logLik = logLik;
-    //lr.text = fitY.map(() => `sigmaHat: ${sigSq}`); // Later change or add  AICc, BIC, or whatever depending on input
-    lr.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
-    reg.push(lr)
-  }
+  for (let j = 0; j < y.length; j++) {
+      sum_x += x[j];
+      sum_y += y[j];
+      sum_xy += (x[j]*y[j]);
+      sum_xx += (x[j]*x[j]);
+      sum_yy += (y[j]*y[j]);
+  } 
 
-  // adding IC to text
-  var aicc = AICc(reg);
-  var aic = AIC(reg);
-  var bic = BIC(reg);
+  // Include these later after agreeing on how to pass to front end
+  reg.x = x;
+  reg.y = y;
+  reg.slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
+  let intercept = (sum_y - reg.slope * sum_x)/n;
+  reg.fitY = x.map(e => (reg.slope * e + intercept));
+  reg.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+  //calculate log likelihood
+  
+  let error = y.map((n, i, a) => y[i] - reg.fitY[i]); 
+  // estiamted variance of error
+  let sigSq = error.map(n => Math.pow(n, 2)).reduce(
+    (a, b) => a + b, 0) * (1 / reg.fitY.length);
+  reg.logLik = y.map((e, i) => Math.log(normalDensity(e, reg.fitY[i], sigSq))).reduce((a, b) => a + b); 
 
-  for (let i = 0; i < reg.length; i++) {
-    reg[i].aicc = aicc;
-    reg[i].aic = aic;
-    reg[i].bic = bic;
-    reg[i].text = reg[i].y.map(() => 
-      `Log-Lik = ${reg[i]?.logLik?.toFixed(3)}, AICc = ${reg[i]?.aicc?.toFixed(3)},<br>
-      AIC = ${reg[i]?.aic?.toFixed(3)}, BIC = ${reg[i]?.bic?.toFixed(3)},<br>
-      R<sup>2</sup> = ${reg[i]?.r2?.toFixed(3)}`); 
-  }
   return reg;
 }
 
@@ -162,8 +205,8 @@ function normalDensity(y: number, mu: number, sigSq: number) {
   return norm * (Math.E ** exp);
 }
 
-// Information criteria function below 
-function AICc(regs: RegressionData[]): number {
+// Information criteria functions below 
+function AICc(regs: regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -171,13 +214,13 @@ function AICc(regs: RegressionData[]): number {
 
   for (let i = 0; i < regs.length; i++) {
     if (regs[i].logLik) {
-      totLogLik += regs[i].logLik; // Use optional chaining here eventually
+      totLogLik += regs[i].logLik;
     }
   }
     return (-2 * totLogLik + ((6 * f * n) / (n - (3 * f) - 1))); 
 }
 
-function AIC(regs: RegressionData[]): number {
+function AIC(regs: regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -185,13 +228,13 @@ function AIC(regs: RegressionData[]): number {
 
   for (let i = 0; i < regs.length; i++) {
     if (regs[i].logLik) {
-      totLogLik += regs[i].logLik; // Use optional chaining here eventually
+      totLogLik += regs[i].logLik;
     }
   }
     return (-2 * totLogLik + (6 * f)); 
 }
 
-function BIC(regs: RegressionData[]): number {
+function BIC(regs: regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -199,12 +242,11 @@ function BIC(regs: RegressionData[]): number {
 
   for (let i = 0; i < regs.length; i++) {
     if (regs[i].logLik) {
-      totLogLik += regs[i].logLik; // Use optional chaining here eventually
+      totLogLik += regs[i].logLik;
     }
   }
     return (3 * f * Math.log(n) - (-2 * totLogLik)); 
 }
-// TODO: sort out issue with ?: RegressionData[] elements. Would be nice to use optional chaining
 
 
 function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Array<Array<number>> { // TODO: Review type declarations here

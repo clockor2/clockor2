@@ -1,22 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-
-
-export interface  RegressionData {
-  x: Array<number>;
-  y: Array<number>;
-  mode: string;
-  text: Array<string>;
-  name: string;
-  logLik: number; // want to use ?: later
-  r2?: number;
-  aic?: number;
-  aicc?: number;
-  bic?: number;
-}
+import { plotly } from "../engine/core"
 
 export interface RegressionState {
-  data: Array<RegressionData>;
+  data: Array<plotly>;
   selectedIds: string[],
 }
 
@@ -32,7 +19,7 @@ export const regressionSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
      // Use the PayloadAction type to declare the contents of `action.payload`
-     setData: (state, action: PayloadAction<Array<RegressionData>>) => {
+     setData: (state, action: PayloadAction<Array<plotly>>) => {
       state.data = action.payload;
     },
   },
