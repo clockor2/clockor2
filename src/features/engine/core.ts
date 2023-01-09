@@ -5,6 +5,8 @@
 // import { group } from "console";
 // import { maxHeaderSize } from "http";
 
+const chroma = require("chroma-js") // TODO: Learn about why this works instead of import
+
 // class to contain local clock model, incl. data points and information criteria
 export class localClockModel {
   clocks: regression[];
@@ -22,23 +24,32 @@ export class localClockModel {
   // method for plotly plotting
   plotify () {
     const plot: plotly[] = [];
+    // generate colour scale. Use viridis-ish default
+    const cols = chroma.scale(['#fafa6e','#2A4858']).colors(this.clocks.length);
+    console.log(cols);
 
     for (let i = 0; i < this.clocks.length; i++) {
-      var tmp = {} as plotly;
-      tmp.x = this.clocks[i].x;
-      tmp.y = this.clocks[i].y;
-      tmp.text = this.clocks[i].tip;
-      tmp.mode = "markers";
-      //tmp.marker.color = 'blue' // TODO: Add colour later. Fix optional chaining
-      plot.push(tmp);
+      var point = {
+        x: this.clocks[i].x,
+        y: this.clocks[i].y,
+        text: this.clocks[i].tip,
+        marker: {color: 'red'},
+        mode: "markers"
+      } as plotly;
 
-      var tmp = {} as plotly;
-      tmp.x = this.clocks[i].x;
-      tmp.y = this.clocks[i].fitY;
-      tmp.text = this.clocks[i].tip;
-      tmp.mode = "lines"
-      //tmp.line.color = 'blue' // TODO: Add colour later. Fix optional chaining
-      plot.push(tmp);
+      console.log(point);
+      plot.push(point);
+
+      var line = {
+        x: this.clocks[i].x,
+        y: this.clocks[i].fitY,
+        text: this.clocks[i].tip,
+        line: {color: 'red'},
+        mode: "lines"
+      } as plotly;
+
+      console.log(line)
+      plot.push(line);
     }
       return plot;
     }
@@ -55,12 +66,12 @@ export interface plotly {
   type: 'scatter';
   text: Array<string>;
   // optional chaining depending on whether obj is for points or lines
-  /*marker: {
+  marker?: {
     color: string;
-  }
-  line: {
+  };
+  line?: {
     color: string;
-  };*/
+  };
 }
 
 // class regression for storing the points, r^2, slope, fit for a set of points x, y
@@ -115,9 +126,6 @@ export const clockSearch = (tree: any,
   }
 
   // Now find the most supported configuration
-  // starting at first state
-  var step: number = 0;
-
   // Getting array of IC values based on selected IC TODO: Add capability for multiple ICs
   const ic = fits.map(e => e[icMetric as keyof localClockModel]) // TODO: Test here!
 
@@ -263,7 +271,7 @@ function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Arra
   var uniqueTips = tips.map(
     (e: string[]) => JSON.stringify(e)
     ).filter(
-      (e: string[], i: number, a: string[][]) => {return a.indexOf(e) == i}
+      (e: string[], i: number, a: string[][]) => {return a.indexOf(e) === i}
       ).map(
        (e: string) => JSON.parse(e)
         )
