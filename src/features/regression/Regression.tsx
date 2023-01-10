@@ -17,8 +17,8 @@ function getPointNumber(id:string, data: Plotly.Data[]) {
       if (i >= 0) {
         return [{curveNumber:curve, pointNumber: i}]
       }
-      curve++
     }
+    curve++
 
   }
   return []
