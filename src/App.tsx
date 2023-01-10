@@ -48,7 +48,9 @@ function App() {
                 showLabels
                 showLeafLabels
                 interactive
+                fontSize={10}
                 selectedIds={[]}
+                nodeSize={7}
                 size={size} 
               />
             </div>
