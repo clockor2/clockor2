@@ -1,13 +1,15 @@
 // eslint-disable-next-line 
 
-// import { register } from "plotly.js";
+
 // import {phylotree, rootToTip} from "phylotree" // for clock search TODO: Add best fitting root soon!
 // import { group } from "console";
 // import { maxHeaderSize } from "http";
 
+const chroma = require("chroma-js") // TODO: Learn about why this works instead of import
+
 // class to contain local clock model, incl. data points and information criteria
 export class localClockModel {
-  clocks: regression[];
+  clocks: Regression[];
   aic: number;
   aicc: number;
   bic: number;
@@ -20,52 +22,54 @@ export class localClockModel {
   };
 
   // method for plotly plotting
-  plotify () {
-    const plot: plotly[] = [];
+  plotify (): Plotly.Data[] {
+    const plot = [];
+    // generate colour scale. Use viridis-ish default
+    const cols = chroma.scale(['#fafa6e','#2A4858']).mode('lch').colors(this.clocks.length);
+    console.log(cols);
 
     for (let i = 0; i < this.clocks.length; i++) {
-      var tmp = {} as plotly;
-      tmp.x = this.clocks[i].x;
-      tmp.y = this.clocks[i].y;
-      tmp.text = this.clocks[i].tip;
-      tmp.mode = "markers";
-      //tmp.marker.color = 'blue' // TODO: Add colour later. Fix optional chaining
-      plot.push(tmp);
+      var point = {
+        x: this.clocks[i].x,
+        y: this.clocks[i].y,
+        text: this.clocks[i].tip,
+        marker: {color: cols[i]},
+        mode: "markers"
+      }
 
-      var tmp = {} as plotly;
-      tmp.x = this.clocks[i].x;
-      tmp.y = this.clocks[i].fitY;
-      tmp.text = this.clocks[i].tip;
-      tmp.mode = "lines"
-      //tmp.line.color = 'blue' // TODO: Add colour later. Fix optional chaining
-      plot.push(tmp);
+      console.log(point);
+      plot.push(point);
+
+      var line = {
+        x: this.clocks[i].x,
+        y: this.clocks[i].fitY,
+        text: `Local Clock: ${i}`,
+        color: cols[i],
+        marker : {color: cols[i]},
+        mode: "lines"
+      }
+
+      console.log(line)
+      plot.push(line);
     }
       return plot;
     }
 }
 
 
+interface Style {
+  color: string;
+}
 
 // Class to pass back to plot later. Will be produced by plotify method in 
 // flcModel class
-export interface plotly {
-  x: Array<number>;
-  y: Array<number>;
-  mode: "lines" | "markers";
-  type: 'scatter';
-  text: Array<string>;
-  // optional chaining depending on whether obj is for points or lines
-  /*marker: {
-    color: string;
-  }
-  line: {
-    color: string;
-  };*/
-}
+// interface Data extends Plotly.PlotData {
+//   color: string
+// }
 
 // class regression for storing the points, r^2, slope, fit for a set of points x, y
 // inferface for ouput of regression functions
-interface regression {
+interface Regression {
   x: Array<number>;
   y: Array<number>;
   tip: Array<string>;
@@ -115,9 +119,6 @@ export const clockSearch = (tree: any,
   }
 
   // Now find the most supported configuration
-  // starting at first state
-  var step: number = 0;
-
   // Getting array of IC values based on selected IC TODO: Add capability for multiple ICs
   const ic = fits.map(e => e[icMetric as keyof localClockModel]) // TODO: Test here!
 
@@ -157,7 +158,7 @@ const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: 
 
 // regression function 
 function linearRegression(points: dataGroup) {
-  const reg = {} as regression;
+  const reg = {} as Regression;
 
   // carrying tips over first
   reg.tip = points.tip;
@@ -206,7 +207,7 @@ function normalDensity(y: number, mu: number, sigSq: number) {
 }
 
 // Information criteria functions below 
-function AICc(regs: regression[]): number {
+function AICc(regs: Regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -220,7 +221,7 @@ function AICc(regs: regression[]): number {
     return (-2 * totLogLik + ((6 * f * n) / (n - (3 * f) - 1))); 
 }
 
-function AIC(regs: regression[]): number {
+function AIC(regs: Regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -234,7 +235,7 @@ function AIC(regs: regression[]): number {
     return (-2 * totLogLik + (6 * f)); 
 }
 
-function BIC(regs: regression[]): number {
+function BIC(regs: Regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -263,7 +264,7 @@ function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Arra
   var uniqueTips = tips.map(
     (e: string[]) => JSON.stringify(e)
     ).filter(
-      (e: string[], i: number, a: string[][]) => {return a.indexOf(e) == i}
+      (e: string[], i: number, a: string[][]) => {return a.indexOf(e) === i}
       ).map(
        (e: string) => JSON.parse(e)
         )

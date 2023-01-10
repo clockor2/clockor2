@@ -58,7 +58,7 @@ export function RegressionInput(props: any) {
     const regression_data = regression(tipHeights, decimal_dates, groupings, tipNames);
     
     //regression_data[0].text = tipNames
-    
+    // @ts-ignore
     dispatch(setData(regression_data.plotify()))
   }
 
