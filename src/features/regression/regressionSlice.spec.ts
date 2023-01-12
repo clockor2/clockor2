@@ -4,12 +4,12 @@ import counterReducer, {
 
 describe('counter reducer', () => {
   const initialState: RegressionState = {
-    data: [],
+    data: null,
     selectedIds: [],
   };
   it('should handle initial state', () => {
     expect(counterReducer(undefined, { type: 'unknown' })).toEqual({
-      data: [],
+      data: null,
       selectedIds: [],
     });
   });

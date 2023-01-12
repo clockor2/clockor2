@@ -8,7 +8,7 @@
 const chroma = require("chroma-js") // TODO: Learn about why this works instead of import
 
 // class to contain local clock model, incl. data points and information criteria
-export class localClockModel {
+export class LocalClockModel {
   clocks: Regression[];
   aic: number;
   aicc: number;
@@ -96,7 +96,7 @@ interface dataGroup {
 export const regression = (tipHeights: Array<number>, dates: Array<number>, groupings: Array<number>, tipNames: Array<string>) => {
   var dataPoints = basePoints(tipHeights, dates, groupings, tipNames);
   
-  return new localClockModel(dataPoints);
+  return new LocalClockModel(dataPoints);
 }
 
 // Clock search function. Conver to a generator later
@@ -113,14 +113,14 @@ export const clockSearch = (tree: any,
   let allGroups = getGroups(tree, minCladeSize, numClocks);
 
   // Loop through group possibilities and append to fits
-  let fits: localClockModel[] = [];
+  let fits: LocalClockModel[] = [];
   for (let i = 0; i < allGroups.length; i++){
       fits.push(regression(tipHeights, dates, allGroups[i], tipNames)); 
   }
 
   // Now find the most supported configuration
   // Getting array of IC values based on selected IC TODO: Add capability for multiple ICs
-  const ic = fits.map(e => e[icMetric as keyof localClockModel]) // TODO: Test here!
+  const ic = fits.map(e => e[icMetric as keyof LocalClockModel]) // TODO: Test here!
 
   var icMaxStep = ic.indexOf(Math.max(...(ic as number[]))); // TODO: This might throw an error if we never see output
 
