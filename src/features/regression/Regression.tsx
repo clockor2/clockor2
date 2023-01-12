@@ -63,20 +63,21 @@ export function Regression(props: any) {
   var PlotlyData = data.map(el => {return {...el, marker:{...el.marker}}})
 
   const layout = { 
-    width: props.size.width, 
-    // height: props.size.height - 100,
     uirevision: 'time',
-    showlegend: false
+    showlegend: false,
+    autosize: true
   };
 
   return (
-    <div>
+    <div className='h-full'>
       <Plot 
         divId='regression' 
         onUnhover={() => dispatch(setHighlightedId(null))} 
         onHover={(event) => onHover(event)}
         data={PlotlyData}  
-        layout={layout} 
+        layout={layout}
+        style={{width: "100%", height: "100%"}}
+        config={{responsive: true}}
       />
     </div>
   );

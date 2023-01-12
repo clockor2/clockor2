@@ -60,9 +60,10 @@ function App() {
           {newick?
             <div className='w-full h-full border-t-2'>
               {regressionData?.clocks.length ?  
-                  <div>
+                  <div className='flex flex-col justify-between h-full'>
                     <Regression size={size} />
                     <InfoPanel />
+                    
                   </div>
                   :
                   <div className='flex flex-col items-center justify-center h-full'>
