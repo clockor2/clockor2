@@ -153,6 +153,17 @@ const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: 
       tipNames[i]
     )
   }
+
+  // if  num groups > 1, append the baseline fit (all points in one group)
+  // For this, we can exclude points
+  if (unique.length > 1) {
+    points.unshift({
+      x: dates,
+      y: tipHeights,
+      tip: tipNames
+    })
+  }
+  
   return points;
 }
 
