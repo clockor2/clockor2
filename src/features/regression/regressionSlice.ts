@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
+import { LocalClockModel } from '../engine/core';
 
 export interface RegressionState {
-  data: Array<Plotly.Data>;
+  data: LocalClockModel | null;
   selectedIds: string[],
 }
 
 const initialState: RegressionState = {
-  data: [],
+  data: null,
   selectedIds: [],
 };
 
@@ -18,7 +19,7 @@ export const regressionSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
      // Use the PayloadAction type to declare the contents of `action.payload`
-     setData: (state, action: PayloadAction<Array<Plotly.Data>>) => {
+     setData: (state, action: PayloadAction<LocalClockModel>) => {
       state.data = action.payload;
     },
   },

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Tree } from './features/tree/Tree';
 import { TreeInput } from './features/tree/TreeInput';
 import { Regression } from './features/regression/Regression';
+import { InfoPanel } from './features/infopanel/InfoPanel';
 import { RegressionInput } from './features/regression/RegressionInput';
 import './App.css';
 import { selectSource } from './features/tree/treeSlice';
@@ -58,8 +59,11 @@ function App() {
           
           {newick?
             <div className='w-full h-full border-t-2'>
-              {regressionData.length ?  
-                  <Regression size={size} />
+              {regressionData?.clocks.length ?  
+                  <div>
+                    <Regression size={size} />
+                    <InfoPanel />
+                  </div>
                   :
                   <div className='flex flex-col items-center justify-center h-full'>
                     <div className="w-1/2">

@@ -27,7 +27,7 @@ function getPointNumber(id:string, data: Plotly.Data[]) {
 export function Regression(props: any) {
   
   const highlightedId = useAppSelector(selectHighlightedId)
-  const data = useAppSelector(selectData);
+  const data = useAppSelector(selectData)?.plotify();
   const isMounted = useRef(false);
   const dispatch = useAppDispatch();
 
@@ -48,7 +48,7 @@ export function Regression(props: any) {
   }
   
   useEffect(() => {        
-    if (isMounted.current) {
+    if (isMounted.current && data != null) {
       highlightPoint(highlightedId, data);
     } else {
       isMounted.current = true;
@@ -64,7 +64,7 @@ export function Regression(props: any) {
 
   const layout = { 
     width: props.size.width, 
-    height: props.size.height,
+    // height: props.size.height - 100,
     uirevision: 'time',
     showlegend: false
   };

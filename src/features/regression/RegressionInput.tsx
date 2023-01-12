@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectTipNames, selectSource, selectTipHeights } from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
 import { regression } from '../engine/core';
-import { localClockModel } from '../engine/core';
+import { LocalClockModel } from '../engine/core';
 import { setData } from './regressionSlice';
 
 
@@ -58,8 +58,7 @@ export function RegressionInput(props: any) {
     const regression_data = regression(tipHeights, decimal_dates, groupings, tipNames);
     
     //regression_data[0].text = tipNames
-    // @ts-ignore
-    dispatch(setData(regression_data.plotify()))
+    dispatch(setData(regression_data))
   }
 
   return (  
