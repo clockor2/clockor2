@@ -5,16 +5,19 @@ import { selectTipNames, selectSource, selectTipHeights } from '../tree/treeSlic
 import { decimal_date } from '../engine/utils';
 import { regression } from '../engine/core';
 import { LocalClockModel } from '../engine/core';
-import { setData } from './regressionSlice';
+import { selectRegressionInputDefaults, setData } from './regressionSlice';
 
 
 export function RegressionInput(props: any) {
-  const [format, setFormat] = useState<string>('');
-  const [delimiter, setDelimiter] = useState<string>('');
-  const [loc, setLoc] = useState<string>('');
-  const [group, setGroup] = useState<string>('');
   const tipNames = useAppSelector(selectTipNames);
   const tipHeights = useAppSelector(selectTipHeights);
+  const defaults = useAppSelector(selectRegressionInputDefaults)
+
+  const [format, setFormat] = useState<string>(defaults.format);
+  const [delimiter, setDelimiter] = useState<string>(defaults.delimiter);
+  const [loc, setLoc] = useState<string>(defaults.loc);
+  const [group, setGroup] = useState<string>(defaults.group);
+  
 
   const dispatch = useAppDispatch();
 

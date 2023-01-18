@@ -65,7 +65,14 @@ export function Regression(props: any) {
   const layout = { 
     uirevision: 'time',
     showlegend: false,
-    autosize: true
+    autosize: true,
+    margin: {
+      l: 60,
+      r: 30,
+      b: 30,
+      t: 30,
+      pad: 0
+    },
   };
 
   return (
