@@ -8,53 +8,75 @@
 const chroma = require("chroma-js") // TODO: Learn about why this works instead of import
 
 // class to contain local clock model, incl. data points and information criteria
-export class LocalClockModel {
-  clocks: Regression[];
+export interface LocalClockModel {
+  baseClock: Regression;
+  localClock: Regression[];
+  baseIC: InfoMetric;
+  localIC: InfoMetric;
+}
+// interface for info metric data
+interface InfoMetric {
   aic: number;
   aicc: number;
   bic: number;
+}
 
-  constructor(data: dataGroup[]) {
-    this.clocks = data.map(e => linearRegression(e));
-    this.aic = AIC(this.clocks);
-    this.aicc = AICc(this.clocks);
-    this.bic = BIC(this.clocks);
-  };
-
-  // method for plotly plotting
-  plotify (): Plotly.Data[] {
-    const plot = [];
+// function to make plottable points
+// method for plotly plotting
+export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
+  const plot = [] as Plotly.Data[];
+  if (lcm != null) {
     // generate colour scale. Use viridis-ish default
-    const cols = chroma.scale(['#fafa6e','#2A4858']).mode('lch').colors(this.clocks.length);
+    const cols = chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length);
+    console.log(typeof cols)
     console.log(cols);
+    // Pushing plotly object for base lock
+    var point = {
+      x: lcm.baseClock.x,
+      y: lcm.baseClock.y,
+      text: lcm.baseClock.tip,
+      marker: {color: '#000000'},
+      mode: "markers"
+    }
+    plot.push(point);
 
-    for (let i = 0; i < this.clocks.length; i++) {
-      var point = {
-        x: this.clocks[i].x,
-        y: this.clocks[i].y,
-        text: this.clocks[i].tip,
+    var line = {
+      x: lcm.baseClock.x,
+      y: lcm.baseClock.fitY,
+      text: `Local Clock: 1`,
+      //color: cols[i],
+      marker : {color: '#000000'},
+      mode: "lines"
+    }
+    plot.push(line);
+
+    // pushing plotly object for each local clock
+    for (let i = 0; i < lcm.localClock.length; i++) {
+      var point1 = {
+        x: lcm.localClock[i].x,
+        y: lcm.localClock[i].y,
+        text: lcm.localClock[i].tip,
         marker: {color: cols[i]},
         mode: "markers"
       }
+      plot.push(point1);
 
-      console.log(point);
-      plot.push(point);
-
-      var line = {
-        x: this.clocks[i].x,
-        y: this.clocks[i].fitY,
-        text: `Local Clock: ${i}`,
-        color: cols[i],
+      var line1 = {
+        x: lcm.localClock[i].x,
+        y: lcm.localClock[i].fitY,
+        text: `Local Clock: ${i + 2}`,
+        //color: cols[i],
         marker : {color: cols[i]},
         mode: "lines"
       }
-
-      console.log(line)
-      plot.push(line);
+      plot.push(line1);
     }
       return plot;
-    }
-}
+  } else {
+    return null;
+  }
+  }
+
 
 
 interface Style {
@@ -81,7 +103,7 @@ interface Regression {
 
 // Groups of points pertaining to one local clock
 // To be apended in array for linearRegression()
-interface dataGroup {
+interface DataGroup {
   x: Array<number>;
   y: Array<number>;
   tip: Array<string>;
@@ -93,52 +115,82 @@ interface dataGroup {
 //////////////////////////////////////////////////////
 
 // Core function. Functionality for groups to be added
-export const regression = (tipHeights: Array<number>, dates: Array<number>, groupings: Array<number>, tipNames: Array<string>) => {
-  var dataPoints = basePoints(tipHeights, dates, groupings, tipNames);
+export const regression = (
+  tipHeights: Array<number>,
+  dates: Array<number>,
+  groupings: Array<number>,
+  tipNames: Array<string>) => {
+
+  var dataPoints = groupData(tipHeights, dates, groupings, tipNames);
   
-  return new LocalClockModel(dataPoints);
+  // TODO. Add base parameters and partition here
+  var lcm = {} as LocalClockModel;
+  
+  
+
+  lcm.baseClock = linearRegression(dataPoints[0]);
+  console.log(lcm.baseClock)
+  console.log(AIC([lcm.baseClock]))
+  lcm.baseIC = {} as InfoMetric;
+  lcm.baseIC.aic = AIC([lcm.baseClock]);
+  lcm.baseIC.aicc = AICc([lcm.baseClock]);
+  lcm.baseIC.bic = BIC([lcm.baseClock]);
+
+  lcm.localClock = dataPoints.slice(1).map(e => linearRegression(e));
+  lcm.localIC = {} as InfoMetric;
+  lcm.localIC.aic = AIC(lcm.localClock);
+  lcm.localIC.aicc = AICc(lcm.localClock);
+  lcm.localIC.bic = BIC(lcm.localClock);
+  
+  return lcm;
 }
 
 // Clock search function. Conver to a generator later
 // icMetric is the information criterion used to find 'best' state. TODO: Need to read these as part of input: aic | aicc | bic
-export const clockSearch = (tree: any,
-  minCladeSize: number,
-  numClocks: number,
-  tipHeights: Array<number>,
-  dates: Array<number>,
-  tipNames: Array<string>,
-  icMetric: string) => {
+// export const clockSearch = (tree: any,
+//   minCladeSize: number,
+//   numClocks: number,
+//   tipHeights: Array<number>,
+//   dates: Array<number>,
+//   tipNames: Array<string>,
+//   icMetric: string) => {
 
-  // generate all possibilities for groupings
-  let allGroups = getGroups(tree, minCladeSize, numClocks);
+//   // generate all possibilities for groupings
+//   let allGroups = getGroups(tree, minCladeSize, numClocks);
 
-  // Loop through group possibilities and append to fits
-  let fits: LocalClockModel[] = [];
-  for (let i = 0; i < allGroups.length; i++){
-      fits.push(regression(tipHeights, dates, allGroups[i], tipNames)); 
-  }
+//   // Loop through group possibilities and append to fits
+//   let fits: LocalClockModel[] = [];
+//   for (let i = 0; i < allGroups.length; i++){
+//       fits.push(regression(tipHeights, dates, allGroups[i], tipNames)); 
+//   }
 
-  // Now find the most supported configuration
-  // Getting array of IC values based on selected IC TODO: Add capability for multiple ICs
-  const ic = fits.map(e => e[icMetric as keyof LocalClockModel]) // TODO: Test here!
+//   // Now find the most supported configuration
+//   // Getting array of IC values based on selected IC TODO: Add capability for multiple ICs
+//   const ic = fits.map(e => e[icMetric as keyof LocalClockModel]) // TODO: Test here!
 
-  var icMaxStep = ic.indexOf(Math.max(...(ic as number[]))); // TODO: This might throw an error if we never see output
+//   var icMaxStep = ic.indexOf(Math.max(...(ic as number[]))); // TODO: This might throw an error if we never see output
 
-  return fits[icMaxStep];
-}
+//   return fits[icMaxStep];
+// }
 
 ////////////////////////////////////////////////////////
 // BELOW: FUNCTIONS USED INSIDE CORE ENGINE FUNCTIONS //
 ////////////////////////////////////////////////////////
 
-// function gets base points for whole regression. Later subdivided by `group`
-const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: Array<number>, tipNames: Array<string>): dataGroup[] => { 
+// function groups points for local clock regresion
+// 0th element of array is always points for single clock
+const groupData = (
+  tipHeights: Array<number>,
+  dates: Array<number>,
+  groupings: Array<number>,
+  tipNames: Array<string>
+  ): DataGroup[] => { 
   let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
 
-  const points: dataGroup[] = [];
+  const points: DataGroup[] = [];
 
   for (let i = 0; i < unique.length; i++) {
-    var tmp: dataGroup = {x: [], y: [], tip: []};
+    var tmp: DataGroup = {x: [], y: [], tip: []};
     points.push(tmp);
   }
 
@@ -153,22 +205,20 @@ const basePoints = (tipHeights: Array<number>, dates: Array<number>, groupings: 
       tipNames[i]
     )
   }
-
   // if  num groups > 1, append the baseline fit (all points in one group)
-  // For this, we can exclude points
+  // In the case num groups = 1, this is automatically appended
   if (unique.length > 1) {
     points.unshift({
       x: dates,
       y: tipHeights,
       tip: tipNames
-    })
-  }
-  
+    })}
+
   return points;
 }
 
 // regression function 
-function linearRegression(points: dataGroup) {
+function linearRegression(points: DataGroup) {
   const reg = {} as Regression;
 
   // carrying tips over first
