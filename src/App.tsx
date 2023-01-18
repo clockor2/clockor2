@@ -59,7 +59,7 @@ function App() {
           
           {newick?
             <div className='w-full h-full border-t-2'>
-              {regressionData?.clocks.length ?  
+              {regressionData?.baseClock ?  
                   <div className='flex flex-col justify-between h-full'>
                     <Regression size={size} />
                     <InfoPanel />

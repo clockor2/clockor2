@@ -14,7 +14,8 @@ export function InfoPanel(){
     }
     // Getting state to log in buttons. Eg. num clocks
     const data = useAppSelector(selectData);
-    const numClocks = data?.clocks.length;
+    // setting num clocks using ternary operator - if local clocks defined, use that plus 1
+    const numClocks = data ? data?.localClock.length + 1 : 1;
     return (
      <div >
         <div className="flex items-center border-t-2 py-2 shadow-lg pl-2" >
@@ -36,11 +37,27 @@ export function InfoPanel(){
         </div>
         {/* Here goes the data popup */}
         {isOpen 
-            ? <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll"> 
-            <MetricCard text="AICc" value={ data?.aicc }/>
-            <MetricCard text="AIC" value={ data?.aic }/>
-            <MetricCard text="BIC" value={ data?.bic }/>
-            </div>
+            ? // Nesting ternary operator for 1 or more clocks
+              numClocks === 1
+              ?
+              <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll"> 
+              <MetricCard text="AICc" value={ data?.baseIC.aicc }/>
+              <MetricCard text="AIC" value={ data?.baseIC.aic }/>
+              <MetricCard text="BIC" value={ data?.baseIC.bic }/>
+              </div>
+              :
+              <div className="flex flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll"> 
+                <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll"> 
+                <MetricCard text="AICc" value={ data?.localIC.aicc }/>
+                <MetricCard text="AIC" value={ data?.localIC.aic }/>
+                <MetricCard text="BIC" value={ data?.localIC.bic }/>
+                </div>
+                <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll"> 
+                <MetricCard text="Baseline AICc" value={ data?.baseIC.aicc }/>
+                <MetricCard text="Baseline AIC" value={ data?.baseIC.aic }/>
+                <MetricCard text="Baseline BIC" value={ data?.baseIC.bic }/>
+                </div>
+              </div>
             : <div></div>
         }
      </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
 import createPlotlyComponent from "react-plotly.js/factory"
-
+import { plotify } from '../engine/core';
 import { selectData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
@@ -27,7 +27,7 @@ function getPointNumber(id:string, data: Plotly.Data[]) {
 export function Regression(props: any) {
   
   const highlightedId = useAppSelector(selectHighlightedId)
-  const data = useAppSelector(selectData)?.plotify();
+  const data = plotify(useAppSelector(selectData));
   const isMounted = useRef(false);
   const dispatch = useAppDispatch();
 
