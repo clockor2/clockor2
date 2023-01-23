@@ -97,6 +97,8 @@ interface Regression {
   tip: Array<string>;
   fitY: Array<number>;
   slope: number;
+  intercept: number;
+  sigSq: number;
   r2: number;
   logLik: number;
 }
@@ -122,12 +124,9 @@ export const regression = (
   tipNames: Array<string>) => {
 
   var dataPoints = groupData(tipHeights, dates, groupings, tipNames);
-  
-  // TODO. Add base parameters and partition here
+
   var lcm = {} as LocalClockModel;
   
-  
-
   lcm.baseClock = linearRegression(dataPoints[0]);
   console.log(lcm.baseClock)
   console.log(AIC([lcm.baseClock]))
@@ -218,7 +217,7 @@ const groupData = (
 }
 
 // regression function 
-function linearRegression(points: DataGroup) {
+export function linearRegression(points: DataGroup) {
   const reg = {} as Regression;
 
   // carrying tips over first
@@ -246,8 +245,8 @@ function linearRegression(points: DataGroup) {
   reg.x = x;
   reg.y = y;
   reg.slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
-  let intercept = (sum_y - reg.slope * sum_x)/n;
-  reg.fitY = x.map(e => (reg.slope * e + intercept));
+  reg.intercept = (sum_y - reg.slope * sum_x)/n;
+  reg.fitY = x.map(e => (reg.slope * e + reg.intercept));
   reg.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
   //calculate log likelihood
   
@@ -255,20 +254,26 @@ function linearRegression(points: DataGroup) {
   // estiamted variance of error
   let sigSq = error.map(n => Math.pow(n, 2)).reduce(
     (a, b) => a + b, 0) * (1 / reg.fitY.length);
-  reg.logLik = y.map((e, i) => Math.log(normalDensity(e, reg.fitY[i], sigSq))).reduce((a, b) => a + b); 
+  //reg.logLik = y.map((e, i) => Math.log(normalDensity(e, reg.fitY[i], sigSq))).reduce((a, b) => a + b); 
+  reg.logLik = y.map((e, i) => Math.log(
+    normalDensity(e, reg.fitY[i], sigSq)
+    )
+    ).reduce(
+      (a, b) => a + b
+      ); 
 
   return reg;
 }
 
 // Function for likelihood in linearRegression() function
-function normalDensity(y: number, mu: number, sigSq: number) {
+ export function normalDensity(y: number, mu: number, sigSq: number) {
   let exp = -0.5 * ((y - mu) ** 2) / sigSq; // exponent
   let norm = 1 / (Math.sqrt(2 * Math.PI * sigSq)); // normalising factor
   return norm * (Math.E ** exp);
 }
 
 // Information criteria functions below 
-function AICc(regs: Regression[]): number {
+export function AICc(regs: Regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -282,7 +287,7 @@ function AICc(regs: Regression[]): number {
     return (-2 * totLogLik + ((6 * f * n) / (n - (3 * f) - 1))); 
 }
 
-function AIC(regs: Regression[]): number {
+export function AIC(regs: Regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -296,7 +301,7 @@ function AIC(regs: Regression[]): number {
     return (-2 * totLogLik + (6 * f)); 
 }
 
-function BIC(regs: Regression[]): number {
+export function BIC(regs: Regression[]): number {
   var f = regs.length;
   var n = regs.map((n, i, a) => regs[i].y.length).reduce(
     (a, b) => a + b, 0)
@@ -307,10 +312,10 @@ function BIC(regs: Regression[]): number {
       totLogLik += regs[i].logLik;
     }
   }
-    return (3 * f * Math.log(n) - (-2 * totLogLik)); 
+    return (3 * f * Math.log(n) - (2 * totLogLik)); 
 }
 
-
+/* COmmenting out clock search for now 
 function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Array<Array<number>> { // TODO: Review type declarations here
   // NB. Tips from tree are in identical order to that extected by regression. 
   // Conferred with L38 @ ../tree/treeSlice.ts/
@@ -367,7 +372,7 @@ function groupToNum(arr: string[][], tips: string[]): number[] {
       }
     }
   return groupings;
-} // TODO: Include a test here to check that output is all integers
+} // TODO: Include a test here to check that output is all integers */
 
 
 // generating combinations of groups
