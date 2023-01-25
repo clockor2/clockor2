@@ -156,6 +156,7 @@ export const regression = (
 
 //   // generate all possibilities for groupings
 //   let allGroups = getGroups(tree, minCladeSize, numClocks);
+//   let allGroupsNumber = allGroups.map((e: string[][]) => groupToNum(e, tips));
 
 //   // Loop through group possibilities and append to fits
 //   let fits: LocalClockModel[] = [];
@@ -315,18 +316,14 @@ export function BIC(regs: Regression[]): number {
     return (3 * f * Math.log(n) - (2 * totLogLik)); 
 }
 
-/* COmmenting out clock search for now 
-function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Array<Array<number>> { // TODO: Review type declarations here
-  // NB. Tips from tree are in identical order to that extected by regression. 
-  // Conferred with L38 @ ../tree/treeSlice.ts/
-
-  // Clades descending from each node
+export function getGroups (tree: any, minCladeSize: number, numClocks: number): string[][][] {
+  // Sets of tips descending from each node
   var tips: any = [];
+  // list tips descending from each node
   tree.nodes.each((node: any) => tips.push(node.leaves())); 
+  // map to just tip names
   var tips = tips.map((e0: any) => e0.map((e1: any) => e1.data.name));
-
-  // De-duplicate clades (artefact from d3 hierarchy)
-  // Have verified that length of output = num internal nodes
+  // De-duplicate tips (artefact from d3 hierarchy)
   var uniqueTips = tips.map(
     (e: string[]) => JSON.stringify(e)
     ).filter(
@@ -334,29 +331,51 @@ function getGroups (tree: any, minCladeSize: number, maxNumClocks: number): Arra
       ).map(
        (e: string) => JSON.parse(e)
         )
-
   // Sort clades based on size. Largest (all tips) goes first
   var sortedUniqueTips = uniqueTips.sort((a: string[], b: string[]) => {return b.length - a.length});
 
-  // Filter out all clades below certain ${minCladeSize} in size;
+  // Filter out all clades with fewer than ${minCladeSize} tips
   var finalClades = sortedUniqueTips.filter((e: string[]) => e.length >= minCladeSize);
 
-  // Now generate groups
-  let comb = combn(Array.from(Array(finalClades.length).keys()).map((e: number, i: number ) => i+1), (maxNumClocks - 1));
+  // array from 1:(finalClades.length) possible clades to draw combinations
+  var grpNums = Array.from(Array(finalClades.length).keys());
+  // +1 to account for 0th base clock
+  //var grpNums = grpNums.map((e: number, i: number ) => i+1); 
+  
+  // remove 0th group - that being all tips. Add back in later
+  grpNums.shift()
+  // get all combinations of groups to make up ${numClocks} local clocks
+  let comb = combn(grpNums, (numClocks - 1))
   // add 0th clade for background rate
-  // Issue us here adding zero!. the .unshift method modified combn in place. 
-  //Assigning to a new variable only assigns lengths
   comb.map((e: number[]) => e.unshift(0)); 
 
-  // Convert number combinations to clade combinations
+  // Convert number combinations to corresponding groups of tips
   let allGroups: string[][][] = [];
   for (let i = 0; i < comb.length; i++){
-    var tmp = comb[i];
-    allGroups[i] = tmp.map((e: number) => finalClades[e]);
+    allGroups.push(
+      comb[i].map(
+        (e: number) => finalClades[e]
+      )
+    );
   }
 
-  let allGroupsNumber = allGroups.map((e: string[][]) => groupToNum(e, tips));
-  return allGroupsNumber;
+  //return groups after converting to non-intersecting groups;
+  return allGroups.map(e => getUnique(e));
+
+  // TODO: Size-filtering and defend against requesting too many clocks
+}
+
+// function takes string[][] and maps each to unique values assuming each string[] is nested as for allGroups
+export function getUnique(x: string[][]): string[][] {
+  return x.map((e0: string[], i) => e0.filter(
+      (e1: string) => {
+        if(i+1 < x.length) { 
+          return !x[i+1].includes(e1); 
+        } else {
+          return true;
+        }
+      })
+  );
 }
 
 // A function that takes a list of tips and returns group number based on an element of allGroups
@@ -365,6 +384,7 @@ function groupToNum(arr: string[][], tips: string[]): number[] {
 
     for (let i = 0; i < tips.length; i++){
       var tmp = [];
+      
       for (let j = 0; j < arr.length; j++) {
         if (arr[j].indexOf(tips[i]) > -1) {
           groupings[i] = j;
@@ -372,11 +392,11 @@ function groupToNum(arr: string[][], tips: string[]): number[] {
       }
     }
   return groupings;
-} // TODO: Include a test here to check that output is all integers */
+} // TODO: Include a test here to check that output is all integers and that ordering of tips matches input
 
 
 // generating combinations of groups
-function combn(arr: any[], k: number): number[][] {
+ export function combn(arr: any[], k: number): number[][] {
   // Store all possible combinations in a result array
   const result: number[][] = [];
 
