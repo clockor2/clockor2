@@ -100,3 +100,17 @@ describe('testing tree clade generator', () => {
 })
 
 //TODO: Test edge case where more clocks than possible asked for in clock search
+
+// Tests for best fitting root
+describe('testing best fitting root', () => {
+  test('Want output of as tree', () => {
+
+  })
+})
+
+// Tests for best fitting root
+describe('testing best fitting root', () => {
+  test('Want predefined "best tree"', () => {
+
+  })
+})

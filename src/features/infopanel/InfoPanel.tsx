@@ -15,7 +15,7 @@ export function InfoPanel(){
     // Getting state to log in buttons. Eg. num clocks
     const data = useAppSelector(selectData);
     // setting num clocks using ternary operator - if local clocks defined, use that plus 1
-    const numClocks = data ? data?.localClock.length + 1 : 1;
+    const numClocks = data ? data?.localClock.length : 1;
     return (
      <div >
         <div className="flex items-center border-t-2 py-2 shadow-lg pl-2" >
@@ -33,7 +33,6 @@ export function InfoPanel(){
                 <span className="pr-2 text-xl">Clocks</span>
                 <Badge> {numClocks ? numClocks : 0} </Badge>
             </div>
-            <div></div>
         </div>
         {/* Here goes the data popup */}
         {isOpen 

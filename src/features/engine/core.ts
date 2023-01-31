@@ -1,7 +1,7 @@
 // eslint-disable-next-line 
 
 
-// import {phylotree, rootToTip} from "phylotree" // for clock search TODO: Add best fitting root soon!
+import {phylotree, rootToTip} from "phylotree" // for clock search TODO: Add best fitting root soon!
 // import { group } from "console";
 // import { maxHeaderSize } from "http";
 
@@ -36,17 +36,26 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
       y: lcm.baseClock.y,
       text: lcm.baseClock.tip,
       marker: {color: '#000000'},
-      mode: "markers"
+      mode: "markers",
+      name: "Baseline",
+      legendgroup: "0",
+      showlegend: false
     }
     plot.push(point);
 
     var line = {
       x: lcm.baseClock.x,
       y: lcm.baseClock.fitY,
-      text: `Local Clock: 1`,
-      //color: cols[i],
+      name: `Baseline`,
       marker : {color: '#000000'},
-      mode: "lines"
+      mode: "lines",
+      text: lcm.localClock.length > 1 
+      ? 
+        `Baseline<br>R2: ${lcm.baseClock.r2.toFixed(2)}` 
+      : 
+        `R2: ${lcm.baseClock.r2.toFixed(2)}`,
+
+      legendgroup: "0"
     }
     plot.push(line);
 
@@ -57,17 +66,20 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
         y: lcm.localClock[i].y,
         text: lcm.localClock[i].tip,
         marker: {color: cols[i]},
-        mode: "markers"
+        mode: "markers",
+        legendgroup: `${i + 1}`,
+        showlegend: false
       }
       plot.push(point1);
 
       var line1 = {
         x: lcm.localClock[i].x,
         y: lcm.localClock[i].fitY,
-        text: `Local Clock: ${i + 2}`,
-        //color: cols[i],
+        text: `Local Clock: ${i + 1}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
         marker : {color: cols[i]},
-        mode: "lines"
+        mode: "lines",
+        legendgroup: `${i + 1}`,
+        name: `Local Clock ${i + 1}`
       }
       plot.push(line1);
     }
@@ -420,3 +432,37 @@ function groupToNum(arr: string[][], tips: string[]): number[] {
   // Return the result array
   return result;
 }
+
+/*
+// First function loops through nodes as in Tempest
+// TODO: Add in regression parms and local fit function
+
+
+export function globalRoot(tree: any, dates: number[]): any {
+
+  let nodes = tree.nodes.descendants();
+  let baseTipHeights = phylotree.rootToTip(tree).getTips().map(
+    (tip: any) => tip.data.rootToTip
+    );
+  let tipNames = tree.getTips().map((e: any) => e.data.name);
+  let group = tipNames.map((e: any) => 0);
+  let baseR2 = regression(baseTipHeights, dates, group, tipNames).baseClock.r2
+
+  var bestTree = tree;
+  
+  for (let i=0; i < nodes.length; i++){
+    var tmp = localRoot(tree.reroot(nodes[i]), dates);
+    if (tmp.r2 > baseR2) {
+      bestTree = tmp.tree;
+    }
+  }
+
+  return bestTree;
+}
+
+// Function does local optim
+export function localRoot(tree: any, dates: []): any {
+// need to define univariate function wthin
+}
+
+*/
