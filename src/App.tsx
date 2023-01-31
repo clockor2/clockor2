@@ -47,7 +47,7 @@ function App() {
               <Tree 
                 source={newick}
                 showLabels
-                showLeafLabels
+                showLeafLabels={false}
                 interactive
                 fontSize={10}
                 selectedIds={[]}

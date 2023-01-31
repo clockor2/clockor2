@@ -5,6 +5,7 @@ import { plotify } from '../engine/core';
 import { selectData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
+import { EnumDeclaration } from 'typescript';
 
 const Plot = createPlotlyComponent(Plotly)
 
@@ -64,8 +65,11 @@ export function Regression(props: any) {
 
   const layout = { 
     uirevision: 'time',
-    showlegend: false,
+    showlegend: data && data?.length > 2 ? true : false,
     autosize: true,
+    legend: {
+      y: 0.5
+    },
     margin: {
       l: 60,
       r: 30,
