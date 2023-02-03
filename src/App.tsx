@@ -9,11 +9,13 @@ import { selectSource } from './features/tree/treeSlice';
 import { useAppSelector } from './app/hooks';
 import { selectData } from './features/regression/regressionSlice';
 import { Menu } from './features/menu/menu';
+import { defaultSettings, SettingsButton, TreeSettings } from './features/tree/components/settingsButton';
 
 
 function App() {
 
   const [size, setSize] = useState<object | null>(null);
+  const [settings, setSettings] = useState<TreeSettings>(defaultSettings)
   const newick = useAppSelector(selectSource);
   const regressionData = useAppSelector(selectData);
 
@@ -26,10 +28,11 @@ function App() {
     }
   }, [size])
 
-  useEffect(() => {
-    console.log(size);
-  })
-
+  const onChange = (settings: TreeSettings) => {
+    console.log('onchange', settings);
+    
+    setSettings(settings)
+  }
 
   return (
     <div className="App h-screen overflow-hidden">
@@ -44,15 +47,17 @@ function App() {
           </div>
           :
             <div className='w-1/2 h-full border-t-2 border-r-2'>
+              <div className='relative'>
+                <div className='absolute z-50 top-0 right-0'>
+                  <SettingsButton saveSettings={onChange} />
+                </div>
+              </div>
               <Tree 
                 source={newick}
-                showLabels
-                showLeafLabels={false}
-                interactive
-                fontSize={10}
                 selectedIds={[]}
-                nodeSize={7}
-                size={size} 
+                size={size}
+                showLabels={true}
+                {...settings}
               />
             </div>
           }
