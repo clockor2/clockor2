@@ -1,3 +1,5 @@
+const phylotree = require("phylotree");
+
 export const decimal_date = (date: Date) => {
     var full_year = date.getFullYear();
     var year_start = new Date(full_year, 0, 1).getTime(),
@@ -29,4 +31,13 @@ export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNa
       )
     }
     return groups
+  }
+
+  export const getTipHeights = (tree: any): number[] => {
+    phylotree.rootToTip(tree)
+    return tree.getTips().map((tip: any) => tip.data.rootToTip);
+  }
+
+  export const getTipNames = (tree: any): string[] => {
+    return tree.getTips().map((tip: any) => tip.data.name);
   }

@@ -15,6 +15,8 @@
     "chroma-js": "^2.4.2",
     "flowbite": "^1.5.2",
     "flowbite-react": "^0.1.10",
+    "lodash": "^4.17.21",
+    "minimize-golden-section-1d": "^3.0.0",
     "phylotree": "^1.0.17",
     "plotly.js": "^2.14.0",
     "react": "^18.2.0",
