@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
 import createPlotlyComponent from "react-plotly.js/factory"
 import { plotify } from '../engine/core';
-import { selectData } from './regressionSlice';
+import { selectCurrentData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
 import { EnumDeclaration } from 'typescript';
@@ -28,7 +28,7 @@ function getPointNumber(id:string, data: Plotly.Data[]) {
 export function Regression(props: any) {
   
   const highlightedId = useAppSelector(selectHighlightedId)
-  const data = plotify(useAppSelector(selectData));
+  const currentData = plotify(useAppSelector(selectCurrentData));
   const isMounted = useRef(false);
   const dispatch = useAppDispatch();
 
@@ -49,23 +49,23 @@ export function Regression(props: any) {
   }
   
   useEffect(() => {        
-    if (isMounted.current && data != null) {
-      highlightPoint(highlightedId, data);
+    if (isMounted.current && currentData != null) {
+      highlightPoint(highlightedId, currentData);
     } else {
       isMounted.current = true;
     }
-    console.log('hoverPoints', data);
-  }, [highlightedId, data])
+    console.log('hoverPoints', currentData);
+  }, [highlightedId, currentData])
 
 
    
   // @ts-ignore
   // plotly bug fix
-  var PlotlyData = data.map(el => {return {...el, marker:{...el.marker}}})
+  var PlotlyData = currentData.map(el => {return {...el, marker:{...el.marker}}})
 
   const layout = { 
     uirevision: 'time',
-    showlegend: data && data?.length > 2 ? true : false,
+    showlegend: currentData && currentData?.length > 2 ? true : false,
     autosize: true,
     legend: {
       y: 0.5

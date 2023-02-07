@@ -70,7 +70,7 @@ describe('Testing globalRoot()', () => {
       testTree.nodes.data.name = 'root';
 
       var dates = [1,2,3,4,5];
-      const estTree = best.gobalRoot(testTree, dates);
+      const estTree = best.globalRoot(testTree, dates);
 
       phylotree.rootToTip(bestTree);
       phylotree.rootToTip(estTree);
@@ -93,7 +93,7 @@ describe('Testing globalRoot()', () => {
       testTree.nodes.data.name = 'root';
 
       var dates = [1,2,3,4,5];
-      const estTree = best.gobalRoot(testTree, dates);
+      const estTree = best.globalRoot(testTree, dates);
 
       phylotree.rootToTip(bestTree);
       phylotree.rootToTip(estTree);

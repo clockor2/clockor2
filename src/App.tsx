@@ -8,6 +8,7 @@ import './App.css';
 import { selectSource } from './features/tree/treeSlice';
 import { useAppSelector } from './app/hooks';
 import { selectData } from './features/regression/regressionSlice';
+import { selectCurrentTree } from './features/tree/treeSlice';
 import { Menu } from './features/menu/menu';
 import { defaultSettings, SettingsButton, TreeSettings } from './features/tree/components/settingsButton';
 
@@ -16,7 +17,7 @@ function App() {
 
   const [size, setSize] = useState<object | null>(null);
   const [settings, setSettings] = useState<TreeSettings>(defaultSettings)
-  const newick = useAppSelector(selectSource);
+  const currentTree = useAppSelector(selectCurrentTree);
   const regressionData = useAppSelector(selectData);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ function App() {
       <div className='flex flex-col justify-between h-full'>
         <Menu></Menu>
         <main id="main" className='flex h-full'>
-          {newick === ""?
+          {currentTree === ""?
           <div className='flex flex-col items-center w-full h-full border-t-2 '>
             <div className='h-full w-full lg:w-1/3' >
               <TreeInput  />
@@ -53,7 +54,7 @@ function App() {
                 </div>
               </div>
               <Tree 
-                source={newick}
+                source={currentTree}
                 selectedIds={[]}
                 size={size}
                 showLabels={true}
@@ -62,7 +63,7 @@ function App() {
             </div>
           }
           
-          {newick?
+          {currentTree?
             <div className='w-full h-full border-t-2'>
               {regressionData?.baseClock ?  
                   <div className='flex flex-col justify-between h-full'>
