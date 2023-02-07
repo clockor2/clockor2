@@ -1,4 +1,4 @@
-import { Badge, Button, Modal, Navbar } from "flowbite-react";
+import { Badge, Button, Checkbox, Label, Modal, Navbar } from "flowbite-react";
 import React, { useState } from "react";
 import { useAppSelector } from "../../app/hooks";
 import { selectData } from '../regression/regressionSlice';
@@ -35,7 +35,10 @@ export function InfoPanel(){
             </div>
 
             <div className="flex items-center p-1 ">
-                <Button> Best Fitting Root </Button>
+              <Checkbox id="bestRoot" />
+              <Label className="pl-1" htmlFor="bestRoot">
+                Best Fitting Root
+              </Label>
             </div>
 
         </div>
