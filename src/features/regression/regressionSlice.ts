@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Root } from 'plotly.js';
 import { RootState } from '../../app/store';
 import { LocalClockModel } from '../engine/core';
 
@@ -11,12 +12,16 @@ interface RegressionInputDefaults {
 
 export interface RegressionState {
   data: LocalClockModel | null;
+  bestFitData: LocalClockModel | null;
+  currentData: LocalClockModel | null;
   selectedIds: string[],
   regressionInputDefaults: RegressionInputDefaults
 }
 
 const initialState: RegressionState = {
   data: null,
+  bestFitData: null,
+  currentData: null,
   selectedIds: [],
   regressionInputDefaults: {
     format: "",
@@ -35,6 +40,13 @@ export const regressionSlice = createSlice({
     // Use the PayloadAction type to declare the contents of `action.payload`
     setData: (state, action: PayloadAction<LocalClockModel>) => {
       state.data = action.payload;
+      state.currentData = state.data;
+    },
+    setCurrentData: (state, action: PayloadAction<LocalClockModel>) => {
+      state.currentData = action.payload;
+    },
+    setBestFittingRegression: (state, action: PayloadAction<LocalClockModel>) => {
+      state.bestFitData = action.payload;
     },
     // Use the PayloadAction type to declare the contents of `action.payload`
     setRegressionInputDefaults: (state, action: PayloadAction<RegressionInputDefaults>) => {
@@ -43,7 +55,7 @@ export const regressionSlice = createSlice({
   },
 });
 
-export const { setData, setRegressionInputDefaults } = regressionSlice.actions;
+export const { setData, setRegressionInputDefaults, setCurrentData, setBestFittingRegression} = regressionSlice.actions;
 
 // The functions below are called selectors and allow us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -51,5 +63,7 @@ export const { setData, setRegressionInputDefaults } = regressionSlice.actions;
 export const selectData = (state: RootState) => state.regression.data;
 export const selectSelectedIds = (state: RootState) => state.regression.selectedIds;
 export const selectRegressionInputDefaults = (state: RootState) => state.regression.regressionInputDefaults;
+export const selectCurrentData = (state: RootState) => state.regression.currentData;
+export const selectBestFitData = (state: RootState) => state.regression.bestFitData;
 
 export default regressionSlice.reducer;

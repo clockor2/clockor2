@@ -5,6 +5,8 @@ import counterReducer, {
 describe('counter reducer', () => {
   const initialState: RegressionState = {
     data: null,
+    bestFitData: null,
+    currentData: null,
     selectedIds: [],
     regressionInputDefaults: {
       format: "",

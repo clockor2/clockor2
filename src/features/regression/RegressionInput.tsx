@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
 import { TextInput, Label } from 'flowbite-react';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { selectTipNames, selectSource, selectTipHeights } from '../tree/treeSlice';
+import { selectTipNames, selectSource, selectTipHeights, setBestFittingRoot, selectCurrentTree} from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
-import { regression } from '../engine/core';
+import { linearRegression, regression } from '../engine/core';
 import { LocalClockModel } from '../engine/core';
-import { selectRegressionInputDefaults, setData } from './regressionSlice';
+import { selectRegressionInputDefaults, setData, setBestFittingRegression } from './regressionSlice';
+import { globalRoot } from '../engine/bestFittingRoot';
+import { getNewick } from "phylotree"
+import {phylotree, rootToTip} from "phylotree"
+import { getTipHeights, getTipNames } from '../engine/utils';
 
 
 export function RegressionInput(props: any) {
-  const tipNames = useAppSelector(selectTipNames);
-  const tipHeights = useAppSelector(selectTipHeights);
-  const defaults = useAppSelector(selectRegressionInputDefaults)
-
+  const defaults = useAppSelector(selectRegressionInputDefaults);
+  const sourceNewick = useAppSelector(selectSource);
+  const currentTree = useAppSelector(selectCurrentTree)
   const [format, setFormat] = useState<string>(defaults.format);
   const [delimiter, setDelimiter] = useState<string>(defaults.delimiter);
   const [loc, setLoc] = useState<string>(defaults.loc);
   const [group, setGroup] = useState<string>(defaults.group);
+  //const [sourcePhylotree, setBestFittingRoot] = useState<>();
   
 
   const dispatch = useAppDispatch();
@@ -41,13 +45,22 @@ export function RegressionInput(props: any) {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
+    const phylotreeTree = new phylotree(currentTree)
+    const tipNames = getTipNames(phylotreeTree)
+    const tipHeights = getTipHeights(phylotreeTree)
     
     const decimal_dates = tipNames.map( (name) => {
       let date = extractPartOfTipName(name, delimiter, loc)
       return decimal_date(new Date(date))
     })
     
-    let groupings
+    const bestFitNwk = globalRoot(sourceNewick, decimal_dates);
+    dispatch(setBestFittingRoot(bestFitNwk))
+    
+    const bestFitTree = new phylotree(bestFitNwk)
+
+
+    let groupings // TODO: Needs function to parse groups. possible move that for dates and groups to utils
     if (group) {
       groupings = tipNames.map( (name) => {
         return extractPartOfTipName(name, delimiter, group)
@@ -56,12 +69,36 @@ export function RegressionInput(props: any) {
     } else {
       groupings = tipNames.map(() => 0)
     }
-    console.log(tipHeights);
-    
-    const regression_data = regression(tipHeights, decimal_dates, groupings, tipNames);
-    
-    //regression_data[0].text = tipNames
+
+
+    const regression_data = regression(
+      tipHeights,
+      decimal_dates,
+      groupings,
+      tipNames);
     dispatch(setData(regression_data))
+
+    const tipNamesbestFit = getTipNames(bestFitTree);
+
+    let groupingsBestFit // TODO: Needs function to parse groups. possible move that for dates and groups to utils
+    if (group) {
+      groupingsBestFit = tipNames.map( (name) => {
+        return extractPartOfTipName(name, delimiter, group)
+      })
+      groupingsBestFit = createNumericGroups(groupingsBestFit)
+    } else {
+      groupingsBestFit = tipNames.map(() => 0)
+    }
+
+
+    const bestFitRegression = regression(
+      getTipHeights(bestFitTree),
+      decimal_dates,
+      groupingsBestFit,
+      tipNamesbestFit
+    )
+    dispatch(setBestFittingRegression(bestFitRegression))
+
   }
 
   return (  

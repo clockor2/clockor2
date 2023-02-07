@@ -2,9 +2,11 @@ import treeReducer, {
   TreeState,
 } from './treeSlice';
 
-describe('tree reducer', () => {
+describe('tree reducer', () => { //TODO: Make test meaningful
   const initialState: TreeState = {
     source: '',
+    bestRootTree: '',
+    currentTree: '',
     tipNames: [],
     tipHeights: [],
     selectedIds: [],

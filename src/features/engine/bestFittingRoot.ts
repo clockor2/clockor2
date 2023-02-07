@@ -11,13 +11,12 @@ var minimize = require('minimize-golden-section-1d');
 const phylotree = require("phylotree");
 var _ = require('lodash');
 
-export function gobalRoot (tree: typeof phylotree, dates: number[]) {
+export function globalRoot (nwk: string, dates: number[]) {
 
-    var tr: typeof tree = {}
-    var bestTree: typeof tree = {}
+    const tree = new phylotree.phylotree(nwk)
 
-    tr = new phylotree.phylotree(tree.newick_string);
-    bestTree = new phylotree.phylotree(tree.newick_string)
+    var tr = new phylotree.phylotree(nwk);
+    var bestTree = new phylotree.phylotree(nwk)
     const numNodes = tree.nodes.descendants().length;
 
     // handling root case first as base
@@ -25,7 +24,7 @@ export function gobalRoot (tree: typeof phylotree, dates: number[]) {
 
     for (let n = 1; n < numNodes; n++) {
 
-      tr = new phylotree.phylotree(tree.newick_string);
+      tr = new phylotree.phylotree(nwk);
       tr.reroot(tr.nodes.descendants()[n]);
       tr.nodes.data.name = tree.nodes.data.name;
 
@@ -49,7 +48,7 @@ export function gobalRoot (tree: typeof phylotree, dates: number[]) {
     }
 
 
-    return bestTree;
+    return bestTree.getNewick();
 
 }
  
