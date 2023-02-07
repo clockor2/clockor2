@@ -33,6 +33,11 @@ export function InfoPanel(){
                 <span className="pr-2 text-xl">Clocks</span>
                 <Badge> {numClocks ? numClocks : 0} </Badge>
             </div>
+
+            <div className="flex items-center p-1 ">
+                <Button> Best Fitting Root </Button>
+            </div>
+
         </div>
         {/* Here goes the data popup */}
         {isOpen 

@@ -432,37 +432,3 @@ function groupToNum(arr: string[][], tips: string[]): number[] {
   // Return the result array
   return result;
 }
-
-/*
-// First function loops through nodes as in Tempest
-// TODO: Add in regression parms and local fit function
-
-
-export function globalRoot(tree: any, dates: number[]): any {
-
-  let nodes = tree.nodes.descendants();
-  let baseTipHeights = phylotree.rootToTip(tree).getTips().map(
-    (tip: any) => tip.data.rootToTip
-    );
-  let tipNames = tree.getTips().map((e: any) => e.data.name);
-  let group = tipNames.map((e: any) => 0);
-  let baseR2 = regression(baseTipHeights, dates, group, tipNames).baseClock.r2
-
-  var bestTree = tree;
-  
-  for (let i=0; i < nodes.length; i++){
-    var tmp = localRoot(tree.reroot(nodes[i]), dates);
-    if (tmp.r2 > baseR2) {
-      bestTree = tmp.tree;
-    }
-  }
-
-  return bestTree;
-}
-
-// Function does local optim
-export function localRoot(tree: any, dates: []): any {
-// need to define univariate function wthin
-}
-
-*/

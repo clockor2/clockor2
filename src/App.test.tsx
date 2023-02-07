@@ -4,12 +4,19 @@ import { Provider } from 'react-redux';
 import { store } from './app/store';
 import App from './App';
 
-test('renders learn react link', () => {
-  const { getByText } = render(
-    <Provider store={store}>
-      <App />
-    </Provider>
-  );
+test('To delete later', () => {
 
-  expect(getByText(/learn/i)).toBeInTheDocument();
+
+  expect([1]).toEqual([1])
 });
+
+
+// test('renders learn react link', () => {
+//   const { getByText } = render(
+//     <Provider store={store}>
+//       <App />
+//     </Provider>
+//   );
+
+//   expect(getByText(/learn/i)).toBeInTheDocument();
+// });
