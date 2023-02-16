@@ -7,6 +7,7 @@ describe('counter reducer', () => {
     data: null,
     bestFitData: null,
     currentData: null,
+    clockSearchData: null,
     selectedIds: [],
     regressionInputDefaults: {
       format: "",
