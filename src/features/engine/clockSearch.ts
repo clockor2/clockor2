@@ -13,10 +13,10 @@ export const clockSearch = (
     ) => {
   
     var tree = new phylotree(nwk)
-
+    
     var allGroups: string[][][] = [];
-    for (let i = 2; i < maxClocks; i++) {
-        allGroups.concat(
+    for (let i = 1; i <= maxClocks; i++) {
+        allGroups = allGroups.concat(
             getGroups(
                 tree,
                 minCladeSize,
@@ -27,7 +27,9 @@ export const clockSearch = (
     var tipNames = getTipNames(tree);
     var tipHeights = getTipHeights(tree);
     var allGroupAsNum = allGroups.map((e: string[][]) => groupToNum(e, tipNames));
-  
+
+    
+
     var fits: LocalClockModel[] = [];
     for (let i = 0; i < allGroupAsNum.length; i++){
         fits.push(
@@ -37,16 +39,17 @@ export const clockSearch = (
                 allGroupAsNum[i],
                 tipNames
                 )
-            );
+            );     
     }
-  
+
     // Now find the most supported configuration
     var ic: number[] = fits.map(
-        e => e.localIC ? e.localIC[icMetric] : e.baseIC[icMetric]
+        e => e.localClock.length > 1 ? e.localIC[icMetric] : e.baseIC[icMetric] // Want baseIC iff only one group
         );
-    var maxIC = Math.max(...ic);
-    var indexBest = ic.indexOf(maxIC);
-  
+
+    var minIC = Math.min(...ic); 
+
+    var indexBest = ic.indexOf(minIC);
     return fits[indexBest];
   }
   
@@ -78,7 +81,7 @@ export const clockSearch = (
         (a: string[], b: string[]) => {return b.length - a.length}
     );
   
-    // Filter out all clades with fewer than ${minCladeSize} tips
+    // Filter out all groups with fewer than ${minCladeSize} tips
     var finalClades = sortedUniqueTips.filter(
         (e: string[]) => e.length >= minCladeSize
         );
@@ -87,12 +90,13 @@ export const clockSearch = (
     var grpNums = Array.from(Array(finalClades.length).keys());
     grpNums.shift()
 
-    var combinations: number[][] = combn(grpNums, (numClocks - 1));
+    var combinations: number[][] = combn(grpNums, (numClocks - 1)); // Check if these are unique up to ordering!
+    
     // add 0th clade for background rate
     combinations.map(
         (e: number[]) => e.unshift(0)
         ); 
-  
+        
     // Convert number combinations to corresponding groups of tips
     let allGroups: string[][][] = [];
     for (let i = 0; i < combinations.length; i++){
@@ -102,8 +106,18 @@ export const clockSearch = (
         )
       );
     }
-  
+    
     var finalGroups = allGroups.map(e => unNestGroups(e))
+    finalGroups = finalGroups.map(
+      (e: string[][]) => e.sort()
+      )
+    
+    // Filter out all groups with fewer than ${minCladeSize} tips
+    finalGroups = finalGroups.filter(
+      (e0: string[][]) => !e0.some(
+        (e1: string[]) => e1.length < minCladeSize
+        )
+      );
 
     return finalGroups;
   }

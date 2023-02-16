@@ -14,6 +14,7 @@ export interface RegressionState {
   data: LocalClockModel | null;
   bestFitData: LocalClockModel | null;
   currentData: LocalClockModel | null;
+  clockSearchData: LocalClockModel | null;
   selectedIds: string[],
   regressionInputDefaults: RegressionInputDefaults
 }
@@ -22,6 +23,7 @@ const initialState: RegressionState = {
   data: null,
   bestFitData: null,
   currentData: null,
+  clockSearchData: null,
   selectedIds: [],
   regressionInputDefaults: {
     format: "",
@@ -48,6 +50,9 @@ export const regressionSlice = createSlice({
     setBestFittingRegression: (state, action: PayloadAction<LocalClockModel>) => {
       state.bestFitData = action.payload;
     },
+    setClockSearchData: (state, action: PayloadAction<LocalClockModel>) => {
+      state.clockSearchData = action.payload;
+    },
     // Use the PayloadAction type to declare the contents of `action.payload`
     setRegressionInputDefaults: (state, action: PayloadAction<RegressionInputDefaults>) => {
       state.regressionInputDefaults = action.payload;
@@ -55,7 +60,7 @@ export const regressionSlice = createSlice({
   },
 });
 
-export const { setData, setRegressionInputDefaults, setCurrentData, setBestFittingRegression} = regressionSlice.actions;
+export const { setData, setRegressionInputDefaults, setCurrentData, setBestFittingRegression, setClockSearchData} = regressionSlice.actions;
 
 // The functions below are called selectors and allow us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -65,5 +70,6 @@ export const selectSelectedIds = (state: RootState) => state.regression.selected
 export const selectRegressionInputDefaults = (state: RootState) => state.regression.regressionInputDefaults;
 export const selectCurrentData = (state: RootState) => state.regression.currentData;
 export const selectBestFitData = (state: RootState) => state.regression.bestFitData;
+export const selectClockSearchData = (state: RootState) => state.regression.clockSearchData;
 
 export default regressionSlice.reducer;

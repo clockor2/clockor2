@@ -1,9 +1,10 @@
-import { Badge, Button, Checkbox, Label, Modal, Navbar } from "flowbite-react";
+import { Badge, Checkbox, Label } from "flowbite-react";
 import React, { useState } from "react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectCurrentData, setCurrentData, selectData, selectBestFitData } from '../regression/regressionSlice';
 import { selectSource, selectBestFittingRoot, setCurrentTree } from "../tree/treeSlice"
 import { MetricCard } from './components/cards';
+import { ClockSearchButton } from "./clockSearchButton";
 
 export function InfoPanel() {
   const [isOpen, setOpen] = useState(false);
@@ -36,7 +37,7 @@ export function InfoPanel() {
   // Getting state to log in buttons. Eg. num clocks
   const data = useAppSelector(selectCurrentData);
   // setting num clocks using ternary operator - if local clocks defined, use that plus 1
-  const numClocks = data ? data?.localClock.length : 1;
+  const numClocks = data && data?.localClock.length > 0 ? data?.localClock.length : 1;
 
   return (
     <div >
@@ -63,8 +64,22 @@ export function InfoPanel() {
           </Label>
         </div>
 
+        <div className="flex items-center p-1 ">
+          <ClockSearchButton />
+          <Label className="pl-1">
+            Local Clock Search
+          </Label>
+        </div>
+        
+        {/*MAYBE LATER: <div className="flex items-center p-1 ">
+          <Checkbox id="clockSearch" />
+          <Label className="pl-1" htmlFor="bestRoot">
+            Show Clock Search Data
+          </Label>
+        </div> */}
+
       </div>
-      {/* Here goes the data popup */}
+
       {isOpen
         ? // Nesting ternary operator for 1 or more clocks
         numClocks === 1
@@ -76,15 +91,21 @@ export function InfoPanel() {
           </div>
           :
           <div className="flex flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-            <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-              <MetricCard text="AICc" value={data?.localIC.aicc} />
-              <MetricCard text="AIC" value={data?.localIC.aic} />
-              <MetricCard text="BIC" value={data?.localIC.bic} />
+            <div>
+              <Label htmlFor="localFit" value="Local Clock" className="text-2xl font-bold"/>
             </div>
             <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-              <MetricCard text="Baseline AICc" value={data?.baseIC.aicc} />
-              <MetricCard text="Baseline AIC" value={data?.baseIC.aic} />
-              <MetricCard text="Baseline BIC" value={data?.baseIC.bic} />
+              <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc < data?.baseIC.aicc : null}/>
+              <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic < data?.baseIC.aic : null}/>
+              <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic < data?.baseIC.bic : null}/>
+            </div>
+            <div>
+              <Label htmlFor="globalFit" value="Global Clock" className="text-2xl font-bold"/>
+            </div>
+            <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
+              <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc > data?.baseIC.aicc : null}/>
+              <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic > data?.baseIC.aic : null}/>
+              <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic > data?.baseIC.bic : null}/>
             </div>
           </div>
         : <div></div>

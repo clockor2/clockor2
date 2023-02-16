@@ -28,8 +28,6 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
   if (lcm != null) {
     // generate colour scale. Use viridis-ish default
     const cols = chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length);
-    console.log(typeof cols)
-    console.log(cols);
     // Pushing plotly object for base lock
     var point = {
       x: lcm.baseClock.x,
@@ -140,8 +138,6 @@ export const regression = (
   var lcm = {} as LocalClockModel;
   
   lcm.baseClock = linearRegression(dataPoints[0]);
-  console.log(lcm.baseClock)
-  console.log(AIC([lcm.baseClock]))
   lcm.baseIC = {} as InfoMetric;
   lcm.baseIC.aic = AIC([lcm.baseClock]);
   lcm.baseIC.aicc = AICc([lcm.baseClock]);
