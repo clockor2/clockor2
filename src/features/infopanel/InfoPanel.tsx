@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectCurrentData, setCurrentData, selectData, selectBestFitData } from '../regression/regressionSlice';
 import { selectSource, selectBestFittingRoot, setCurrentTree } from "../tree/treeSlice"
 import { MetricCard } from './components/cards';
+import { ResultsTable } from "./components/resultsTable";
 import { ClockSearchButton } from "./clockSearchButton";
 
 export function InfoPanel() {
@@ -40,8 +41,8 @@ export function InfoPanel() {
   const numClocks = data && data?.localClock.length > 0 ? data?.localClock.length : 1;
 
   return (
-    <div >
-      <div className="flex items-center border-t-2 py-2 shadow-lg pl-2" >
+    <div>
+      <div className="flex flex-row items-center border-t-2 py-2 shadow-lg pl-2" >
         <div onClick={togglePanel}>
           {isOpen
             ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 hover:text-blue-200">
@@ -70,47 +71,45 @@ export function InfoPanel() {
             Local Clock Search
           </Label>
         </div>
-        
-        {/*MAYBE LATER: <div className="flex items-center p-1 ">
-          <Checkbox id="clockSearch" />
-          <Label className="pl-1" htmlFor="bestRoot">
-            Show Clock Search Data
-          </Label>
-        </div> */}
-
       </div>
 
       {isOpen
-        ? // Nesting ternary operator for 1 or more clocks
+      ? // Nesting ternary operator for 1 or more clocks
         numClocks === 1
           ?
-          <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-            <MetricCard text="AICc" value={data?.baseIC.aicc} />
-            <MetricCard text="AIC" value={data?.baseIC.aic} />
-            <MetricCard text="BIC" value={data?.baseIC.bic} />
+          <div className="shrink flex flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
+            <Label htmlFor="globalFit" value="Global Clock" className="text-2xl font-bold"/>
+            <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
+              <MetricCard text="AICc" value={data?.baseIC.aicc} />
+              <MetricCard text="AIC" value={data?.baseIC.aic} />
+              <MetricCard text="BIC" value={data?.baseIC.bic} />
+            </div>
+            <ResultsTable model={data?.baseClock}/>
           </div>
+
           :
-          <div className="flex flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-            <div>
-              <Label htmlFor="localFit" value="Local Clock" className="text-2xl font-bold"/>
-            </div>
-            <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-              <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc < data?.baseIC.aicc : null}/>
-              <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic < data?.baseIC.aic : null}/>
-              <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic < data?.baseIC.bic : null}/>
-            </div>
-            <div>
-              <Label htmlFor="globalFit" value="Global Clock" className="text-2xl font-bold"/>
-            </div>
-            <div className="flex space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-              <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc > data?.baseIC.aicc : null}/>
-              <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic > data?.baseIC.aic : null}/>
-              <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic > data?.baseIC.bic : null}/>
-            </div>
+          <div className="flex shrink flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
+                <Label htmlFor="localFit" value="Local Clock" className="text-2xl font-bold"/>
+                <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
+                  <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc < data?.baseIC.aicc : false}/>
+                  <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic < data?.baseIC.aic : false}/>
+                  <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic < data?.baseIC.bic : false}/>
+
+                </div>
+                <ResultsTable model={data?.localClock}/>
+
+                <Label htmlFor="globalFit" value="Global Clock" className="text-2xl font-bold"/>
+                <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
+                  <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc > data?.baseIC.aicc : false}/>
+                  <MetricCard text="AIC" value={data?.baseIC.aic} isMin={true}/>
+                  <MetricCard text="BIC" value={data?.baseIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic > data?.baseIC.bic : false}/>
+                </div>
+                <ResultsTable model={data?.baseClock}/> 
+
           </div>
-        : <div></div>
+      : 
+      <div></div>
       }
     </div>
-
   )
 }

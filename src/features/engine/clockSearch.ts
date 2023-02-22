@@ -23,28 +23,40 @@ export const clockSearch = (
                 i
             ))
     }
+    // converting to group string
+    var allTips = tree.getTips().map((e: any) => e.data.name)
+
+    // error for too many clocks
+    const error = Error(`Too may clocks for minimum clade size. Spurious results await`)
+    if (maxClocks > Math.floor(allTips.length / minCladeSize) ){
+      console.error(error.message)
+    } 
+
+
+    var groupsNumbered = allGroups.map(
+      (e:string[][]) => makeGroups(
+        allTips, 
+        e)
+    )
 
     var tipNames = getTipNames(tree);
     var tipHeights = getTipHeights(tree);
-    var allGroupAsNum = allGroups.map((e: string[][]) => groupToNum(e, tipNames));
-
     
-
     var fits: LocalClockModel[] = [];
-    for (let i = 0; i < allGroupAsNum.length; i++){
+    for (let i = 0; i < allGroups.length; i++){
         fits.push(
             regression(
                 tipHeights,
                 dates,//TODO: is dates in the right order? - keep in state?
-                allGroupAsNum[i],
+                groupsNumbered[i],
                 tipNames
                 )
             );     
     }
 
-    // Now find the most supported configuration
+    // Now find the most supported configuration. Want baseIC iff only one group
     var ic: number[] = fits.map(
-        e => e.localClock.length > 1 ? e.localIC[icMetric] : e.baseIC[icMetric] // Want baseIC iff only one group
+        e => e.localClock.length > 1 ? e.localIC[icMetric] : e.baseIC[icMetric]
         );
 
     var minIC = Math.min(...ic); 
@@ -53,104 +65,95 @@ export const clockSearch = (
     return fits[indexBest];
   }
   
-  export function getGroups (tree: any, minCladeSize: number, numClocks: number): string[][][] {
+  export function getGroups (tree: any, minGroupSize: number, numClocks: number): string[][][] {
+    var tipNodes = tree.getInternals().map((e: any) => e.leaves())
 
-    var tips: any = [];
-    tree.nodes.each(
-        (node: any) => tips.push(
-            node.leaves()
-            )
-        ); 
+    // TODO: Throw error if numClocks > nTips / minGroupSize. Needs Parse Int
 
-    var tipNames = tips.map(
-        (leaf: any) => leaf.map(
-            (e: any) => e.data.name
-            )
-        );
-
-    // De-duplicate tips (artefact from d3 hierarchy)
-    var uniqueTips = tipNames.map(
-      (e: string[]) => JSON.stringify(e)
-        ).filter(
-                (e: string[], i: number, a: string[][]) => {return a.indexOf(e) === i}
-                ).map(
-                  (e: string) => JSON.parse(e)
-                )
-
-    var sortedUniqueTips = uniqueTips.sort(
+    var tips = tipNodes.map(
+      (e: any) => e.map((e1: any) => e1.data.name)
+      ).sort(
         (a: string[], b: string[]) => {return b.length - a.length}
-    );
+      ).filter(
+        (e: string[]) => e.length >= minGroupSize
+      );
   
-    // Filter out all groups with fewer than ${minCladeSize} tips
-    var finalClades = sortedUniqueTips.filter(
-        (e: string[]) => e.length >= minCladeSize
-        );
-  
-    // the set {1,...,finalClades.length} as array for combn()
-    var grpNums = Array.from(Array(finalClades.length).keys());
-    grpNums.shift()
+    // [1,...,tips.length] as array for combn()
+    let nums = [...Array(tips.length)].map((e, i) => i).slice(1);
 
-    var combinations: number[][] = combn(grpNums, (numClocks - 1)); // Check if these are unique up to ordering!
+    var combinations: number[][] = combn(nums, (numClocks - 1));
     
-    // add 0th clade for background rate
+    // return 0th clade for background rate, sort, and find unique
     combinations.map(
         (e: number[]) => e.unshift(0)
-        ); 
-        
-    // Convert number combinations to corresponding groups of tips
-    let allGroups: string[][][] = [];
-    for (let i = 0; i < combinations.length; i++){
-      allGroups.push(
-        combinations[i].map(
-          (e: number) => finalClades[e]
         )
-      );
-    }
-    
-    var finalGroups = allGroups.map(e => unNestGroups(e))
-    finalGroups = finalGroups.map(
-      (e: string[][]) => e.sort()
+
+    // Convert number combinations to corresponding groups of tips
+    var allGroups: string[][][] = [];
+    var tmp: string[][] = []
+    for (let i = 0; i < combinations.length; i++){
+      tmp = combinations[i].map(
+        (e: number) => tips[e]
       )
+      allGroups.push(tmp);
+    }
+
+    allGroups = allGroups.map(e => unNest(e))
+    // allGroups = allGroups.map(e => e.sort()) // sorting for testing
     
     // Filter out all groups with fewer than ${minCladeSize} tips
-    finalGroups = finalGroups.filter(
-      (e0: string[][]) => !e0.some(
-        (e1: string[]) => e1.length < minCladeSize
+    var finalGroups = allGroups.filter(
+      (e0: string[][]) => !(
+        e0.some(
+          (e1: string[]) => e1.length < minGroupSize
         )
-      );
+      ) 
+    );
+
+    // de-duplicating
+    finalGroups = finalGroups.map(
+      e => JSON.stringify(e)
+    ).filter(
+      (v,i,a)=>a.indexOf(v)===i
+    ).map(
+      e => JSON.parse(e)
+    )
 
     return finalGroups;
+
   }
+
+// Make groups into a 1D array of numbers coresponding to tips. TODO: test
+export function makeGroups(tips: string[], nestedGrp: string[][]): number[] {
+ let grp: number[] = []
+
+ for (let i=0; i<tips.length; i++){
+  for (let j=nestedGrp.length-1; j>=0; j--){
+
+    if (nestedGrp[j].includes(tips[i])){
+      grp.push(j)
+      break
+    } 
   
-  // De-nests group membership
-  export function unNestGroups(x: string[][]): string[][] {
-    return x.map((e0: string[], i) => e0.filter(
-        (e1: string) => {
-          if(i+1 < x.length) { 
-            return !x[i+1].includes(e1); 
-          } else {
-            return true;
-          }
-        })
-    );
   }
+ }
+
+ return grp;
+}
+
   
-  // A function that takes a list of tips and returns group number based on an element of allGroups
-  function groupToNum(arr: string[][], tips: string[]): number[] {
-      let groupings: number[] = []; 
-  
-      for (let i = 0; i < tips.length; i++){
-        var tmp = [];
-        
-        for (let j = 0; j < arr.length; j++) {
-          if (arr[j].indexOf(tips[i]) > -1) {
-            groupings[i] = j;
-          } 
-        }
-      }
-    return groupings;
-  } // TODO: Include a test here to check that output is all integers and that ordering of tips matches input
-  
+  // Un-nests group membership
+  export function unNest(arr: string[][]): string[][] {
+    var unNested: string[][] = [];
+
+    unNested[arr.length-1] = arr[arr.length-1];
+    for (let i = arr.length-2; i>=0; i--){
+      unNested[i] = arr[i].filter(
+        (e: string) => !arr.slice(i+1).flat().includes(e)
+      )
+    }
+    return unNested.sort();
+  }
   
   // generating combinations of groups
    export function combn(arr: any[], k: number): number[][] {
