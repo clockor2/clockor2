@@ -1,4 +1,5 @@
 const phylotree = require("phylotree");
+const _ = require("lodash")
 
 export const decimal_date = (date: Date) => {
     var full_year = date.getFullYear();
@@ -34,8 +35,14 @@ export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNa
   }
 
   export const getTipHeights = (tree: any): number[] => {
-    phylotree.rootToTip(tree)
-    return tree.getTips().map((tip: any) => tip.data.rootToTip);
+    let tr = _.cloneDeep(tree)
+    return (
+      tr.getTips().map((tip: any) => tip.data.rootToTip)[0] 
+      ? 
+      tr.getTips().map((tip: any) => tip.data.rootToTip)  
+      : 
+      phylotree.rootToTip(tr).getTips().map((tip: any) => tip.data.rootToTip)
+    )
   }
 
   export const getTipNames = (tree: any): string[] => {

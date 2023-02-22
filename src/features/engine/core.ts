@@ -101,7 +101,7 @@ interface Style {
 
 // class regression for storing the points, r^2, slope, fit for a set of points x, y
 // inferface for ouput of regression functions
-interface Regression {
+export interface Regression {
   x: Array<number>;
   y: Array<number>;
   tip: Array<string>;
@@ -193,6 +193,7 @@ const groupData = (
   groupings: Array<number>,
   tipNames: Array<string>
   ): DataGroup[] => { 
+  
   let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
 
   const points: DataGroup[] = [];
