@@ -7,12 +7,16 @@
 import { createUnparsedSourceFile, isBreakStatement } from "typescript";
 import * as core from "./core";
 import * as util from "./utils"
-//const phylotree = require("phylotree");
-import { phylotree } from "phylotree"
+const phylotree = require("phylotree").phylotree
+// import { phylotree } from "phylotree"
 var _ = require('lodash');
 var minimize = require('minimize-golden-section-1d');
 // ran npm install https://github.com/parallel-js/parallel.js to insall from github to bypass .env error.
 const Parallel = require("paralleljs") // update import b/c of bug
+
+export function createPhylotree(nwk:string) {
+  return phylotree(nwk)
+}
 
 export function globalRootParallel (nwk: string, dates: number[]) {
 
@@ -25,42 +29,20 @@ export function globalRootParallel (nwk: string, dates: number[]) {
   // handling root case first as base
   var best = localRoot(tr, dates); 
   var nodeNums = nodes.map((e: any, i: number) => i)
-
-  var p = new Parallel(nodeNums, {
-    env: {
-      dates: dates,
-      baseNwk: tree.getNewick(),
-    } 
-  }).require(
-    localRoot
-  );
   
-  var prime = p.map(
-    (i: number) => {
-      var t = new phylotree(global.env.baseNwk)
-      t.reroot(t.nodes.descendants()[i]);
-       return localRoot(
-        t,
-        global.env.dates
-      )
-    }
-  );
-
-  var indx = 0;
-  for (let i = 0; i < prime.length; i++) {
-
-    if (prime[i].r2 - best.r2  > 1e-8) { // TODO: Better soln than 1e-08 episolon value for precision?
-      indx = i
-      best = {...prime[i]}
-    }
-
+  // https://stackoverflow.com/questions/41423905/wait-for-several-web-workers-to-finish
+  for (let index = 0; index < 5; index++) {
+    const worker = new Worker(new URL("./worker.ts", import.meta.url));
+    worker.postMessage({
+      nwk: tr.getNewick(),
+    });
+    worker.onmessage = ({ data: { answer } }) => {
+      console.log(answer);
+    };
   }
 
-  var bestTree = new phylotree(tree.newick_string)
-  bestTree.reroot(bestTree.nodes.descendants()[indx], best.alpha);
-  bestTree.nodes.data.name = tree.nodes.data.name;
 
-  return bestTree.getNewick();
+  return tr.getNewick();
 
 }
 
