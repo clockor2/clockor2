@@ -6,7 +6,7 @@ import { decimal_date } from '../engine/utils';
 import { linearRegression, regression } from '../engine/core';
 import { LocalClockModel } from '../engine/core';
 import { selectRegressionInputDefaults, setData, setBestFittingRegression } from './regressionSlice';
-import { globalRoot } from '../engine/bestFittingRoot';
+import { globalRootParallel } from '../engine/bestFittingRoot';
 import { getNewick } from "phylotree"
 import {phylotree, rootToTip} from "phylotree"
 import { getTipHeights, getTipNames } from '../engine/utils';
@@ -54,7 +54,7 @@ export function RegressionInput(props: any) {
       return decimal_date(new Date(date))
     })
     
-    const bestFitNwk = globalRoot(sourceNewick, decimal_dates);
+    const bestFitNwk = globalRootParallel(sourceNewick, decimal_dates);
     dispatch(setBestFittingRoot(bestFitNwk))
     
     const bestFitTree = new phylotree(bestFitNwk)

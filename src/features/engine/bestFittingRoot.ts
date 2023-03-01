@@ -7,16 +7,72 @@
 import { createUnparsedSourceFile, isBreakStatement } from "typescript";
 import * as core from "./core";
 import * as util from "./utils"
-var minimize = require('minimize-golden-section-1d');
-const phylotree = require("phylotree");
+//const phylotree = require("phylotree");
+import { phylotree } from "phylotree"
 var _ = require('lodash');
+var minimize = require('minimize-golden-section-1d');
+// ran npm install https://github.com/parallel-js/parallel.js to insall from github to bypass .env error.
+const Parallel = require("paralleljs") // update import b/c of bug
 
-export function globalRoot (nwk: string, dates: number[]) {
+export function globalRootParallel (nwk: string, dates: number[]) {
 
-    const tree = new phylotree.phylotree(nwk)
+  const tree = new phylotree(nwk)
+  var tr = new phylotree(tree.getNewick())
+  var nodes = tree.nodes.descendants()
+  nodes.shift() // removing root case (is default below)
+  const numNodes = nodes.length;
 
-    var tr = new phylotree.phylotree(nwk);
-    var bestTree = new phylotree.phylotree(nwk)
+  // handling root case first as base
+  var best = localRoot(tr, dates); 
+  var nodeNums = nodes.map((e: any, i: number) => i)
+
+  var p = new Parallel(nodeNums, {
+    env: {
+      dates: dates,
+      baseNwk: tree.getNewick(),
+    } 
+  }).require(
+    localRoot
+  );
+  
+  var prime = p.map(
+    (i: number) => {
+      var t = new phylotree(global.env.baseNwk)
+      t.reroot(t.nodes.descendants()[i]);
+       return localRoot(
+        t,
+        global.env.dates
+      )
+    }
+  );
+
+  var indx = 0;
+  for (let i = 0; i < prime.length; i++) {
+
+    if (prime[i].r2 - best.r2  > 1e-8) { // TODO: Better soln than 1e-08 episolon value for precision?
+      indx = i
+      best = {...prime[i]}
+    }
+
+  }
+
+  var bestTree = new phylotree(tree.newick_string)
+  bestTree.reroot(bestTree.nodes.descendants()[indx], best.alpha);
+  bestTree.nodes.data.name = tree.nodes.data.name;
+
+  return bestTree.getNewick();
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export function globalRootSerial (nwk: string, dates: number[]) {
+
+    const tree = new phylotree(nwk)
+
+    var tr = new phylotree(nwk);
+    var bestTree = new phylotree(nwk)
     const numNodes = tree.nodes.descendants().length;
 
     // handling root case first as base
@@ -24,7 +80,7 @@ export function globalRoot (nwk: string, dates: number[]) {
 
     for (let n = 1; n < numNodes; n++) {
 
-      tr = new phylotree.phylotree(nwk);
+      tr = new phylotree(nwk);
       tr.reroot(tr.nodes.descendants()[n]);
       tr.nodes.data.name = tree.nodes.data.name;
 
@@ -40,7 +96,7 @@ export function globalRoot (nwk: string, dates: number[]) {
 
         base = {...prime};
 
-        bestTree = new phylotree.phylotree(tree.newick_string)
+        bestTree = new phylotree(tree.newick_string)
         bestTree.reroot(bestTree.nodes.descendants()[n], prime.alpha);
         bestTree.nodes.data.name = tr.nodes.data.name;
 

@@ -41,7 +41,7 @@ describe('Testing localRoot()', () => {
 })
 
 describe('Testing localRoot()', () => {
-  test('Approx. equality for 5-tip ladder tree used in globalRoot() test', () => {
+  test('Approx. equality for 5-tip ladder tree used in globalRootParallel() test', () => {
     let testTree = new phylotree.phylotree('(A:1.5,(B:1,(C:1,(D:1, E:2):1):1):0.5);')
     let dates = [1,2,3,4,5];
     let est: any = best.localRoot(testTree, dates);
@@ -61,7 +61,7 @@ describe('Testing localRoot()', () => {
   });
 })
 
-describe('Testing globalRoot()', () => {
+describe('Testing globalRootParallel()', () => {
     test('Ladder tree with 5 tips - branch lengths equal?', () => {
 
       var bestTree = new phylotree.phylotree('(A:1,(B:1,(C:1,(D:1, E:2):1):1):1);')
@@ -70,7 +70,7 @@ describe('Testing globalRoot()', () => {
       testTree.nodes.data.name = 'root';
 
       var dates = [1,2,3,4,5];
-      const estTree = best.globalRoot(testTree, dates);
+      const estTree = best.globalRootParallel(testTree, dates);
 
       phylotree.rootToTip(bestTree);
       phylotree.rootToTip(estTree);
@@ -84,7 +84,7 @@ describe('Testing globalRoot()', () => {
     });
   });
 
-  describe('Testing globalRoot()', () => {
+  describe('Testing globalRootParallel()', () => {
     test('Ladder tree with 5 tips - newick?', () => {
 
       var bestTree = new phylotree.phylotree('(A:1,(B:1,(C:1,(D:1, E:2):1):1):1);')
@@ -93,7 +93,7 @@ describe('Testing globalRoot()', () => {
       testTree.nodes.data.name = 'root';
 
       var dates = [1,2,3,4,5];
-      const estTree = best.globalRoot(testTree, dates);
+      const estTree = best.globalRootParallel(testTree, dates);
 
       phylotree.rootToTip(bestTree);
       phylotree.rootToTip(estTree);
