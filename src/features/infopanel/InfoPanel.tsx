@@ -72,13 +72,16 @@ export function InfoPanel() {
           </Label>
         </div>
       </div>
-
+        
       {isOpen
       ? // Nesting ternary operator for 1 or more clocks
-        numClocks === 1
+      <div className="max-h-[62.5vh] overflow-y-scroll">
+        {numClocks === 1
           ?
           <div className="shrink flex flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-            <Label htmlFor="globalFit" value="Global Clock" className="text-2xl font-bold"/>
+            <div className=" flex text-2xl font-bold justify-center">
+              Global Clock
+            </div>
             <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
               <MetricCard text="AICc" value={data?.baseIC.aicc} />
               <MetricCard text="AIC" value={data?.baseIC.aic} />
@@ -89,7 +92,9 @@ export function InfoPanel() {
 
           :
           <div className="flex shrink flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-                <Label htmlFor="localFit" value="Local Clock" className="text-2xl font-bold"/>
+                <div className="flex text-2xl font-bold justify-center ">
+                  Local Clock
+                </div>
                 <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
                   <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc < data?.baseIC.aicc : false}/>
                   <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic < data?.baseIC.aic : false}/>
@@ -98,7 +103,9 @@ export function InfoPanel() {
                 </div>
                 <ResultsTable model={data?.localClock}/>
 
-                <Label htmlFor="globalFit" value="Global Clock" className="text-2xl font-bold"/>
+                <div className="pt-2 flex text-2xl font-bold justify-center ">
+                  Global Clock
+                </div>
                 <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
                   <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc > data?.baseIC.aicc : false}/>
                   <MetricCard text="AIC" value={data?.baseIC.aic} isMin={true}/>
@@ -106,10 +113,14 @@ export function InfoPanel() {
                 </div>
                 <ResultsTable model={data?.baseClock}/> 
 
-          </div>
+            </div>
+        }
+      </div>
       : 
       <div></div>
+      
       }
+      
     </div>
   )
 }
