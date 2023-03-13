@@ -36,6 +36,14 @@ export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNa
 
   export const getTipHeights = (tree: any): number[] => {
     let tr = _.cloneDeep(tree)
+    // map undefined BLs to zero:
+    tr.nodes.each((n: any) => {
+      if (isNaN(n.data.attribute)) {
+        n.data.attribute =  '0';
+      } 
+    });
+    console.log(tr.nodes.descendants())
+
     return (
       tr.getTips().map((tip: any) => tip.data.rootToTip)[0] 
       ? 

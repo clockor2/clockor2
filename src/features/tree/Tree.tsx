@@ -16,8 +16,6 @@ export function Tree(props: any) {
   }, [highlightedId])
 
   useEffect(() => {      
-    // Anything in here is fired on component mount.
-    console.log(props);
     
     if (props.source) {
       const canvas = document.querySelector("#tree")
