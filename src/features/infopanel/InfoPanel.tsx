@@ -6,6 +6,7 @@ import { selectSource, selectBestFittingRoot, setCurrentTree } from "../tree/tre
 import { MetricCard } from './components/cards';
 import { ResultsTable } from "./components/resultsTable";
 import { ClockSearchButton } from "./clockSearchButton";
+import { BFRButton } from "./bfrButton";
 
 export function InfoPanel() {
   const [isOpen, setOpen] = useState(false);
@@ -21,19 +22,25 @@ export function InfoPanel() {
   const bestFitData = useAppSelector(selectBestFitData);
   const dispatch = useAppDispatch();
 
-  const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
-  const toggleBestFittingRoot = () => {
-    invertBestFittingRoot(!useBestFittingRoot);
-    // Now doing things with the internal state
-    if (useBestFittingRoot && sourceData) {
-      dispatch(setCurrentTree(sourcePhylotree));
-      dispatch(setCurrentData(sourceData));
+  // const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
+  // const toggleBestFittingRoot = () => {
+  //   // Remove
+  //   if (bestFittingPhylotree) {
+  //     console.log(bestFittingPhylotree)
+  //   } else {
+  //     console.log("BFR NOT DEFINED")
+  //   }
+  //   invertBestFittingRoot(!useBestFittingRoot);
+  //   // Now doing things with the internal state
+  //   if (useBestFittingRoot && sourceData) {
+  //     dispatch(setCurrentTree(sourcePhylotree));
+  //     dispatch(setCurrentData(sourceData));
 
-    } else if ((!useBestFittingRoot) && bestFitData) {
-      dispatch(setCurrentTree(bestFittingPhylotree));
-      dispatch(setCurrentData(bestFitData));
-    }
-  }
+  //   } else if ((!useBestFittingRoot) && bestFitData) {
+  //     dispatch(setCurrentTree(bestFittingPhylotree));
+  //     dispatch(setCurrentData(bestFitData));
+  //   }
+  // }
 
   // Getting state to log in buttons. Eg. num clocks
   const data = useAppSelector(selectCurrentData);
@@ -59,10 +66,11 @@ export function InfoPanel() {
         </div>
 
         <div className="flex items-center p-1 ">
-          <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} />
+          {/* <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} />
           <Label className="pl-1" htmlFor="bestRoot">
             Best Fitting Root
-          </Label>
+          </Label> */}
+          <BFRButton/>
         </div>
 
         <div className="flex items-center p-1 ">
