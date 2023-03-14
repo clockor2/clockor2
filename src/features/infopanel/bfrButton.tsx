@@ -27,10 +27,13 @@ const toggleBestFittingRoot = () => {
 
   if (sourceData && !bfrExists.current) {
     var dates = sourceData.baseClock.x;
+
       globalRootParallel(sourceNwk, dates).then(
         (nwk: string) => { 
           dispatch(setBestFittingRoot(nwk)) 
-          let bestFitTree = new phylotree(bestFitNwk)
+
+          let bestFitTree = new phylotree(nwk) 
+
           let bfrTips = getTipNames(bestFitTree);
           let sourceTips = sourceData.baseClock.tip;
           var bfrDates = reorderData(
@@ -57,18 +60,24 @@ const toggleBestFittingRoot = () => {
             bfrTips
           )
           dispatch(setBestFittingRegression(bestFitRegression))
-          bfrExists.current = true // 
-      }
-    )
+
+          dispatch(setCurrentTree(nwk));
+          dispatch(setCurrentData(bestFitRegression));
+          
+          bfrExists.current = true 
+        }
+        )
+
 }
 
-  if (useBestFittingRoot && sourceData) {
-    dispatch(setCurrentTree(sourceNwk));
-    dispatch(setCurrentData(sourceData));
-
-  } else if ((!useBestFittingRoot) && bestFitData) {
+  if (useBestFittingRoot && bestFitData && bfrExists.current) {
     dispatch(setCurrentTree(bestFitNwk));
     dispatch(setCurrentData(bestFitData));
+
+
+  } else if (!useBestFittingRoot && sourceData && bfrExists.current) {
+    dispatch(setCurrentTree(sourceNwk));
+    dispatch(setCurrentData(sourceData));
   }
 }
 
@@ -100,6 +109,6 @@ if (bfrExists.current) {
     </div>
     )
   } else {
-    return(<div></div>)// Never happens
+    return(<div></div>)// Never happens - for completeness
   }
 }

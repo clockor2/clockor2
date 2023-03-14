@@ -58,7 +58,6 @@ export async function globalRootParallel (nwk: string, dates: number[]) {
   var nodeNumsChunked = spliceIntoChunks(
     nodeNums, 
     ( (nodeNums.length - 1) / window.navigator.hardwareConcurrency)
-    //
   )
   console.log(nodeNums)
 
@@ -74,7 +73,7 @@ export async function globalRootParallel (nwk: string, dates: number[]) {
   //var prime: any = [];
   var prime = (await Promise.all(promises))
   //prime = prime.map((msg: any) => msg.data)
-  prime = prime.flat().slice(4) // TODO - Rooting on nodes 1 and 2 never works. Need to fix. ISsue also noted in test
+  prime = prime.flat()
 
 
   prime.unshift(
@@ -86,7 +85,7 @@ export async function globalRootParallel (nwk: string, dates: number[]) {
     nodeIndx: 0
     }
   )
-  //var prime = results.flat()
+
   var r2 = prime.map(
     (e: any) => e.r2
   )
@@ -97,8 +96,12 @@ export async function globalRootParallel (nwk: string, dates: number[]) {
 
 
   let bestTree = new phylotree(nwk)
-  bestTree.reroot(bestTree.nodes.descendants[bestIndx])
-  bestTree.nodes.data.name = nwk; 
+  bestTree.reroot(bestTree.nodes.descendants()[bestIndx])
+  bestTree.nodes.each((n: any) => {
+    if (n.data.__mapped_bl){
+      n.data.attribute = n.data.__mapped_bl.toString();
+    }
+  })
 
   return bestTree.getNewick()
 }
@@ -120,7 +123,6 @@ export function globalRootSerial (nwk: string, dates: number[]) {
 
       tr = new phylotree(nwk);
       tr.reroot(tr.nodes.descendants()[n]);
-      tr.nodes.data.name = "root"
 
       var prime = localRoot(
         tr,
@@ -136,7 +138,6 @@ export function globalRootSerial (nwk: string, dates: number[]) {
 
         bestTree = new phylotree(nwk)
         bestTree.reroot(bestTree.nodes.descendants()[n], prime.alpha);
-        bestTree.nodes.data.name = "root";
 
       }
     }
@@ -149,20 +150,12 @@ export function globalRootSerial (nwk: string, dates: number[]) {
 
 export function localRoot (tree: any, dates: number[]) {
 
-    // generating input data //
     var tipNames: string[] = util.getTipNames(tree);
-    // Setting undefined edge lengths to zero
-    //var tipHeights: number[] = util.getTipHeights(tree);
-    var tipHeights: number[] = rootToTip(tree).getTips().map((tip: any) => tip.data.rootToTip)
-    var bl = tree.getBranchLengths().slice(1);
-    // Ser undefined to zero, log tree length to check
-    var treeLength = bl.reduce(
-      (accumulator: number, currentValue: number) => accumulator + currentValue,
-      0
-    )
-    console.log("Tree Length " + treeLength)
+    var tipHeights: number[] = util.getTipHeights(tree);
+    //var tipHeights: number[] = rootToTip(tree).getTips().map((tip: any) => tip.data.rootToTip)
+    var bl = tree.getBranchLengths();
 
-    var desc1: string[] = tree.nodes.descendants()[1].leaves().map(
+    var desc1: string[] = tree.nodes.children[1].leaves().map(
       (e: any) => e.data.name
       );
 
@@ -189,19 +182,6 @@ export function localRoot (tree: any, dates: number[]) {
     let alpha = minimize(univariateFunction, {lowerBound: 0, upperBound: 1}); // TODO: How to stop NaN results here?
     return {alpha: alpha, r2: -1 * univariateFunction(alpha)}
 }
-
-// export function reorderData (dates: number[], currentTip: string[], targetTip: string[]) {
-
-//     let index = currentTip.map(
-//       e => targetTip.indexOf(e)
-//     )
-
-//     let datesOrdered = index.map(
-//       (e: number) => dates[e]
-//     )
-
-//     return datesOrdered;
-// }
 
 export function reorderData (arr: number[], currentTip: string[], targetTip: string[]) {
 

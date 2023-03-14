@@ -13,7 +13,12 @@ self.onmessage = ({ data: { nwk, dates, nodeNums } }) => {
   for (let i=0; i<nodeNums.length; i++) {
     treePrime = new phylotree(nwk);
     treePrime.reroot(treePrime.nodes.descendants()[nodeNums[i]]);
-    treePrime.nodes.data.name = "root";
+    // set branch lengths
+    treePrime.nodes.each((n: any) => {
+      if (n.data.__mapped_bl){
+        n.data.attribute = n.data.__mapped_bl.toString();
+      }
+    })
 
     datesPrime = reorderData(
       dates,
