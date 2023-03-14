@@ -23,7 +23,6 @@ const bfrExists = useRef(false);
 
 const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
 const toggleBestFittingRoot = () => {
-  invertBestFittingRoot(!useBestFittingRoot);
 
   if (sourceData && !bfrExists.current) {
     var dates = sourceData.baseClock.x;
@@ -41,17 +40,25 @@ const toggleBestFittingRoot = () => {
             sourceTips, 
             bfrTips,
           )
-          var sourceTipsGrouped = sourceData.localClock.map(e => e.tip)
-          var sounceTipsGroupedNumbered = sourceTipsGrouped.map(
-            (e, i) => e.map( e1 => i)
-          )
-          var sourceGrp = sounceTipsGroupedNumbered.flat()
 
-          var bfrGrp = reorderData(
-            sourceGrp,
-            bfrTips,
-            sourceTips
-          )
+          // handle groups
+          var bfrGrp;
+          if (sourceData.localClock.length > 1) {
+            var sourceTipsGrouped = sourceData.localClock.map(e => e.tip)
+
+            var sounceTipsGroupedNumbered = sourceTipsGrouped.map(
+              (e, i) => e.map( e1 => i)
+            )
+            var sourceGrp = sounceTipsGroupedNumbered.flat()
+
+            bfrGrp = reorderData(
+              sourceGrp,
+              bfrTips,
+              sourceTips
+            )
+          } else {
+            bfrGrp = bfrTips.map((e: string) => 0)
+          }
       
           const bestFitRegression = regression(
             getTipHeights(bestFitTree),
@@ -68,7 +75,8 @@ const toggleBestFittingRoot = () => {
         }
         )
 
-}
+  }
+  invertBestFittingRoot(!useBestFittingRoot);
 
   if (useBestFittingRoot && bestFitData && bfrExists.current) {
     dispatch(setCurrentTree(bestFitNwk));
@@ -90,7 +98,7 @@ if (bfrExists.current) {
       </Label>
     </div>
     )
-    } else if (!bfrExists.current && !useBestFittingRoot) {
+} else if (!bfrExists.current && !useBestFittingRoot) {
       return (
         <div className="flex items-center p-1 ">
           <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} />
@@ -99,7 +107,7 @@ if (bfrExists.current) {
           </Label>
         </div>
         )
-    } else if (!bfrExists.current && useBestFittingRoot) {
+} else if (!bfrExists.current && useBestFittingRoot) {
     return (
     <div>
       <Spinner/>
