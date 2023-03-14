@@ -126,26 +126,26 @@ describe('Testing branch_length()', () => {
   });
 })
 
-// describe('Testing localRoot()', () => {
-//   test('Approx. equality for 5-tip ladder tree used in globalRootParallel() test', () => {
-//     let testTree = new phylotree('(A:1.5,(B:1,(C:1,(D:1, E:2):1):1):0.5);')
-//     let dates = [1,2,3,4,5];
-//     let est: any = localRoot(testTree, dates);
+describe('Testing localRoot()', () => {
+  test('Approx. equality for 5-tip ladder tree used in globalRootParallel() test', () => {
+    let testTree = new phylotree('(A:1.5,(B:1,(C:1,(D:1, E:2):1):1):0.5);')
+    let dates = [1,2,3,4,5];
+    let est: any = localRoot(testTree, dates);
 
-//     expect(
-//       est.alpha
-//       ).toBeCloseTo(
-//         0.5,
-//         5
-//         )
-//     expect(
-//       est.r2
-//       ).toBeCloseTo(
-//         1,
-//         2
-//         );
-//   });
-// })
+    expect(
+      est.alpha
+      ).toBeCloseTo(
+        0.5,
+        5
+        )
+    expect(
+      est.r2
+      ).toBeCloseTo(
+        1,
+        2
+        );
+  });
+})
 
 
 

@@ -59,7 +59,6 @@ export async function globalRootParallel (nwk: string, dates: number[]) {
     nodeNums, 
     ( (nodeNums.length - 1) / window.navigator.hardwareConcurrency)
   )
-  console.log(nodeNums)
 
   var promises = nodeNumsChunked.map(
     (e: number[]) => createWorker(
@@ -93,17 +92,32 @@ export async function globalRootParallel (nwk: string, dates: number[]) {
   var bestR2 = Math.max(...r2)
 
   var bestIndx = r2.indexOf(bestR2)
-
+  var best: any = prime[bestIndx]
 
   let bestTree = new phylotree(nwk)
-  bestTree.reroot(bestTree.nodes.descendants()[bestIndx])
-  bestTree.nodes.each((n: any) => {
-    if (n.data.__mapped_bl){
-      n.data.attribute = n.data.__mapped_bl.toString();
-    }
-  })
+  
+  // account for case where best root is already the root
+  if (best.nodeIndx == 0) {
+    
+    let bl = bestTree.getBranchLengths()
+    let len = bl[1] + bl[2]
 
-  return bestTree.getNewick()
+    bestTree.nodes.children[0].data.attribute = (best.alpha * len).toString()
+    bestTree.nodes.children[1].data.attribute = ((1 - best.alpha) * len).toString()
+
+    return bestTree.getNewick()
+
+  } else {
+
+    bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx], best.alpha)
+    bestTree.nodes.each((n: any) => {
+      if (n.data.__mapped_bl){
+        n.data.attribute = n.data.__mapped_bl.toString();
+      }
+    })
+
+    return bestTree.getNewick()
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
