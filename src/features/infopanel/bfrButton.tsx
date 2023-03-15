@@ -23,49 +23,55 @@ const bfrExists = useRef(false);
 
 const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
 const toggleBestFittingRoot = () => {
+  invertBestFittingRoot(!useBestFittingRoot);
 
   if (sourceData && !bfrExists.current) {
-    var dates = sourceData.baseClock.x;
 
+      var dates = sourceData.baseClock.x;
       globalRootParallel(sourceNwk, dates).then(
         (nwk: string) => { 
           dispatch(setBestFittingRoot(nwk)) 
 
           let bestFitTree = new phylotree(nwk) 
 
-          let bfrTips = getTipNames(bestFitTree);
           let sourceTips = sourceData.baseClock.tip;
+          let bfrTips = getTipNames(bestFitTree);
+
           var bfrDates = reorderData(
             dates,
             sourceTips, 
             bfrTips,
           )
+          var bfrHeights = getTipHeights(bestFitTree)
 
           // handle groups
           var bfrGrp;
           if (sourceData.localClock.length > 1) {
-            var sourceTipsGrouped = sourceData.localClock.map(e => e.tip)
+            var sourceGrpChunked = sourceData.localClock.map(e => e.tip)
 
-            var sounceTipsGroupedNumbered = sourceTipsGrouped.map(
+            var sourceGrpNumbered = sourceGrpChunked.map(
               (e, i) => e.map( e1 => i)
             )
-            var sourceGrp = sounceTipsGroupedNumbered.flat()
 
+            var sourceGrp = sourceGrpNumbered.flat()
+            var localClockTips = sourceData.localClock.map((e: any) => e.tip).flat()
+            
             bfrGrp = reorderData(
               sourceGrp,
-              bfrTips,
-              sourceTips
+              localClockTips,
+              bfrTips
             )
           } else {
             bfrGrp = bfrTips.map((e: string) => 0)
           }
-      
+
           const bestFitRegression = regression(
-            getTipHeights(bestFitTree),
+            bfrHeights,
             bfrDates,
             bfrGrp,
             bfrTips
           )
+
           dispatch(setBestFittingRegression(bestFitRegression))
 
           dispatch(setCurrentTree(nwk));
@@ -76,23 +82,21 @@ const toggleBestFittingRoot = () => {
         )
 
   }
-  invertBestFittingRoot(!useBestFittingRoot);
 
-  if (useBestFittingRoot && bestFitData && bfrExists.current) {
-    dispatch(setCurrentTree(bestFitNwk));
-    dispatch(setCurrentData(bestFitData));
-
-
-  } else if (!useBestFittingRoot && sourceData && bfrExists.current) {
+  if (useBestFittingRoot && sourceData && bfrExists.current) {
     dispatch(setCurrentTree(sourceNwk));
     dispatch(setCurrentData(sourceData));
+
+  } else if (!useBestFittingRoot && bestFitData && bfrExists.current) {
+    dispatch(setCurrentTree(bestFitNwk));
+    dispatch(setCurrentData(bestFitData));
   }
 }
 
 if (bfrExists.current) {
     return (
     <div className="flex items-center p-1 ">
-      <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} />
+      <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} defaultChecked={useBestFittingRoot}/>
       <Label className="pl-1" htmlFor="bestRoot">
         Best Fitting Root
       </Label>
@@ -101,7 +105,7 @@ if (bfrExists.current) {
 } else if (!bfrExists.current && !useBestFittingRoot) {
       return (
         <div className="flex items-center p-1 ">
-          <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} />
+          <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} defaultChecked={useBestFittingRoot}/>
           <Label className="pl-1" htmlFor="bestRoot">
             Best Fitting Root
           </Label>

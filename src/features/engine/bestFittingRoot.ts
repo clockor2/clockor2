@@ -105,62 +105,46 @@ export async function globalRootParallel (nwk: string, dates: number[]) {
     bestTree.nodes.children[0].data.attribute = (best.alpha * len).toString()
     bestTree.nodes.children[1].data.attribute = ((1 - best.alpha) * len).toString()
 
+    console.log("len-test")
+    console.log("src-tr" + tree.getBranchLengths().filter((e: number) => !isNaN(e)).reduce(
+      (a: number, c: number) => a + c,
+      0
+    ))
+    console.log("bfr-tr" + bestTree.getBranchLengths().filter((e: number) => !isNaN(e)).reduce(
+      (a: number, c: number) => a + c,
+      0
+    ))
+
     return bestTree.getNewick()
 
   } else {
 
-    bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx], best.alpha)
+    bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx])
+
+    let bl = bestTree.getBranchLengths()
+    let len = bl[1] + bl[2]
+
+    bestTree.nodes.children[0].data.attribute = (best.alpha * len).toString()
+    bestTree.nodes.children[1].data.attribute = ((1 - best.alpha) * len).toString()
+
     bestTree.nodes.each((n: any) => {
       if (n.data.__mapped_bl){
         n.data.attribute = n.data.__mapped_bl.toString();
       }
     })
 
+    console.log("len-test")
+    console.log("src-tr" + tree.getBranchLengths().filter((e: number) => !isNaN(e)).reduce(
+      (a: number, c: number) => a + c,
+      0
+    ))
+    console.log("bfr-tr" + bestTree.getBranchLengths().filter((e: number) => !isNaN(e)).reduce(
+      (a: number, c: number) => a + c,
+      0
+    ))
     return bestTree.getNewick()
   }
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export function globalRootSerial (nwk: string, dates: number[]) {
-
-    const tree = new phylotree(nwk)
-
-    var tr = new phylotree(nwk);
-    var bestTree = new phylotree(nwk)
-    const numNodes = tree.nodes.descendants().length;
-
-    // handling root case first as base
-    var best = localRoot(tr, dates); 
-
-    for (let n = 1; n < numNodes; n++) {
-
-      tr = new phylotree(nwk);
-      tr.reroot(tr.nodes.descendants()[n]);
-
-      var prime = localRoot(
-        tr,
-        reorderData(
-          dates,
-          util.getTipNames(tree),
-          util.getTipNames(tr)
-        )
-      )
-      if (prime.r2 - best.r2  > 1e-8) { // TODO: Better soln than 1e-08 episolon value for precision?
-
-        best = {...prime};
-
-        bestTree = new phylotree(nwk)
-        bestTree.reroot(bestTree.nodes.descendants()[n], prime.alpha);
-
-      }
-    }
-
-
-    return bestTree.getNewick();
-
-}
- 
 
 export function localRoot (tree: any, dates: number[]) {
 
@@ -169,7 +153,7 @@ export function localRoot (tree: any, dates: number[]) {
     //var tipHeights: number[] = rootToTip(tree).getTips().map((tip: any) => tip.data.rootToTip)
     var bl = tree.getBranchLengths();
 
-    var desc1: string[] = tree.nodes.children[1].leaves().map(
+    var desc1: string[] = tree.nodes.children[0].leaves().map(
       (e: any) => e.data.name
       );
 
@@ -217,4 +201,47 @@ function spliceIntoChunks(arr: number[], chunkSize: number) {
       res.push(chunk);
   }
   return(res)
+}
+
+
+
+//////////////////////////////////// Old Stuff Below ////////////////////////////////////////////////
+
+export function globalRootSerial (nwk: string, dates: number[]) {
+
+  const tree = new phylotree(nwk)
+
+  var tr = new phylotree(nwk);
+  var bestTree = new phylotree(nwk)
+  const numNodes = tree.nodes.descendants().length;
+
+  // handling root case first as base
+  var best = localRoot(tr, dates); 
+
+  for (let n = 1; n < numNodes; n++) {
+
+    tr = new phylotree(nwk);
+    tr.reroot(tr.nodes.descendants()[n]);
+
+    var prime = localRoot(
+      tr,
+      reorderData(
+        dates,
+        util.getTipNames(tree),
+        util.getTipNames(tr)
+      )
+    )
+    if (prime.r2 - best.r2  > 1e-8) { // TODO: Better soln than 1e-08 episolon value for precision?
+
+      best = {...prime};
+
+      bestTree = new phylotree(nwk)
+      bestTree.reroot(bestTree.nodes.descendants()[n], prime.alpha);
+
+    }
+  }
+
+
+  return bestTree.getNewick();
+
 }
