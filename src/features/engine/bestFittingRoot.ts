@@ -181,15 +181,21 @@ export function localRoot (tree: any, dates: number[]) {
     return {alpha: alpha, r2: -1 * univariateFunction(alpha)}
 }
 
-export function reorderData (arr: number[], currentTip: string[], targetTip: string[]) {
+interface TipIndices {
+  [key: string]: number;
+}
 
-  let index = currentTip.map(
-    e => targetTip.indexOf(e)
-  )
+export function reorderData(arr: number[], currentTip: string[], targetTip: string[]) {
+  // chatGPT optimized :robot_face:
+  const targetTipIndices: TipIndices = {};
+  for (let i = 0; i < targetTip.length; i++) {
+    targetTipIndices[targetTip[i]] = i;
+  }
 
-  let arrOrdered = index.map(
-    (e: number) => arr[e]
-  )
+  const arrOrdered = currentTip.map((tip) => {
+    const index = targetTipIndices[tip];
+    return arr[index];
+  });
 
   return arrOrdered;
 }

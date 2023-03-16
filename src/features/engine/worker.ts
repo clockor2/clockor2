@@ -4,7 +4,7 @@ import { localRoot, localOptima, reorderData } from "./bestFittingRoot";
 // this runs on the webworker, created with webpack 5 syntax new
 // Worker('./worker.ts'). in jest tests, this module is not used, instead the
 // workerMessageHandler is directly addressed
-self.onmessage = ({ data: { nwk, dates, nodeNums } }) => {
+self.onmessage = ({ data: { nwk, dates, nodeNums } }) => { /* eslint-disable-line no-restricted-globals */
   var tree = new phylotree(nwk)
   var treePrime: any = {}
   var datesPrime: number[] = []
@@ -39,5 +39,5 @@ self.onmessage = ({ data: { nwk, dates, nodeNums } }) => {
     )
   }
 
-  self.postMessage(prime);
+  self.postMessage(prime); /* eslint-disable-line no-restricted-globals */
 }; 
