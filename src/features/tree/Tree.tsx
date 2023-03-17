@@ -4,6 +4,7 @@ import { PhylocanvasGL } from './PhylocanvasGL'
 import { plugins } from "@phylocanvas/phylocanvas.gl";
 import { selectHighlightedId, setHighlightedId, setSelectedIds  } from './treeSlice';
 
+
 export function Tree(props: any) {
   const dispatch = useAppDispatch();
   const highlightedId = useAppSelector(selectHighlightedId)
@@ -17,9 +18,9 @@ export function Tree(props: any) {
   }, [highlightedId])
 
 
-
   useEffect(() => {      
     if (!mounted.current) {
+      // do componentDidMount logic
       if (props.source) {
         const canvas = document.querySelector("#tree")
         treeRef.current = new PhylocanvasGL(canvas, props, [plugins.scalebar]) // TODO setProps and render 
@@ -34,11 +35,11 @@ export function Tree(props: any) {
           dispatch(setHighlightedId(treeRef.current?.props.highlightedId))
         }) 
       }
-      // do componentDidMount logic
       mounted.current = true;
     } else {
-      treeRef.current?.setProps(props)
       // do componentDidUpdate logic
+      treeRef.current?.setProps(props)
+      
     }
   }, [props, dispatch]); // rerender when props change
 

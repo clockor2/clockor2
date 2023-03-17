@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Root } from 'plotly.js';
 import { RootState } from '../../app/store';
 import { LocalClockModel } from '../engine/core';
 
@@ -32,7 +31,6 @@ const initialState: RegressionState = {
     group: "number"
   }
 };
-
 
 export const regressionSlice = createSlice({
   name: 'regression',

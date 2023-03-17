@@ -5,20 +5,66 @@ import { Regression } from './features/regression/Regression';
 import { InfoPanel } from './features/infopanel/InfoPanel';
 import { RegressionInput } from './features/regression/RegressionInput';
 import './App.css';
-import { selectSource } from './features/tree/treeSlice';
 import { useAppSelector } from './app/hooks';
-import { selectData } from './features/regression/regressionSlice';
+import { selectCurrentData } from './features/regression/regressionSlice';
 import { selectCurrentTree } from './features/tree/treeSlice';
 import { Menu } from './features/menu/menu';
 import { defaultSettings, SettingsButton, TreeSettings } from './features/tree/components/settingsButton';
+import { LocalClockModel } from './features/engine/core';
+const chroma = require("chroma-js")
 
+
+function createGroupsFromRegressionData(regressionData: LocalClockModel) {
+  interface TipGroups {
+    [key: string]: number;
+  }
+  let groups: TipGroups = {}
+  let numberOfGroups: number
+  if (regressionData.localClock) {
+    numberOfGroups = regressionData.localClock.length
+    for (let index = 0; index < numberOfGroups; index++) {
+      regressionData.localClock[index].tip.forEach(tip => {
+        groups[tip] = index
+      });
+    }
+  } else {
+    numberOfGroups = 1
+    regressionData.baseClock.tip.forEach(tip => {
+      groups[tip] = 0
+    });
+  }
+  return {groups, numberOfGroups}
+}
 
 function App() {
 
   const [size, setSize] = useState<object | null>(null);
   const [settings, setSettings] = useState<TreeSettings>(defaultSettings)
   const currentTree = useAppSelector(selectCurrentTree);
-  const regressionData = useAppSelector(selectData);
+  const regressionData = useAppSelector(selectCurrentData);
+  const [nodeStyles, setNodeStyles] = useState<NodeStyles>({});
+  
+  interface NodeStyles {
+    [key: string]: NodeStyle;
+  }
+  interface NodeStyle {
+    [key: string]: any;
+  }
+
+  useEffect(() => {
+    if (regressionData) {
+      let {groups, numberOfGroups} = createGroupsFromRegressionData(regressionData)
+      const colours = chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(numberOfGroups); // move this to state
+      let styles: any = {}
+      
+      Object.keys(groups).forEach(function(key: string, index: number) {
+        styles[key] = {fillColour: colours[groups[key]]};
+      });
+      setNodeStyles(styles)
+      console.log(styles);
+    }
+    
+  }, [regressionData])
 
   useEffect(() => {
     if (!size) {
@@ -58,6 +104,7 @@ function App() {
                 selectedIds={[]}
                 size={size}
                 showLabels={true}
+                styles={nodeStyles}
                 {...settings}
               />
             </div>
