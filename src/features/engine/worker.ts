@@ -8,9 +8,35 @@ self.onmessage = ({ data: { nwk, dates, nodeNums } }) => { /* eslint-disable-lin
   var tree = new phylotree(nwk)
   var treePrime: any = {}
   var datesPrime: number[] = []
-  var prime: localOptima[] = []
+  var localOptimum: localOptima
+  var best: localOptima
 
-  for (let i=0; i<nodeNums.length; i++) {
+  // first node case
+  treePrime = new phylotree(nwk);
+  treePrime.reroot(treePrime.nodes.descendants()[nodeNums[0]]);
+  // set branch lengths
+  treePrime.nodes.each((n: any) => {
+    if (n.data.__mapped_bl){
+      n.data.attribute = n.data.__mapped_bl.toString();
+    }
+  })
+
+  datesPrime = reorderData(
+    dates,
+    tree.getTips().map((e: any) => e.data.name),
+    treePrime.getTips().map((e: any) => e.data.name)
+  )
+
+  best = {
+    ...localRoot(
+      treePrime,
+      datesPrime
+    ),
+    nodeIndx: nodeNums[0]
+    }
+
+  // compare to rest of nodes
+  for (let i=1; i<nodeNums.length; i++) {
     treePrime = new phylotree(nwk);
     treePrime.reroot(treePrime.nodes.descendants()[nodeNums[i]]);
     // set branch lengths
@@ -26,18 +52,18 @@ self.onmessage = ({ data: { nwk, dates, nodeNums } }) => { /* eslint-disable-lin
       treePrime.getTips().map((e: any) => e.data.name)
     )
 
-    var localOptimum = localRoot(
-      treePrime,
-      datesPrime
-    )
+    localOptimum = {
+      ...localRoot(
+        treePrime,
+        datesPrime
+      ),
+      nodeIndx: nodeNums[i]
+    }
 
-    prime.push(
-      {
-        ...localOptimum,
-        nodeIndx: nodeNums[i]
-      }
-    )
+    if (localOptimum.r2 - best.r2 > 1e-08) {
+      best = localOptimum;
+    }
   }
 
-  self.postMessage(prime); /* eslint-disable-line no-restricted-globals */
+  self.postMessage(best);
 }; 
