@@ -60,7 +60,7 @@ const extractPartOfTipName = (name: string, delimiter: string, location: string)
 
 describe('Testing localRoot()', () => {
   test('Want alpha defined for all reroots using MERS Data', () => {
-    const nwk = readFileSync("/home/leo/Documents/clockor2/src/features/engine/egTree.nwk").toString();
+    const nwk = readFileSync("src/features/engine/egTree.nwk").toString();
     //const nwk = '((A:1, B:2):1,(C:1, D:2):3);'
     const tree = new phylotree(nwk);
 
@@ -96,7 +96,7 @@ describe('Testing localRoot()', () => {
 
 describe('Testing branch_length()', () => {
   test('Branch length accessor', () => {
-    const nwk = readFileSync("/home/leo/Documents/clockor2/src/features/engine/egTree.nwk").toString();
+    const nwk = readFileSync("src/features/engine/egTree.nwk").toString();
     var tree = new phylotree(nwk)
 
     // var bl = tree.branch_length_accessor

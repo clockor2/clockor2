@@ -1,192 +1,169 @@
-// Functions for best fitting root
-// Implementing method used in Tempest:
-// https://github.com/beast-dev/beast-mcmc/blob/cf3d7370ca1a5b697f0f49be49765dcd6ad06dfb/src/dr/app/tempest/TemporalRooting.java
-// https://doi.org/10.1093/ve/vew007
-
-//import { Console } from "console";
-import { createUnparsedSourceFile, isBreakStatement } from "typescript";
+import { phylotree } from "phylotree";
 import * as core from "./core";
-import * as util from "./utils"
-import { phylotree, rootToTip } from "phylotree"
-var minimize = require('minimize-golden-section-1d');
-//import  { minimize } from "minimize-golden-section-1d"
+import * as util from "./utils";
+var minimize = require("minimize-golden-section-1d");
 
-  // https://stackoverflow.com/questions/41423905/wait-for-several-web-workers-to-finish
-  // for (let index = 0; index < 5; index++) {
-  //   const worker = new Worker(new URL("./worker.ts", import.meta.url));
-  //   worker.postMessage({
-  //     nwk: tr.getNewick(),
-  //   });
-  //   worker.onmessage = ({ data: { answer } }) => {
-  //     console.log(answer);
-  //   };
-  // }
-
-
-  //return tr.getNewick();
-
-  
 export interface localOptima {
-  r2: number,
-  alpha: number,
-  nodeIndx: number
+  r2: number;
+  alpha: number;
+  nodeIndx: number;
 }
 
+/**
+ * Creates a web worker for parallel processing and sets up message passing with the worker.
+ *
+ * @param {string} nwk - The Newick string representing the phylogenetic tree.
+ * @param {number[]} dates - An array of dates associated with each tip of the tree.
+ * @param {number[]} nodes - An array of node indices to be processed by the worker.
+ * @returns {Promise} - A Promise that resolves with the worker's response data.
+ */
 function createWorker(nwk: string, dates: number[], nodes: number[]) {
-  return new Promise(function(resolve, reject){
+  return new Promise(function (resolve, reject) {
     const worker = new Worker(new URL("./worker.ts", import.meta.url));
     worker.postMessage({
       nwk: nwk,
       dates: dates,
-      nodeNums: nodes
+      nodeNums: nodes,
     });
     worker.onmessage = (e) => {
-      resolve(e.data)
-    }
+      resolve(e.data);
+    };
     worker.onerror = reject;
-  })
+  });
 }
 
-export async function globalRootParallel (nwk: string, dates: number[]) {
-
-  const tree = new phylotree(nwk)
+/**
+ * Finds the best root for a phylogenetic tree by searching through all possible roots in parallel.
+ *
+ * @param {string} nwk - The Newick string representing the phylogenetic tree.
+ * @param {number[]} dates - An array of dates associated with each tip of the tree.
+ * @returns {Promise<string>} - A Promise that resolves with the Newick string of the best rooted tree.
+ */
+export async function globalRootParallel(nwk: string, dates: number[]) {
+  const tree = new phylotree(nwk);
   var nodes = tree.nodes.descendants();
-  var nodeNums = nodes.map(
-    (e: any, i: number) => i
-  ).slice(1)
+  var nodeNums = nodes.map((e: any, i: number) => i).slice(1);
 
   var nodeNumsChunked = spliceIntoChunks(
-    nodeNums, 
-    ( (nodeNums.length - 1) / window.navigator.hardwareConcurrency)
-  )
+    nodeNums,
+    (nodeNums.length - 1) / window.navigator.hardwareConcurrency
+  );
 
-  var promises = nodeNumsChunked.map(
-    (e: number[]) => createWorker(
-      nwk,
-      dates,
-      e
-    )
-  )
+  var promises = nodeNumsChunked.map((e: number[]) =>
+    createWorker(nwk, dates, e)
+  );
 
+  var prime = (await Promise.all(promises)).flat();
 
-  //var prime: any = [];
-  var prime = (await Promise.all(promises))
-  //prime = prime.map((msg: any) => msg.data)
-  prime = prime.flat()
+  prime.unshift({
+    ...localRoot(tree, dates),
+    nodeIndx: 0,
+  });
 
+  var r2 = prime.map((e: any) => e.r2);
 
-  prime.unshift(
-    {
-    ...localRoot(
-      tree,
-      dates
-    ),
-    nodeIndx: 0
-    }
-  )
+  var bestR2 = Math.max(...r2);
 
-  var r2 = prime.map(
-    (e: any) => e.r2
-  )
+  var bestIndx = r2.indexOf(bestR2);
+  var best: any = prime[bestIndx];
 
-  var bestR2 = Math.max(...r2)
+  let bestTree = new phylotree(nwk);
 
-  var bestIndx = r2.indexOf(bestR2)
-  var best: any = prime[bestIndx]
-
-  let bestTree = new phylotree(nwk)
-  
-  // account for case where best root is already the root
-  if (best.nodeIndx == 0) {
-    
-    let bl = bestTree.getBranchLengths()
-    let len = bl[1] + bl[2]
-
-    bestTree.nodes.children[0].data.attribute = (best.alpha * len).toString()
-    bestTree.nodes.children[1].data.attribute = ((1 - best.alpha) * len).toString()
-
-    console.log("len-test")
-    console.log("src-tr" + tree.getBranchLengths().filter((e: number) => !isNaN(e)).reduce(
-      (a: number, c: number) => a + c,
-      0
-    ))
-    console.log("bfr-tr" + bestTree.getBranchLengths().filter((e: number) => !isNaN(e)).reduce(
-      (a: number, c: number) => a + c,
-      0
-    ))
-
-    return bestTree.getNewick()
-
+  if (best.nodeIndx === 0) {
+    handleRootCase(bestTree, best);
   } else {
-
-    bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx])
-
-    let bl = bestTree.getBranchLengths()
-    let len = bl[1] + bl[2]
-
-    bestTree.nodes.children[0].data.attribute = (best.alpha * len).toString()
-    bestTree.nodes.children[1].data.attribute = ((1 - best.alpha) * len).toString()
-
-    bestTree.nodes.each((n: any) => {
-      if (n.data.__mapped_bl){
-        n.data.attribute = n.data.__mapped_bl.toString();
-      }
-    })
-
-    console.log("len-test")
-    console.log("src-tr" + tree.getBranchLengths().filter((e: number) => !isNaN(e)).reduce(
-      (a: number, c: number) => a + c,
-      0
-    ))
-    console.log("bfr-tr" + bestTree.getBranchLengths().filter((e: number) => !isNaN(e)).reduce(
-      (a: number, c: number) => a + c,
-      0
-    ))
-    return bestTree.getNewick()
+    handleNonRootCase(bestTree, tree, best);
   }
+
+  return bestTree.getNewick();
 }
 
-export function localRoot (tree: any, dates: number[]) {
+/**
+ * Handles the case when the best root found is already the root.
+ *
+ * @param {any} bestTree - The best rooted phylotree instance.
+ * @param {any} best - The best local optima information.
+ */
+function handleRootCase(bestTree: any, best: any) {
+  let bl = bestTree.getBranchLengths();
+  let len = bl[1] + bl[2];
 
-    var tipNames: string[] = util.getTipNames(tree);
-    var tipHeights: number[] = util.getTipHeights(tree);
-    //var tipHeights: number[] = rootToTip(tree).getTips().map((tip: any) => tip.data.rootToTip)
-    var bl = tree.getBranchLengths();
+  bestTree.nodes.children[0].data.attribute = (best.alpha * len).toString();
+  bestTree.nodes.children[1].data.attribute = ((1 - best.alpha) * len).toString();
+}
 
-    var desc1: string[] = tree.nodes.children[0].leaves().map(
-      (e: any) => e.data.name
-      );
+/**
+ * Handles the case when the best root found is not the current root.
+ *
+ * @param {any} bestTree - The best rooted phylotree instance.
+ * @param {any} tree - The original phylotree instance.
+ * @param {any} best - The best local optima information.
+ */
+function handleNonRootCase(bestTree: any, tree: any, best: any) {
+  bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx]);
 
-    var indicator: number[] = []
-    for (let i=0; i<tipNames.length; i++){
-        desc1.includes(tipNames[i]) 
-        ? 
-        indicator.push(1)
-        :
-        indicator.push(0)
+  let bl = bestTree.getBranchLengths();
+  let len = bl[1] + bl[2];
+
+  bestTree.nodes.children[0].data.attribute = (best.alpha * len).toString();
+  bestTree.nodes.children[1].data.attribute = ((1 - best.alpha) * len).toString();
+
+  bestTree.nodes.each((n: any) => {
+    if (n.data.__mapped_bl) {
+      n.data.attribute = n.data.__mapped_bl.toString();
     }
+  });
+}
 
-    let length = bl[1] + bl[2];
+/**
+ * Finds the best local root for a given phylogenetic tree.
+ *
+ * @param {any} tree - A phylotree instance representing the phylogenetic tree.
+ * @param {number[]} dates - An array of dates associated with each tip of the tree.
+ * @returns {object} - An object containing the best alpha value and the corresponding R2 value.
+ */
+export function localRoot(tree: any, dates: number[]) {
+  var tipNames: string[] = util.getTipNames(tree);
+  var tipHeights: number[] = util.getTipHeights(tree);
+  var bl = tree.getBranchLengths();
 
-    const univariateFunction = (x: number) => {
+  var desc1: string[] = tree.nodes.children[0].leaves().map(
+    (e: any) => e.data.name
+  );
 
-      let tipHeightsNew = tipHeights.map(
-        (e, i) => indicator[i]*(e - bl[1] + (x*length)) + (1-indicator[i])*(e - bl[2] + ((1-x)*length))
-      ); 
+  var indicator: number[] = [];
+  for (let i = 0; i < tipNames.length; i++) {
+    desc1.includes(tipNames[i]) ? indicator.push(1) : indicator.push(0);
+  }
 
-      return -1 * core.linearRegression({x: dates, y: tipHeightsNew, tip: tipNames}).r2;
-    }
+  let length = bl[1] + bl[2];
 
-    let alpha = minimize(univariateFunction, {lowerBound: 0, upperBound: 1}); // TODO: How to stop NaN results here?
-    return {alpha: alpha, r2: -1 * univariateFunction(alpha)}
+  const univariateFunction = (x: number) => {
+    let tipHeightsNew = tipHeights.map(
+      (e, i) =>
+        indicator[i] * (e - bl[1] + x * length) +
+        (1 - indicator[i]) * (e - bl[2] + (1 - x) * length)
+    );
+    return -1 * core.linearRegression({ x: dates, y: tipHeightsNew, tip: tipNames }).r2;
+  };
+
+  let alpha = minimize(univariateFunction, { lowerBound: 0, upperBound: 1 });
+  return { alpha: alpha, r2: -1 * univariateFunction(alpha) };
 }
 
 interface TipIndices {
   [key: string]: number;
 }
 
+/**
+ * Reorders an array of data based on the correspondence between the current and target tip names.
+ *
+ * @param {number[]} arr - The array of data to be reordered.
+ * @param {string[]} currentTip - An array of the current tip names.
+ * @param {string[]} targetTip - An array of the target tip names.
+ * @returns {number[]} - The reordered array of data.
+ */
 export function reorderData(arr: number[], currentTip: string[], targetTip: string[]) {
-  // chatGPT optimized :robot_face:
   const targetTipIndices: TipIndices = {};
   for (let i = 0; i < targetTip.length; i++) {
     targetTipIndices[targetTip[i]] = i;
@@ -200,54 +177,18 @@ export function reorderData(arr: number[], currentTip: string[], targetTip: stri
   return arrOrdered;
 }
 
+/**
+ * Splits an array into chunks of the specified size.
+ *
+ * @param {number[]} arr - The array to be split into chunks.
+ * @param {number} chunkSize - The size of each chunk.
+ * @returns {number[][]} - An array of chunks.
+ */
 function spliceIntoChunks(arr: number[], chunkSize: number) {
   const res = [];
   while (arr.length > 0) {
-      const chunk = arr.splice(0, chunkSize);
-      res.push(chunk);
+    const chunk = arr.splice(0, chunkSize);
+    res.push(chunk);
   }
-  return(res)
-}
-
-
-
-//////////////////////////////////// Old Stuff Below ////////////////////////////////////////////////
-
-export function globalRootSerial (nwk: string, dates: number[]) {
-
-  const tree = new phylotree(nwk)
-
-  var tr = new phylotree(nwk);
-  var bestTree = new phylotree(nwk)
-  const numNodes = tree.nodes.descendants().length;
-
-  // handling root case first as base
-  var best = localRoot(tr, dates); 
-
-  for (let n = 1; n < numNodes; n++) {
-
-    tr = new phylotree(nwk);
-    tr.reroot(tr.nodes.descendants()[n]);
-
-    var prime = localRoot(
-      tr,
-      reorderData(
-        dates,
-        util.getTipNames(tree),
-        util.getTipNames(tr)
-      )
-    )
-    if (prime.r2 - best.r2  > 1e-8) { // TODO: Better soln than 1e-08 episolon value for precision?
-
-      best = {...prime};
-
-      bestTree = new phylotree(nwk)
-      bestTree.reroot(bestTree.nodes.descendants()[n], prime.alpha);
-
-    }
-  }
-
-
-  return bestTree.getNewick();
-
+  return res;
 }
