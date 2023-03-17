@@ -53,7 +53,7 @@ export async function globalRootParallel(nwk: string, dates: number[]) {
     createWorker(nwk, dates, e)
   );
 
-  var prime = (await Promise.all(promises)).flat();
+  var prime = (await Promise.all(promises));
 
   prime.unshift({
     ...localRoot(tree, dates),
