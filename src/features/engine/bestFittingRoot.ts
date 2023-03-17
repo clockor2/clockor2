@@ -19,7 +19,7 @@ export interface localOptima {
  */
 function createWorker(nwk: string, dates: number[], nodes: number[]) {
   return new Promise(function (resolve, reject) {
-    const worker = new Worker(new URL("./worker.ts", import.meta.url));
+    const worker = new Worker(new URL("./bfrWorker.ts", import.meta.url));
     worker.postMessage({
       nwk: nwk,
       dates: dates,

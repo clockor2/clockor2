@@ -65,5 +65,5 @@ self.onmessage = ({ data: { nwk, dates, nodeNums } }) => { /* eslint-disable-lin
     }
   }
 
-  self.postMessage(best);
+  self.postMessage(best); /* eslint-disable-line no-restricted-globals */
 }; 

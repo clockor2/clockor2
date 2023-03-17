@@ -33,9 +33,9 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
       x: lcm.baseClock.x,
       y: lcm.baseClock.y,
       text: lcm.baseClock.tip,
-      marker: {color: '#000000'},
+      marker: {color: '#000000', size: 5},
       mode: "markers",
-      name: "Baseline",
+      name: "Global",
       legendgroup: "0",
       showlegend: false
     }
@@ -44,7 +44,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
     var line = {
       x: lcm.baseClock.x,
       y: lcm.baseClock.fitY,
-      name: `Baseline`,
+      name: `Global`,
       marker : {color: '#000000'},
       mode: "lines",
       text: lcm.localClock.length > 1 

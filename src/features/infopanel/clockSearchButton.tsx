@@ -1,10 +1,12 @@
-import { Button, Checkbox, Label, Modal, Select, TextInput } from "flowbite-react";
+import { Label, Modal, Select, Spinner } from "flowbite-react";
 import { setClockSearchData, setCurrentData, selectCurrentData, selectClockSearchData  } from "../regression/regressionSlice";
 import { selectCurrentTree } from "../tree/treeSlice";
 import React, { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import { phylotree } from "phylotree";
-import { clockSearch } from "../engine/clockSearch";
+import { createClockSearchWorker } from "../engine/clockSearch";
+import { LocalClockModel } from "../engine/core";
+
 
 /* TODO
 1. Define new states for clock search data - DONE
@@ -19,30 +21,37 @@ export function ClockSearchButton(props: any) {
     const [minCladeSize, setMinCladeSize] = useState<number>(Math.floor(nTips / 2));
     const [maxClocks, setMaxClocks] = useState<number>(2);
     const [icMetric, setICMetric] = useState<"aic" | "aicc" | "bic">("bic")
-    const [isToggled,setToggle] = useState(false);
+    const [isToggled, setToggle] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
     const toggleModal = () => {
-      setToggle(!isToggled)
+      if (!isSearching) {
+        setToggle(!isToggled)
+      }
     }
 
     const dispatch = useAppDispatch(); 
     const nwk = useAppSelector(selectCurrentTree);
     const currentData = useAppSelector(selectCurrentData)
     const dates = currentData ? currentData.baseClock.x : [...Array(10)] // Need something to protect against undefined case
-    const handleSubmit = (event: any) => {
+    async function handleSubmit (event: any) {
 
-        event.preventDefault(); // TODO: Understand event.preventDefault()
+      event.preventDefault(); // TODO: Understand event.preventDefault()
 
-        const clockSearchResult = clockSearch(
-            nwk,
-            minCladeSize,
-            maxClocks,
-            dates,
-            icMetric
-        )
-        dispatch(setClockSearchData(clockSearchResult));
-        dispatch(setCurrentData(clockSearchResult));
-        toggleModal();
-        }
+      setIsSearching(true)
+      var groupConfig = await createClockSearchWorker(
+        nwk,
+        minCladeSize,
+        maxClocks,
+        dates,
+        icMetric,
+      )
+
+      dispatch(setClockSearchData(groupConfig))
+      dispatch(setCurrentData(groupConfig))
+      setIsSearching(false)
+      toggleModal()
+
+    }
 
 return (
 <div>
@@ -53,7 +62,7 @@ return (
         </button>
         <React.Fragment>
           <Modal
-            dismissible={true}
+            dismissible={!isSearching}
             show={isToggled}
             onClose={toggleModal}
           >
@@ -75,7 +84,7 @@ return (
             className="w-1/2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
             placeholder={minCladeSize.toString()}
             type="range"
-            min={1} 
+            min={3} 
             max={nTips} 
             required={true}
             onChange={e => setMinCladeSize(parseInt(e.target.value))}
@@ -130,10 +139,18 @@ return (
                   </Select>
         </div>
       </div>
-
+      {isSearching
+      ?
+      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2"
+       disabled={isSearching}
+       >
+        <Spinner aria-label="Spinner button example" />
+      </button>
+      :
       <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2">
         Perform Clock Search
       </button>
+      }
     </form>
     </Modal.Body>
     </Modal>

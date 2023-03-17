@@ -2,6 +2,39 @@ import { phylotree } from "phylotree"
 import { regression, LocalClockModel } from "./core"
 import { getTipHeights, getTipNames } from "./utils"
 
+/**
+ * Creates a web worker for clock search in background thread
+ *
+ * @param {string} nwk - The Newick string representing the phylogenetic tree.
+ * @param {number} minCladeSize - Minimum group size for search
+ * @param {number} maxClocks - Max clocks to search for. Searches for 1..maxClocks
+ * @param {number[]} dates - Tip dates
+ * @param {"aic" | "aicc" | "bic"} icMetric - Information criterion used to determine best config. BIC reccommened.
+ * @returns {Promise} - A Promise that resolves with the worker's response data.
+ */
+export function createClockSearchWorker(
+  nwk: string, 
+  minCladeSize: number,
+  maxClocks: number,
+  dates: number[], 
+  icMetric: "aic" | "aicc" | "bic"
+  ): Promise<LocalClockModel> {
+  return new Promise(function (resolve, reject) {
+    const worker = new Worker(new URL("./clockSearchWorker.ts", import.meta.url));
+    worker.postMessage({
+      nwk: nwk, 
+      minCladeSize: minCladeSize,
+      maxClocks: maxClocks,
+      dates: dates, 
+      icMetric: icMetric
+    });
+    worker.onmessage = (e) => {
+      resolve(e.data);
+    };
+    worker.onerror = reject;
+  });
+}
+
 // Clock search function. Conver to a generator later
 // icMetric is the information criterion used to find 'best' state. TODO: Need to read these as part of input: aic | aicc | bic
 export const clockSearch = (

@@ -99,18 +99,7 @@ export function InfoPanel() {
           </div>
 
           :
-          <div className="flex shrink flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
-                <div className="flex text-2xl font-bold justify-center ">
-                  Local Clock
-                </div>
-                <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
-                  <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc < data?.baseIC.aicc : false}/>
-                  <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic < data?.baseIC.aic : false}/>
-                  <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic < data?.baseIC.bic : false}/>
-
-                </div>
-                <ResultsTable model={data?.localClock}/>
-
+          <div className="flex shrink flex-col p-10 bg-slate-50 justify-center overflow-y-scroll">
                 <div className="pt-2 flex text-2xl font-bold justify-center ">
                   Global Clock
                 </div>
@@ -120,6 +109,15 @@ export function InfoPanel() {
                   <MetricCard text="BIC" value={data?.baseIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic > data?.baseIC.bic : false}/>
                 </div>
                 <ResultsTable model={data?.baseClock}/> 
+                  <div className="flex text-2xl font-bold justify-center pt-4">
+                    Local Clock
+                  </div>
+                <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
+                  <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc < data?.baseIC.aicc : false}/>
+                  <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic < data?.baseIC.aic : false}/>
+                  <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic < data?.baseIC.bic : false}/>
+                </div>
+                <ResultsTable model={data?.localClock}/>
 
             </div>
         }
