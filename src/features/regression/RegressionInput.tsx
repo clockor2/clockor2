@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { TextInput, Label } from 'flowbite-react';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { selectTipNames, selectSource, selectTipHeights, setBestFittingRoot, selectCurrentTree, selectBestFittingRoot} from '../tree/treeSlice';
+import { selectSource, selectCurrentTree, selectBestFittingRoot} from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
-import { linearRegression, regression } from '../engine/core';
-import { LocalClockModel } from '../engine/core';
-import { selectRegressionInputDefaults, setData, setBestFittingRegression } from './regressionSlice';
-import { globalRootParallel } from '../engine/bestFittingRoot';
-import { getNewick } from "phylotree"
-import {phylotree, rootToTip} from "phylotree"
+import { regression } from '../engine/core';
+import { selectRegressionInputDefaults, setData } from './regressionSlice';
+import {phylotree} from "phylotree"
 import { getTipHeights, getTipNames } from '../engine/utils';
-
 
 export function RegressionInput(props: any) {
   const defaults = useAppSelector(selectRegressionInputDefaults);
@@ -47,7 +43,7 @@ export function RegressionInput(props: any) {
   const handleSubmit =  (event: any) => {
     event.preventDefault();
     const phylotreeTree = new phylotree(currentTree)
-    const tipNames = getTipNames(phylotreeTree)
+    const tipNames: Array<string> = getTipNames(phylotreeTree)
     const tipHeights = getTipHeights(phylotreeTree)
     
     const decimal_dates = tipNames.map( (name) => {
@@ -76,7 +72,6 @@ export function RegressionInput(props: any) {
     } else {
       groupings = tipNames.map(() => 0)
     }
-
 
     const regression_data = regression(
       tipHeights,

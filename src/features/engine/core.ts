@@ -27,7 +27,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
   const plot = [] as Plotly.Data[];
   if (lcm != null) {
     // generate colour scale. Use viridis-ish default
-    const cols = chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length);
+    const cols = chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length); // move this to state
     // Pushing plotly object for base lock
     var point = {
       x: lcm.baseClock.x,
