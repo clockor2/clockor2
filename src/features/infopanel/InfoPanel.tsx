@@ -86,7 +86,7 @@ export function InfoPanel() {
       <div className="max-h-[62.5vh] overflow-y-scroll">
         {numClocks === 1
           ?
-          <div className="shrink flex flex-col space-x-8 p-10 bg-slate-50 justify-center overflow-y-scroll">
+          <div className="shrink flex flex-col space-x-8 bg-slate-50 justify-center overflow-y-scroll">
             <div className=" flex text-2xl font-bold justify-center">
               Global Clock
             </div>
@@ -99,7 +99,7 @@ export function InfoPanel() {
           </div>
 
           :
-          <div className="flex shrink flex-col p-10 bg-slate-50 justify-center overflow-y-scroll">
+          <div className="flex shrink flex-col px-5 pb-5 bg-slate-50 justify-center overflow-y-scroll">
                 <div className="pt-2 flex text-2xl font-bold justify-center ">
                   Global Clock
                 </div>
