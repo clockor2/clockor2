@@ -13,7 +13,7 @@ export const defaultSettings = {
   showLeafLabels: false,
   interactive: true,
   fontSize: 10,
-  nodeSize:7,
+  nodeSize: 6,
   type: 'rc'
 }
 

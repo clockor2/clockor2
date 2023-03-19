@@ -58,7 +58,7 @@ function App() {
       let styles: any = {}
       
       Object.keys(groups).forEach(function(key: string, index: number) {
-        styles[key] = {fillColour: colours[groups[key]]};
+        styles[key] = {fillColour: colours[groups[key]], };
       });
       setNodeStyles(styles)
       console.log(styles);
@@ -105,6 +105,12 @@ function App() {
                 size={size}
                 showLabels={true}
                 styles={nodeStyles}
+                shapeBorderAlpha={1}
+                shapeBorderWidth={1}
+                strokeColour={[ 34, 34, 34, 255 ]}
+                showShapeBorders={true}
+                padding={20}
+                scalebar={{position: {bottom: 10,left: 10}}}
                 {...settings}
               />
             </div>

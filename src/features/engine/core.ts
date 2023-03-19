@@ -63,7 +63,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
         x: lcm.localClock[i].x,
         y: lcm.localClock[i].y,
         text: lcm.localClock[i].tip,
-        marker: {color: cols[i]},
+        marker: {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
         mode: "markers",
         legendgroup: `${i + 1}`,
         showlegend: false
@@ -74,7 +74,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
         x: lcm.localClock[i].x,
         y: lcm.localClock[i].fitY,
         text: `Local Clock: ${i + 1}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
-        marker : {color: cols[i]},
+        marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
         mode: "lines",
         legendgroup: `${i + 1}`,
         name: `Local Clock ${i + 1}`

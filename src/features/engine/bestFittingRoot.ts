@@ -28,7 +28,7 @@ function createWorker(nwk: string, dates: number[], nodes: number[]) {
     worker.onmessage = (e) => {
       resolve(e.data);
     };
-    worker.onerror = reject;
+    worker.onerror = (e) => reject(e.error);
   });
 }
 
