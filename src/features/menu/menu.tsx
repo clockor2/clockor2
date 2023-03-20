@@ -49,29 +49,21 @@ export function Menu(){
             onClose={toggleModal}
           >
             <Modal.Header>
-              Terms of Service
+              About
             </Modal.Header>
             <Modal.Body>
               <div className="space-y-6">
-                <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                  With less than a month to go before the European Union enacts new consumer privacy laws for its citizens, companies around the world are updating their terms of service agreements to comply.
+                <p>
+                  Clockor2 is a client-side web application for conducting root-to-tip (RTT) regression - the fastest and most widely used method to calibrate strict molecular clocks. 
                 </p>
-                <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                  The European Union’s General Data Protection Regulation (G.D.P.R.) goes into effect on May 25 and is meant to ensure a common set of data rights in the European Union. It requires organizations to notify users as soon as possible of high-risk data breaches that could personally affect them.
+                <p>
+                  Clockor2 also uniquely allows users to quickly fit local molecular clocks using RTT regression, thus handling the increasing complexity of phylodynamic datasets that sample beyond the assumption homogeneous host populations into other postulations and species. Clockor2 is efficient, handling trees of up to 10^5 tips, with significant speed increases compared to other RTT regression applications. 
+                </p>
+                <p>
+                  Although clockor2 is written as a web application, all data processing happens on the client-side, meaning that data never leaves the user’s computer.
                 </p>
               </div>
             </Modal.Body>
-            <Modal.Footer>
-              <Button onClick={toggleModal} >
-                I accept
-              </Button>
-              <Button
-                color="gray"
-                onClick={toggleModal}
-              >
-                Decline
-              </Button>
-            </Modal.Footer>
           </Modal>
         </React.Fragment>
       </div>
