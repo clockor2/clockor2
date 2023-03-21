@@ -138,6 +138,15 @@ export function localRoot(tree: any, dates: number[]) {
 
   let length = bl[1] + bl[2];
 
+  // Efficiency boost skipping opimisation for effectively 0-length branches
+  // (ie. < 10^-8)
+  if (length <= 1e-8) {
+    return { 
+      alpha: 0.5, 
+      r2: core.linearRegression({ x: dates, y: tipHeights, tip: tipNames }).r2
+    }
+  }
+
   const univariateFunction = (x: number) => {
     let tipHeightsNew = tipHeights.map(
       (e, i) =>
