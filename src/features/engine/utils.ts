@@ -1,5 +1,3 @@
-const phylotree = require("phylotree");
-const _ = require("lodash")
 
 export const decimal_date = (date: Date) => {
     var full_year = date.getFullYear();
@@ -34,27 +32,34 @@ export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNa
     return groups
   }
 
-  export const getTipHeights = (tree: any): number[] => {
-    // let tr = _.cloneDeep(tree)
-    // // map undefined BLs to zero:
-    // tr.nodes.each((n: any) => {
-    //   if (isNaN(n.data.attribute)) {
-    //     n.data.attribute =  '0';
-    //   } 
-    //   if (isNaN(n.data.__mapped_bl)) {
-    //     n.data.__mapped_bl =  '0';
-    //   } 
-    // });
+  interface TreeNode {
+    data: {
+      name: string;
+      attribute?: number;
+    };
+    children?: TreeNode[];
 
-    // return (
-    //   tr.getTips().map((tip: any) => tip.data.rootToTip)[0] 
-    //   ? 
-    //   tr.getTips().map((tip: any) => tip.data.rootToTip)  
-    //   : 
-    //   phylotree.rootToTip(tr).getTips().map((tip: any) => tip.data.rootToTip)
-    // )
-    phylotree.rootToTip(tree)
-    return tree.getTips().map((tip: any) => tip.data.rootToTip)
+  }
+  function dfs(node: TreeNode, distanceFromRoot: number, leafDistances: Map<string, number>): Map<string, number> {
+    if (!node.children || node.children.length === 0) {
+      leafDistances.set(node.data.name, distanceFromRoot);
+    } else {
+      node.children.forEach((child) => {
+        const distance = Number(child.data.attribute) || 0;
+        dfs(child, distanceFromRoot + distance, leafDistances);
+      });
+    }
+    return leafDistances;
+  }
+  
+  function computeDistances(tree: any): Map<string, number> {
+    const leafDistances = new Map<string, number>();
+    return dfs(tree.nodes, 0, leafDistances);
+  }
+
+  export const getTipHeights = (tree: any): number[] => {
+    let distances = computeDistances(tree)
+    return tree.getTips().map((tip: any) => distances.get(tip.data.name)) // reorder the nodes 
   }
 
   export const getTipNames = (tree: any): string[] => {

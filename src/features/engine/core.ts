@@ -228,7 +228,7 @@ const groupData = (
 
 // regression function 
 export function linearRegression(points: DataGroup) {
-  const reg = {} as Regression;
+  let reg = {} as Regression;
 
   // carrying tips over first
   reg.tip = points.tip;
@@ -236,12 +236,12 @@ export function linearRegression(points: DataGroup) {
   let x = points.x;
   let y = points.y;
 
-  var n = y.length;
-  var sum_x = 0;
-  var sum_y = 0;
-  var sum_xy = 0;
-  var sum_xx = 0;
-  var sum_yy = 0;
+  let sum_x = 0;
+  let n = y.length;
+  let sum_y = 0;
+  let sum_xy = 0;
+  let sum_xx = 0;
+  let sum_yy = 0;
 
   for (let j = 0; j < y.length; j++) {
       sum_x += x[j];
