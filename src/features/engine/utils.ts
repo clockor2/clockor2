@@ -35,26 +35,20 @@ export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNa
   }
 
   export const getTipHeights = (tree: any): number[] => {
-    // let tr = _.cloneDeep(tree)
-    // // map undefined BLs to zero:
-    // tr.nodes.each((n: any) => {
-    //   if (isNaN(n.data.attribute)) {
-    //     n.data.attribute =  '0';
-    //   } 
-    //   if (isNaN(n.data.__mapped_bl)) {
-    //     n.data.__mapped_bl =  '0';
-    //   } 
-    // });
-
-    // return (
-    //   tr.getTips().map((tip: any) => tip.data.rootToTip)[0] 
-    //   ? 
-    //   tr.getTips().map((tip: any) => tip.data.rootToTip)  
-    //   : 
-    //   phylotree.rootToTip(tr).getTips().map((tip: any) => tip.data.rootToTip)
-    // )
-    phylotree.rootToTip(tree)
-    return tree.getTips().map((tip: any) => tip.data.rootToTip)
+    tree.traverse_and_compute((n: any) => {
+      if (n.children === undefined) {
+        n.data.height = 0;
+        let p = n.parent;
+        while (p !== null) {
+          if(p.data.attribute) {
+            n.data.height += Number(p.data.attribute)
+          }
+          p = p.parent;
+        }
+      }
+    });
+    
+    return tree.getTips().map((e: any) => e.data.height)
   }
 
   export const getTipNames = (tree: any): string[] => {

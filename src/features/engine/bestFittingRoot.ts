@@ -40,6 +40,8 @@ function createWorker(nwk: string, dates: number[], nodes: number[]) {
  * @returns {Promise<string>} - A Promise that resolves with the Newick string of the best rooted tree.
  */
 export async function globalRootParallel(nwk: string, dates: number[]) {
+  var t0 = new Date().getTime();
+
   const tree = new phylotree(nwk);
   var nodes = tree.nodes.descendants();
   var nodeNums = nodes.map((e: any, i: number) => i).slice(1);
@@ -75,6 +77,9 @@ export async function globalRootParallel(nwk: string, dates: number[]) {
     handleNonRootCase(bestTree, tree, best);
   }
 
+  var t1 = new Date().getTime()
+
+  console.log("Time Taken(s) " + Math.abs(t1-t0) / 1000)
   return bestTree.getNewick();
 }
 
