@@ -1,11 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { PhylocanvasGL } from './PhylocanvasGL'
 import { plugins } from "@phylocanvas/phylocanvas.gl";
 import { selectHighlightedId, setHighlightedId, setSelectedIds  } from './treeSlice';
 
 
-export function Tree(props: any) {
+export type TreeExportFuctions = {
+  exportNewick(): Blob;
+  exportSVG(): Blob;
+}
+
+
+export const Tree = forwardRef<TreeExportFuctions, any>((props: any, ref) => {
   const dispatch = useAppDispatch();
   const highlightedId = useAppSelector(selectHighlightedId)
 
@@ -17,7 +23,15 @@ export function Tree(props: any) {
     treeRef.current?.highlightNode(node)
   }, [highlightedId])
 
-
+  useImperativeHandle(ref, () => ({
+    exportNewick() {
+      return treeRef.current?.exportNewick()
+    },
+    exportSVG() {
+      return treeRef.current?.exportSVG()
+    }
+  }));
+  
   useEffect(() => {      
     if (!mounted.current) {
       // do componentDidMount logic
@@ -48,5 +62,5 @@ export function Tree(props: any) {
         <div id="tree" />
       </div>
     );
-  }
+  })
 
