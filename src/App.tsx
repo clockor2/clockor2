@@ -10,6 +10,7 @@ import { selectCurrentData } from './features/regression/regressionSlice';
 import { selectCurrentTree } from './features/tree/treeSlice';
 import { Menu } from './features/menu/menu';
 import { defaultSettings, SettingsButton, TreeSettings } from './features/tree/components/settingsButton';
+import { DownloadButton } from './features/tree/components/downloadButton';
 import { LocalClockModel } from './features/engine/core';
 const chroma = require("chroma-js")
 
@@ -81,6 +82,14 @@ function App() {
     setSettings(settings)
   }
 
+  const downloadSVG = () => {
+
+  }
+
+  const downloadNewick = () => {
+
+  }
+
   return (
     <div className="App h-screen overflow-hidden">
       <div className='flex flex-col justify-between h-full'>
@@ -95,8 +104,9 @@ function App() {
           :
             <div className='w-1/2 h-full border-t-2 border-r-2'>
               <div className='relative'>
-                <div className='absolute z-50 top-0 right-0'>
-                  <SettingsButton saveSettings={onChange} />
+                <div className='flex absolute z-50 top-0 right-0'>
+                  <DownloadButton source={currentTree} />
+                  <SettingsButton saveSettings={onChange}   />
                 </div>
               </div>
               <Tree 
