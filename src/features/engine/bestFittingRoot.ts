@@ -9,6 +9,7 @@ export interface localOptima {
   nodeIndx: number;
 }
 
+
 /**
  * Creates a web worker for parallel processing and sets up message passing with the worker.
  *
@@ -17,13 +18,14 @@ export interface localOptima {
  * @param {number[]} nodes - An array of node indices to be processed by the worker.
  * @returns {Promise} - A Promise that resolves with the worker's response data.
  */
-function createWorker(nwk: string, dates: number[], nodes: number[]) {
+function createWorker(nwk: string, dates: number[], nodes: number[], tipData: any) {
   return new Promise(function (resolve, reject) {
     const worker = new Worker(new URL("./bfrWorker.ts", import.meta.url));
     worker.postMessage({
       nwk: nwk,
       dates: dates,
       nodeNums: nodes,
+      tipData: tipData
     });
     worker.onmessage = (e) => {
       resolve(e.data);
@@ -39,12 +41,15 @@ function createWorker(nwk: string, dates: number[], nodes: number[]) {
  * @param {number[]} dates - An array of dates associated with each tip of the tree.
  * @returns {Promise<string>} - A Promise that resolves with the Newick string of the best rooted tree.
  */
-export async function globalRootParallel(nwk: string, dates: number[]) {
+export async function globalRootParallel(nwk: string, dates: number[], tipData: any) {
   var t0 = new Date().getTime();
 
   const tree = new phylotree(nwk);
   var nodes = tree.nodes.descendants();
   var nodeNums = nodes.map((e: any, i: number) => i).slice(1);
+  console.log("Node Nums")
+  console.log(nodeNums)
+  console.log(nodeNums.length)
 
   var nodeNumsChunked = spliceIntoChunks(
     nodeNums,
@@ -52,7 +57,7 @@ export async function globalRootParallel(nwk: string, dates: number[]) {
   );
 
   var promises = nodeNumsChunked.map((e: number[]) =>
-    createWorker(nwk, dates, e)
+    createWorker(nwk, dates, e, tipData)
   );
 
   var prime = (await Promise.all(promises));
@@ -69,12 +74,14 @@ export async function globalRootParallel(nwk: string, dates: number[]) {
   var bestIndx = r2.indexOf(bestR2);
   var best: any = prime[bestIndx];
 
+  console.log("Best")
+  console.log(best)
   let bestTree = new phylotree(nwk);
 
   if (best.nodeIndx === 0) {
     handleRootCase(bestTree, best);
   } else {
-    handleNonRootCase(bestTree, tree, best);
+    handleNonRootCase(bestTree, best);
   }
 
   var t1 = new Date().getTime()
@@ -104,7 +111,7 @@ function handleRootCase(bestTree: any, best: any) {
  * @param {any} tree - The original phylotree instance.
  * @param {any} best - The best local optima information.
  */
-function handleNonRootCase(bestTree: any, tree: any, best: any) {
+function handleNonRootCase(bestTree: any, best: any) {
   bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx]);
 
   let bl = bestTree.getBranchLengths();
@@ -132,33 +139,35 @@ export function localRoot(tree: any, dates: number[]) {
   var tipHeights: number[] = util.getTipHeights(tree);
   var bl = tree.getBranchLengths();
 
-  var desc1: string[] = tree.nodes.children[0].leaves().map(
+  var desc0: string[] = tree.nodes.children[0].leaves().map(
     (e: any) => e.data.name
   );
 
   var indicator: number[] = [];
   for (let i = 0; i < tipNames.length; i++) {
-    desc1.includes(tipNames[i]) ? indicator.push(1) : indicator.push(0);
+    desc0.includes(tipNames[i]) ? indicator.push(1) : indicator.push(0);
   }
+
+
 
   let length = bl[1] + bl[2];
 
   // Efficiency boost skipping opimisation for effectively 0-length branches
   // (ie. < 10^-8)
-  if (length <= 1e-8) {
-    return { 
-      alpha: 0.5, 
-      r2: core.linearRegression({ x: dates, y: tipHeights, tip: tipNames }).r2
-    }
-  }
+  // if (length <= 1e-8) {
+  //   return { 
+  //     alpha: 0.5, 
+  //     r2: core.linearRegression({ x: dates, y: tipHeights, tip: tipNames, name: 'NA' }).r2
+  //   }
+  // }
 
   const univariateFunction = (x: number) => {
     let tipHeightsNew = tipHeights.map(
       (e, i) =>
-        indicator[i] * (e - bl[1] + x * length) +
-        (1 - indicator[i]) * (e - bl[2] + (1 - x) * length)
+        indicator[i] * (e - bl[1] + (x * length)) +
+        (1 - indicator[i]) * (e - bl[2] + ((1 - x) * length))
     );
-    return -1 * core.linearRegression({ x: dates, y: tipHeightsNew, tip: tipNames }).r2;
+    return -1 * core.linearRegression({ x: dates, y: tipHeightsNew, tip: tipNames, name: 'NA' }).r2;
   };
 
   let alpha = minimize(univariateFunction, { lowerBound: 0, upperBound: 1 });

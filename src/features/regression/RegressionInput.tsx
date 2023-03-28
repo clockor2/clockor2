@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextInput, Label } from 'flowbite-react';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { selectSource, selectCurrentTree, selectBestFittingRoot} from '../tree/treeSlice';
+import { selectSource, selectCurrentTree, selectBestFittingRoot, setTipData} from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
 import { regression } from '../engine/core';
 import { selectRegressionInputDefaults, setData } from './regressionSlice';
@@ -22,10 +22,11 @@ export function RegressionInput(props: any) {
 
   const dispatch = useAppDispatch();
 
-  const createNumericGroups = (groupings: Array<string>) => {
-    let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
-    return groupings.map(group => unique.indexOf(group))
-  }
+  //  below moved to core.ts
+  // const createNumericGroups = (groupings: Array<string>) => {
+  //   let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
+  //   return groupings.map(group => unique.indexOf(group))
+  // }
 
   const handelNegativeIndexes = (splitTipName: Array<string>, delimiter: string, loc: number): number => {
     if (loc < 0) {
@@ -50,27 +51,15 @@ export function RegressionInput(props: any) {
       let date = extractPartOfTipName(name, delimiter, loc)
       return decimal_date(new Date(date))
     })
-    
-    // const bestFitNwk = globalRootParallel(sourceNewick, decimal_dates);
-    // dispatch(setBestFittingRoot(bestFitNwk))
-    // globalRootParallel(sourceNewick, decimal_dates).then(
-    //   (nwk: string) => { 
-    //     dispatch(setBestFittingRoot(nwk)) 
-    //   }
-    // )
-
-
-    //const bestFitTree = currentTree; // TODO: This is false and must be changed
 
       
-    let groupings // TODO: Needs function to parse groups. possible move that for dates and groups to utils
+    let groupings: string[]
     if (group) {
-      groupings = tipNames.map( (name) => {
+      groupings = tipNames.map((name) => {
         return extractPartOfTipName(name, delimiter, group)
       })
-      groupings = createNumericGroups(groupings)
     } else {
-      groupings = tipNames.map(() => 0)
+      groupings = tipNames.map(() => "none")
     }
 
     const regression_data = regression(
@@ -78,28 +67,19 @@ export function RegressionInput(props: any) {
       decimal_dates,
       groupings,
       tipNames);
+
     dispatch(setData(regression_data))
 
-
-    // const tipNamesbestFit = getTipNames(bestFitTree);
-    // let groupingsBestFit // TODO: Needs function to parse groups. possible move that for dates and groups to utils
-    // if (group) {
-    //   groupingsBestFit = tipNames.map( (name) => {
-    //     return extractPartOfTipName(name, delimiter, group)
-    //   })
-    //   groupingsBestFit = createNumericGroups(groupingsBestFit)
-    // } else {
-    //   groupingsBestFit = tipNames.map(() => 0)
-    // }
-
-
-    // const bestFitRegression = regression(
-    //   getTipHeights(bestFitTree),
-    //   decimal_dates,
-    //   groupingsBestFit,
-    //   tipNamesbestFit
-    // )
-    // dispatch(setBestFittingRegression(bestFitRegression))
+    let tipDataArr = tipNames.map(
+      (e: string, i: number) => {
+        return [
+          e,
+          {date: decimal_dates[i], group: groupings[i]} 
+        ]
+      }
+    )
+    let tipData = Object.fromEntries(tipDataArr)
+    dispatch(setTipData(tipData))
 
   }
 

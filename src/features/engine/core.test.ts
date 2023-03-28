@@ -12,7 +12,7 @@ describe('Testing normalDensity()', () => {
 var dummyX = [0, 1, 2, 3, 4, 5];
 var dummyY = [1, 0, 3, 2, 5, 4];
 var dummyTip = dummyX.map(e => `t${e}`);
-var m = core.linearRegression({ x: dummyX, y: dummyY, tip: dummyTip });
+var m = core.linearRegression({ x: dummyX, y: dummyY, tip: dummyTip, name: 'global' });
 
 // test regresion: R2, slope, intercept, logLik (critical)
 describe('Testing linearRegression()', () => {

@@ -1,12 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
+interface TipData {
+  tip: string
+  group: string
+  date: number
+}
+
 export interface TreeState {
   source: string
   bestRootTree: string
   currentTree: string
   tipNames: string[]
   tipHeights: number[]
+  tipData: any // is object with tip names as keys for objects with date and group.
   selectedIds: string[]
   highlightedId: null | string
 }
@@ -17,6 +24,7 @@ const initialState: TreeState = {
   currentTree: '',
   tipNames: [],
   tipHeights: [],
+  tipData: {},
   selectedIds: [],
   highlightedId: null
 };
@@ -44,15 +52,21 @@ export const treeSlice = createSlice({
     },
     setCurrentTree: (state, action: PayloadAction<string>) => {
       state.currentTree = action.payload;
+    },
+    setTipData: (state, action: PayloadAction<string>) => {
+      state.tipData = action.payload;
     }
   },
 });
 
-export const { setSelectedIds,
+export const { 
+  setSelectedIds,
   setHighlightedId,
   setSource,
   setBestFittingRoot,
-  setCurrentTree} = treeSlice.actions;
+  setCurrentTree,
+  setTipData
+} = treeSlice.actions;
 
 // The functions below are called selectors and allow us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -64,5 +78,6 @@ export const selectSelectedIds = (state: RootState) => state.tree.selectedIds;
 export const selectHighlightedId = (state: RootState) => state.tree.highlightedId;
 export const selectBestFittingRoot = (state: RootState) => state.tree.bestRootTree;
 export const selectCurrentTree = (state: RootState) => state.tree.currentTree;
+export const selectTipData= (state: RootState) => state.tree.tipData;
 
 export default treeSlice.reducer;

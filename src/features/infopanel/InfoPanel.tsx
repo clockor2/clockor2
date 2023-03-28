@@ -22,30 +22,11 @@ export function InfoPanel() {
   const bestFitData = useAppSelector(selectBestFitData);
   const dispatch = useAppDispatch();
 
-  // const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
-  // const toggleBestFittingRoot = () => {
-  //   // Remove
-  //   if (bestFittingPhylotree) {
-  //     console.log(bestFittingPhylotree)
-  //   } else {
-  //     console.log("BFR NOT DEFINED")
-  //   }
-  //   invertBestFittingRoot(!useBestFittingRoot);
-  //   // Now doing things with the internal state
-  //   if (useBestFittingRoot && sourceData) {
-  //     dispatch(setCurrentTree(sourcePhylotree));
-  //     dispatch(setCurrentData(sourceData));
-
-  //   } else if ((!useBestFittingRoot) && bestFitData) {
-  //     dispatch(setCurrentTree(bestFittingPhylotree));
-  //     dispatch(setCurrentData(bestFitData));
-  //   }
-  // }
 
   // Getting state to log in buttons. Eg. num clocks
   const data = useAppSelector(selectCurrentData);
   // setting num clocks using ternary operator - if local clocks defined, use that plus 1
-  const numClocks = data && data?.localClock.length > 0 ? data?.localClock.length : 1;
+  const numClocks = data && data.localClock ? data?.localClock.length : 1;
 
   return (
     <div>
@@ -66,10 +47,6 @@ export function InfoPanel() {
         </div>
 
         <div className="flex items-center p-1 ">
-          {/* <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} />
-          <Label className="pl-1" htmlFor="bestRoot">
-            Best Fitting Root
-          </Label> */}
           <BFRButton/>
         </div>
 
@@ -91,11 +68,11 @@ export function InfoPanel() {
               Global Clock
             </div>
             <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
-              <MetricCard text="AICc" value={data?.baseIC.aicc} />
-              <MetricCard text="AIC" value={data?.baseIC.aic} />
-              <MetricCard text="BIC" value={data?.baseIC.bic} />
+              <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={false}/>
+              <MetricCard text="AIC" value={data?.baseIC.aic} isMin={false}/>
+              <MetricCard text="BIC" value={data?.baseIC.bic} isMin={false}/>
             </div>
-            <ResultsTable model={data?.baseClock}/>
+            <ResultsTable model={data ?? undefined} clock={"global"}/>
           </div>
 
           :
@@ -105,10 +82,10 @@ export function InfoPanel() {
                 </div>
                 <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
                   <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc > data?.baseIC.aicc : false}/>
-                  <MetricCard text="AIC" value={data?.baseIC.aic} isMin={true}/>
+                  <MetricCard text="AIC" value={data?.baseIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic > data?.baseIC.aic : false}/>
                   <MetricCard text="BIC" value={data?.baseIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic > data?.baseIC.bic : false}/>
                 </div>
-                <ResultsTable model={data?.baseClock}/> 
+                <ResultsTable model={data ?? undefined} clock={"global"}/> 
                   <div className="flex text-2xl font-bold justify-center pt-4">
                     Local Clock
                   </div>
@@ -117,7 +94,7 @@ export function InfoPanel() {
                   <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic < data?.baseIC.aic : false}/>
                   <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic < data?.baseIC.bic : false}/>
                 </div>
-                <ResultsTable model={data?.localClock}/>
+                <ResultsTable model={data ?? undefined} clock={"local"}/>
 
             </div>
         }

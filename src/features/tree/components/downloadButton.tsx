@@ -40,7 +40,7 @@ export function DownloadButton({
         link.href = url;
         link.setAttribute(
         'download',
-        `clockor2.newick`,
+        `clockor2.nwk`,
         );
     
         // Append to html link element page

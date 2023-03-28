@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectCurrentData, setCurrentData, selectData, selectBestFitData } from '../regression/regressionSlice';
 import { setBestFittingRegression } from "../regression/regressionSlice";
-import { selectTipNames, selectSource, selectTipHeights, setBestFittingRoot, selectCurrentTree, selectBestFittingRoot, setCurrentTree} from '../tree/treeSlice';
+import { selectTipNames, selectSource, selectTipHeights, setBestFittingRoot, selectCurrentTree, selectBestFittingRoot, setCurrentTree, selectTipData} from '../tree/treeSlice';
 import { globalRootParallel } from "../engine/bestFittingRoot";
 import { getTipNames, getTipHeights } from "../engine/utils";
 import { regression } from "../engine/core";
@@ -17,6 +17,7 @@ const sourceNwk = useAppSelector(selectSource);
 const bestFitNwk = useAppSelector(selectBestFittingRoot);
 const sourceData = useAppSelector(selectData);
 const bestFitData = useAppSelector(selectBestFitData);
+const tipData = useAppSelector(selectTipData);
 const dispatch = useAppDispatch();
 
 const bfrExists = useRef(false);
@@ -28,42 +29,29 @@ const toggleBestFittingRoot = () => {
   if (sourceData && !bfrExists.current) {
 
       var dates = sourceData.baseClock.x;
-      globalRootParallel(sourceNwk, dates).then(
+      globalRootParallel(sourceNwk, dates, tipData).then(
         (nwk: string) => { 
           dispatch(setBestFittingRoot(nwk)) 
 
           let bestFitTree = new phylotree(nwk) 
 
-          let sourceTips = sourceData.baseClock.tip;
           let bfrTips = getTipNames(bestFitTree);
+          let bfrDates = bfrTips.map(e => tipData[e].date)
+          let bfrGrp = bfrTips.map(e => tipData[e].group)
+          let bfrHeights = getTipHeights(bestFitTree)
 
-          var bfrDates = reorderData(
-            dates,
-            sourceTips, 
-            bfrTips,
+          console.log("Match check - group")
+          console.log(
+            bfrTips.map((e: string, i: number) => e.includes(bfrGrp[i]))
           )
-          var bfrHeights = getTipHeights(bestFitTree)
-
-          // handle groups
-          var bfrGrp;
-          if (sourceData.localClock.length > 1) {
-            var sourceGrpChunked = sourceData.localClock.map(e => e.tip)
-
-            var sourceGrpNumbered = sourceGrpChunked.map(
-              (e, i) => e.map( e1 => i)
-            )
-
-            var sourceGrp = sourceGrpNumbered.flat()
-            var localClockTips = sourceData.localClock.map((e: any) => e.tip).flat()
-            
-            bfrGrp = reorderData(
-              sourceGrp,
-              localClockTips,
-              bfrTips
-            )
-          } else {
-            bfrGrp = bfrTips.map((e: string) => 0)
-          }
+          console.log("Match check - date")
+          console.log(
+            bfrTips.map((e: string, i: number) => e.includes(bfrDates[i]))
+          )
+          
+          console.log("TIP DATA HERE")
+          console.log(tipData)
+          
 
           const bestFitRegression = regression(
             bfrHeights,
@@ -71,9 +59,9 @@ const toggleBestFittingRoot = () => {
             bfrGrp,
             bfrTips
           )
+          console.log("Reg-Test" + bestFitRegression.baseClock.r2)
 
           dispatch(setBestFittingRegression(bestFitRegression))
-
           dispatch(setCurrentTree(nwk));
           dispatch(setCurrentData(bestFitRegression));
           
