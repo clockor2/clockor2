@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Tree } from './features/tree/Tree';
+import React, { useEffect, useState, useRef, createRef } from 'react';
+import { Tree, TreeExportFuctions } from './features/tree/Tree';
 import { TreeInput } from './features/tree/TreeInput';
 import { Regression } from './features/regression/Regression';
 import { InfoPanel } from './features/infopanel/InfoPanel';
@@ -44,7 +44,8 @@ function App() {
   const currentTree = useAppSelector(selectCurrentTree);
   const regressionData = useAppSelector(selectCurrentData);
   const [nodeStyles, setNodeStyles] = useState<NodeStyles>({});
-  
+  const treeRef = createRef<TreeExportFuctions>();
+
   interface NodeStyles {
     [key: string]: NodeStyle;
   }
@@ -62,7 +63,6 @@ function App() {
         styles[key] = {fillColour: colours[groups[key]], };
       });
       setNodeStyles(styles)
-      console.log(styles);
     }
     
   }, [regressionData])
@@ -76,18 +76,8 @@ function App() {
     }
   }, [size])
 
-  const onChange = (settings: TreeSettings) => {
-    console.log('onchange', settings);
-    
+  const onChange = (settings: TreeSettings) => {    
     setSettings(settings)
-  }
-
-  const downloadSVG = () => {
-
-  }
-
-  const downloadNewick = () => {
-
   }
 
   return (
@@ -105,11 +95,20 @@ function App() {
             <div className='w-1/2 h-full border-t-2 border-r-2'>
               <div className='relative'>
                 <div className='flex absolute z-50 top-0 right-0'>
-                  <DownloadButton source={currentTree} />
+                  <DownloadButton 
+                    source={currentTree} 
+                    getNewick={() =>  {
+                      return treeRef.current?.exportNewick()
+                    }}
+                    getSVG={() =>  {
+                      return treeRef.current?.exportSVG()
+                    }}
+                    />
                   <SettingsButton saveSettings={onChange}   />
                 </div>
               </div>
               <Tree 
+                ref={treeRef}
                 source={currentTree}
                 selectedIds={[]}
                 size={size}
