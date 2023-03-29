@@ -1,10 +1,13 @@
 import { phylotree } from "phylotree";
 import { localRoot, localOptima, reorderData } from "./bestFittingRoot";
+import { getTipNames } from "./utils";
+
+
 
 // this runs on the webworker, created with webpack 5 syntax new
 // Worker('./worker.ts'). in jest tests, this module is not used, instead the
 // workerMessageHandler is directly addressed
-self.onmessage = ({ data: { nwk, dates, nodeNums } }) => { /* eslint-disable-line no-restricted-globals */
+self.onmessage = ({ data: { nwk, dates, nodeNums, tipData } }) => { /* eslint-disable-line no-restricted-globals */
   var tree = new phylotree(nwk)
   var treePrime: any = {}
   var datesPrime: number[] = []
@@ -21,10 +24,13 @@ self.onmessage = ({ data: { nwk, dates, nodeNums } }) => { /* eslint-disable-lin
     }
   })
 
-  datesPrime = reorderData(
-    dates,
-    tree.getTips().map((e: any) => e.data.name),
-    treePrime.getTips().map((e: any) => e.data.name)
+  // datesPrime = reorderData(
+  //   dates,
+  //   tree.getTips().map((e: any) => e.data.name),
+  //   treePrime.getTips().map((e: any) => e.data.name)
+  // )
+  datesPrime = getTipNames(treePrime).map(
+    e => tipData[e].date
   )
 
   best = {
@@ -46,10 +52,13 @@ self.onmessage = ({ data: { nwk, dates, nodeNums } }) => { /* eslint-disable-lin
       }
     })
 
-    datesPrime = reorderData(
-      dates,
-      tree.getTips().map((e: any) => e.data.name),
-      treePrime.getTips().map((e: any) => e.data.name)
+    // datesPrime = reorderData(
+    //   dates,
+    //   tree.getTips().map((e: any) => e.data.name),
+    //   treePrime.getTips().map((e: any) => e.data.name)
+    // )
+    let datesPrime = getTipNames(treePrime).map(
+      e => tipData[e].date
     )
 
     localOptimum = {

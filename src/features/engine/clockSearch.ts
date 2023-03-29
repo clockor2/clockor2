@@ -89,7 +89,7 @@ export const clockSearch = (
 
     // Now find the most supported configuration. Want baseIC iff only one group
     var ic: number[] = fits.map(
-        e => e.localClock.length > 1 ? e.localIC[icMetric] : e.baseIC[icMetric]
+        e => e.localClock ? e.localIC[icMetric] : e.baseIC[icMetric]
         );
 
     var minIC = Math.min(...ic); 
@@ -157,14 +157,14 @@ export const clockSearch = (
   }
 
 // Make groups into a 1D array of numbers coresponding to tips. TODO: test
-export function makeGroups(tips: string[], nestedGrp: string[][]): number[] {
- let grp: number[] = []
+export function makeGroups(tips: string[], nestedGrp: string[][]): string[] {
+ let grp: string[] = []
 
  for (let i=0; i<tips.length; i++){
   for (let j=nestedGrp.length-1; j>=0; j--){
 
     if (nestedGrp[j].includes(tips[i])){
-      grp.push(j)
+      grp.push(j.toString())
       break
     } 
   

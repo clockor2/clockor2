@@ -11,6 +11,7 @@ describe('tree reducer', () => { //TODO: Make test meaningful
     tipHeights: [],
     selectedIds: [],
     highlightedId: null,
+    tipData: {}
   };
   it('should handle initial state', () => {
     expect(treeReducer(undefined, { type: 'unknown' })).toEqual(initialState);

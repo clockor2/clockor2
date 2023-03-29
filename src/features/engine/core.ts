@@ -2,6 +2,7 @@
 
 
 import {phylotree, rootToTip} from "phylotree" // for clock search TODO: Add best fitting root soon!
+
 // import { group } from "console";
 // import { maxHeaderSize } from "http";
 
@@ -13,6 +14,7 @@ export interface LocalClockModel {
   localClock: Regression[];
   baseIC: InfoMetric;
   localIC: InfoMetric;
+  groupNames: string[];
 }
 // interface for info metric data
 interface InfoMetric {
@@ -27,7 +29,12 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
   const plot = [] as Plotly.Data[];
   if (lcm != null) {
     // generate colour scale. Use viridis-ish default
-    const cols = chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length); // move this to state
+    const cols = lcm.localClock
+      ?
+      chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length)
+      :
+      "DarkSlateGrey";
+
     // Pushing plotly object for base lock
     var point = {
       x: lcm.baseClock.x,
@@ -36,7 +43,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
       marker: {color: '#000000', size: 5},
       mode: "markers",
       name: "Global",
-      legendgroup: "0",
+      legendgroup: "Global",
       showlegend: false
     }
     plot.push(point);
@@ -44,42 +51,45 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
     var line = {
       x: lcm.baseClock.x,
       y: lcm.baseClock.fitY,
-      name: `Global`,
+      name: "Global",
       marker : {color: '#000000'},
       mode: "lines",
-      text: lcm.localClock.length > 1 
+      text: lcm.localClock
       ? 
-        `Baseline<br>R2: ${lcm.baseClock.r2.toFixed(2)}` 
+        `Global<br>R2: ${lcm.baseClock.r2.toFixed(2)}` 
       : 
         `R2: ${lcm.baseClock.r2.toFixed(2)}`,
 
-      legendgroup: "0"
+      legendgroup: "Global"
     }
     plot.push(line);
 
     // pushing plotly object for each local clock
-    for (let i = 0; i < lcm.localClock.length; i++) {
-      var point1 = {
-        x: lcm.localClock[i].x,
-        y: lcm.localClock[i].y,
-        text: lcm.localClock[i].tip,
-        marker: {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
-        mode: "markers",
-        legendgroup: `${i + 1}`,
-        showlegend: false
-      }
-      plot.push(point1);
+    if (lcm.localClock){
+      for (let i = 0; i < lcm.localClock.length; i++) {
+        var point1 = {
+          x: lcm.localClock[i].x,
+          y: lcm.localClock[i].y,
+          text: lcm.localClock[i].tip,
+          marker: {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
+          mode: "markers",
+          legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
+          name: lcm.groupNames[i+1],
+          showlegend: false
+        }
+        plot.push(point1);
 
-      var line1 = {
-        x: lcm.localClock[i].x,
-        y: lcm.localClock[i].fitY,
-        text: `Local Clock: ${i + 1}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
-        marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
-        mode: "lines",
-        legendgroup: `${i + 1}`,
-        name: `Local Clock ${i + 1}`
+        var line1 = {
+          x: lcm.localClock[i].x,
+          y: lcm.localClock[i].fitY,
+          text: `${lcm.groupNames[i+1] ?? `Local Clock ${i+1}`}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
+          marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
+          mode: "lines",
+          legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
+          name: lcm.groupNames[i+1]
+        }
+        plot.push(line1);
       }
-      plot.push(line1);
     }
       return plot;
   } else {
@@ -93,14 +103,6 @@ interface Style {
   color: string;
 }
 
-// Class to pass back to plot later. Will be produced by plotify method in 
-// flcModel class
-// interface Data extends Plotly.PlotData {
-//   color: string
-// }
-
-// class regression for storing the points, r^2, slope, fit for a set of points x, y
-// inferface for ouput of regression functions
 export interface Regression {
   x: Array<number>;
   y: Array<number>;
@@ -119,6 +121,7 @@ interface DataGroup {
   x: Array<number>;
   y: Array<number>;
   tip: Array<string>;
+  name: string;
 }
 
 //////////////////////////////////////////////////////
@@ -130,7 +133,7 @@ interface DataGroup {
 export const regression = (
   tipHeights: Array<number>,
   dates: Array<number>,
-  groupings: Array<number>,
+  groupings: Array<string>,
   tipNames: Array<string>) => {
 
   var dataPoints = groupData(tipHeights, dates, groupings, tipNames);
@@ -143,11 +146,15 @@ export const regression = (
   lcm.baseIC.aicc = AICc([lcm.baseClock]);
   lcm.baseIC.bic = BIC([lcm.baseClock]);
 
-  lcm.localClock = dataPoints.slice(1).map(e => linearRegression(e));
-  lcm.localIC = {} as InfoMetric;
-  lcm.localIC.aic = AIC(lcm.localClock);
-  lcm.localIC.aicc = AICc(lcm.localClock);
-  lcm.localIC.bic = BIC(lcm.localClock);
+  if (dataPoints.length > 1) {
+    lcm.localClock = dataPoints.slice(1).map(e => linearRegression(e));
+    lcm.localIC = {} as InfoMetric;
+    lcm.localIC.aic = AIC(lcm.localClock);
+    lcm.localIC.aicc = AICc(lcm.localClock);
+    lcm.localIC.bic = BIC(lcm.localClock);
+  }
+
+  lcm.groupNames = dataPoints.map(e => e.name)
   
   return lcm;
 }
@@ -190,27 +197,28 @@ export const regression = (
 const groupData = (
   tipHeights: Array<number>,
   dates: Array<number>,
-  groupings: Array<number>,
+  groupings:  Array<string>,
   tipNames: Array<string>
   ): DataGroup[] => { 
-  
-  let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
 
   const points: DataGroup[] = [];
 
+  let unique = groupings.filter((v, i, a) => a.indexOf(v) === i).sort();
+  let numericGroupings =  groupings.map(group => unique.indexOf(group))
+
   for (let i = 0; i < unique.length; i++) {
-    var tmp: DataGroup = {x: [], y: [], tip: []};
+    var tmp: DataGroup = {x: [], y: [], tip: [], name: unique[i]};
     points.push(tmp);
   }
 
   for (let i = 0; i < groupings.length; i++) {
-    points[groupings[i]].x.push(
+    points[numericGroupings[i]].x.push(
       dates[i]
     )
-    points[groupings[i]].y.push(
+    points[numericGroupings[i]].y.push(
       tipHeights[i]
     )
-    points[groupings[i]].tip.push(
+    points[numericGroupings[i]].tip.push(
       tipNames[i]
     )
   }
@@ -220,7 +228,8 @@ const groupData = (
     points.unshift({
       x: dates,
       y: tipHeights,
-      tip: tipNames
+      tip: tipNames,
+      name: "Global"
     })}
 
   return points;
