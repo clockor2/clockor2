@@ -28,6 +28,9 @@ export function InfoPanel() {
   // setting num clocks using ternary operator - if local clocks defined, use that plus 1
   //const numClocks = data && data.localClock ? data?.localClock.length : 1;
 
+  // console.log('BOOL TEST')
+  // console.log(`${data?.baseIC.aicc - data?.localIC.aicc < 0}`)
+
   return (
     <div>
       <div className="flex flex-row items-center border-t-2 py-2 shadow-lg pl-2" >
@@ -58,7 +61,7 @@ export function InfoPanel() {
         </div>
       </div>
         
-      {isOpen
+      {isOpen && data
       ? // Nesting ternary operator for 1 or more clocks
       <div className="max-h-[62.5vh] overflow-y-scroll">
         {typeof data?.localClock == "undefined"
@@ -81,9 +84,9 @@ export function InfoPanel() {
                   Global Clock
                 </div>
                 <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
-                  <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={data?.localIC.aicc > data?.baseIC.aicc}/>
-                  <MetricCard text="AIC" value={data?.baseIC.aic} isMin={data?.localIC.aic > data?.baseIC.aic}/>
-                  <MetricCard text="BIC" value={data?.baseIC.bic} isMin={data?.localIC.bic > data?.baseIC.bic}/>
+                  <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={data?.baseIC.aicc < data?.localIC.aicc}/>
+                  <MetricCard text="AIC" value={data?.baseIC.aic} isMin={data?.baseIC.aic < data?.localIC.aic}/>
+                  <MetricCard text="BIC" value={data?.baseIC.bic} isMin={data?.baseIC.bic < data?.localIC.bic}/>
                 </div>
                 <ResultsTable model={data ?? undefined} clock={"global"}/> 
                   <div className="flex text-2xl font-bold justify-center pt-4">
