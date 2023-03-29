@@ -43,7 +43,7 @@ export function InfoPanel() {
         </div>
         <div className="flex items-center p-1 ">
           <span className="pr-2 text-xl">Clocks</span>
-          <Badge> {data?.localClock ? data?.localClock.length : 0} </Badge>
+          <Badge> {data?.localClock ? data?.localClock.length : 1} </Badge>
         </div>
 
         <div className="flex items-center p-1 ">
