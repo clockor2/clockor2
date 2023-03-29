@@ -60,6 +60,7 @@ const toggleBestFittingRoot = () => {
             bfrTips
           )
           console.log("Reg-Test" + bestFitRegression.baseClock.r2)
+          console.log("OUt DaTES " + bfrDates.slice(0,5))
 
           dispatch(setBestFittingRegression(bestFitRegression))
           dispatch(setCurrentTree(nwk));

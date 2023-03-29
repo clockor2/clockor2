@@ -26,7 +26,7 @@ export function InfoPanel() {
   // Getting state to log in buttons. Eg. num clocks
   const data = useAppSelector(selectCurrentData);
   // setting num clocks using ternary operator - if local clocks defined, use that plus 1
-  const numClocks = data && data.localClock ? data?.localClock.length : 1;
+  //const numClocks = data && data.localClock ? data?.localClock.length : 1;
 
   return (
     <div>
@@ -43,7 +43,7 @@ export function InfoPanel() {
         </div>
         <div className="flex items-center p-1 ">
           <span className="pr-2 text-xl">Clocks</span>
-          <Badge> {numClocks ? numClocks : 0} </Badge>
+          <Badge> {data?.localClock ? data?.localClock.length : 0} </Badge>
         </div>
 
         <div className="flex items-center p-1 ">
@@ -61,7 +61,7 @@ export function InfoPanel() {
       {isOpen
       ? // Nesting ternary operator for 1 or more clocks
       <div className="max-h-[62.5vh] overflow-y-scroll">
-        {numClocks === 1
+        {typeof data?.localClock == "undefined"
           ?
           <div className="shrink flex flex-col space-x-8 bg-slate-50 justify-center overflow-y-scroll">
             <div className=" flex text-2xl font-bold justify-center">
@@ -81,18 +81,18 @@ export function InfoPanel() {
                   Global Clock
                 </div>
                 <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
-                  <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc > data?.baseIC.aicc : false}/>
-                  <MetricCard text="AIC" value={data?.baseIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic > data?.baseIC.aic : false}/>
-                  <MetricCard text="BIC" value={data?.baseIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic > data?.baseIC.bic : false}/>
+                  <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={data?.localIC.aicc > data?.baseIC.aicc}/>
+                  <MetricCard text="AIC" value={data?.baseIC.aic} isMin={data?.localIC.aic > data?.baseIC.aic}/>
+                  <MetricCard text="BIC" value={data?.baseIC.bic} isMin={data?.localIC.bic > data?.baseIC.bic}/>
                 </div>
                 <ResultsTable model={data ?? undefined} clock={"global"}/> 
                   <div className="flex text-2xl font-bold justify-center pt-4">
                     Local Clock
                   </div>
                 <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
-                  <MetricCard text="AICc" value={data?.localIC.aicc} isMin={(data?.localIC.aicc && data?.baseIC.aicc) ? data?.localIC.aicc < data?.baseIC.aicc : false}/>
-                  <MetricCard text="AIC" value={data?.localIC.aic} isMin={(data?.localIC.aic && data?.baseIC.aic) ? data?.localIC.aic < data?.baseIC.aic : false}/>
-                  <MetricCard text="BIC" value={data?.localIC.bic} isMin={(data?.localIC.bic && data?.baseIC.bic) ? data?.localIC.bic < data?.baseIC.bic : false}/>
+                  <MetricCard text="AICc" value={data?.localIC.aicc} isMin={data?.localIC.aicc < data?.baseIC.aicc}/>
+                  <MetricCard text="AIC" value={data?.localIC.aic} isMin={data?.localIC.aic < data?.baseIC.aic}/>
+                  <MetricCard text="BIC" value={data?.localIC.bic} isMin={data?.localIC.bic < data?.baseIC.bic}/>
                 </div>
                 <ResultsTable model={data ?? undefined} clock={"local"}/>
 

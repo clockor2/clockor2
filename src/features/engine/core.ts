@@ -73,7 +73,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
           text: lcm.localClock[i].tip,
           marker: {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
           mode: "markers",
-          legendgroup: lcm.groupNames[i+1] ?? `Local Clock ${i+1}`,
+          legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
           name: lcm.groupNames[i+1],
           showlegend: false
         }
@@ -85,7 +85,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
           text: `${lcm.groupNames[i+1] ?? `Local Clock ${i+1}`}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
           marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
           mode: "lines",
-          legendgroup: lcm.groupNames[i+1] ?? `Local Clock ${i+1}`,
+          legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
           name: lcm.groupNames[i+1]
         }
         plot.push(line1);
@@ -103,14 +103,6 @@ interface Style {
   color: string;
 }
 
-// Class to pass back to plot later. Will be produced by plotify method in 
-// flcModel class
-// interface Data extends Plotly.PlotData {
-//   color: string
-// }
-
-// class regression for storing the points, r^2, slope, fit for a set of points x, y
-// inferface for ouput of regression functions
 export interface Regression {
   x: Array<number>;
   y: Array<number>;
@@ -211,7 +203,7 @@ const groupData = (
 
   const points: DataGroup[] = [];
 
-  let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
+  let unique = groupings.filter((v, i, a) => a.indexOf(v) === i).sort();
   let numericGroupings =  groupings.map(group => unique.indexOf(group))
 
   for (let i = 0; i < unique.length; i++) {

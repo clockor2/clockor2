@@ -69,13 +69,6 @@ self.onmessage = ({ data: { nwk, dates, nodeNums, tipData } }) => { /* eslint-di
       nodeIndx: nodeNums[i]
     }
 
-    if (localOptimum.r2 > 0.46){
-      console.log("Old R2 HERE " + best.r2)
-      console.log("New R2 HERE " + localOptimum.r2)
-      console.log("Node Num " + nodeNums[i])
-      console.log(localOptimum.r2 - best.r2)
-      console.log(localOptimum.r2 > best.r2)
-    }
     if (localOptimum.r2 - best.r2 > 1e-08) {
       best = localOptimum;
     }
