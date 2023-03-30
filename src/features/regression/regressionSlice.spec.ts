@@ -10,7 +10,7 @@ describe('counter reducer', () => {
     clockSearchData: null,
     selectedIds: [],
     regressionInputDefaults: {
-      format: "",
+      format: "yyyy-mm-dd",
       delimiter: "",
       loc: "",
       group: "number"

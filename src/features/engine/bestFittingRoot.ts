@@ -65,6 +65,9 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
 
   var r2 = prime.map((e: any) => e.r2);
 
+  console.log("R2")
+  console.log(r2.filter(e => e > 0.17))
+
   var bestR2 = Math.max(...r2);
 
   var bestIndx = r2.indexOf(bestR2);
@@ -77,6 +80,13 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
   var t1 = new Date().getTime()
 
   console.log("Time Taken for BFR(s) " + Math.abs(t1-t0) / 1000)
+
+  console.log("Tree Test")
+  console.log("Original Tree")
+  console.log(tree.getBranchLengths().filter((e: number) => (e)).reduce((a: number,b: number) => a+b,0))
+  console.log("BFR Treee")
+  console.log(bestTree.getBranchLengths().filter((e: number) => (e)).reduce((a: number,b: number) => a+b,0))
+  
   return bestTree.getNewick();
 }
 
@@ -93,12 +103,13 @@ function rerootAndScale(bestTree: any, best: any) {
   }
 
   bestTree.nodes.each((n: any) => {
-    if (typeof n.data.__mapped_bl == "undefined") {
-      n.data.__mapped_bl = "0.0";
-    }
     if (n.data.__mapped_bl) {
       n.data.attribute = n.data.__mapped_bl.toString();
     } 
+  });
+
+  bestTree.setBranchLength((n: any) => {
+    return n.data.attribute;
   });
 
   let bl = [

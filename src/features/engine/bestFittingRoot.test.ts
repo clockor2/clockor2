@@ -74,7 +74,7 @@ describe('Testing localRoot()', () => {
 
       var decimal_dates = tipNames.map( (name: string) => {
       let date = extractPartOfTipName(name, "_", "-1")
-      return decimal_date(new Date(date))
+      return decimal_date(date, "yyyy-mm-dd")
 
     })
 

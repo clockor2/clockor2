@@ -1,13 +1,22 @@
 
-export const decimal_date = (date: Date) => {
-    var full_year = date.getFullYear();
-    var year_start = new Date(full_year, 0, 1).getTime(),
-        year_start_p1 = new Date(full_year + 1, 0, 1).getTime();
+export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal") => {
+  if (format === "yyyy-mm-dd"){
+      let date = new Date(sampDate)
+      let yr = date.getFullYear();
+      let m = date.getMonth() ?? 0;
+      let d = date.getDate() ?? 0;
 
-    const decimal_date_value =
-        full_year + (date.getTime() - year_start) / (year_start_p1 - year_start);
+      let decimal_date_value = (
+        yr +
+        m / 12 +
+        d / 365.25
+      )
 
-    return decimal_date_value;
+      return decimal_date_value;
+  } else  {
+    let decimal_date = parseFloat(sampDate) 
+    return decimal_date
+  }
   };
 
 export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNames: number[], groupings:number[]) => {

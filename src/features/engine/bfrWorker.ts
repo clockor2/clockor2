@@ -46,11 +46,15 @@ self.onmessage = ({ data: { nwk, dates, nodeNums, tipData } }) => { /* eslint-di
     treePrime = new phylotree(nwk);
     treePrime.reroot(treePrime.nodes.descendants()[nodeNums[i]]);
     // set branch lengths
-    treePrime.nodes.each((n: any) => {
-      if (n.data.__mapped_bl){
+     treePrime.nodes.each((n: any) => {
+      if (n.data.__mapped_bl) {
         n.data.attribute = n.data.__mapped_bl.toString();
-      }
-    })
+      } 
+    });
+
+    treePrime.setBranchLength((n: any) => {
+      return n.data.attribute;
+    });
 
     // datesPrime = reorderData(
     //   dates,
