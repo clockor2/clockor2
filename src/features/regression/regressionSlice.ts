@@ -3,7 +3,7 @@ import { RootState } from '../../app/store';
 import { LocalClockModel } from '../engine/core';
 
 interface RegressionInputDefaults {
-  format: "YYYY-MM-DD" | "decimal"
+  format: "yyyy-mm-dd" | "decimal"
   delimiter: string
   loc: string
   group: string
@@ -25,7 +25,7 @@ const initialState: RegressionState = {
   clockSearchData: null,
   selectedIds: [],
   regressionInputDefaults: {
-    format: "YYYY-MM-DD",
+    format: "yyyy-mm-dd",
     delimiter: "",
     loc: "",
     group: "number"

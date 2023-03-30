@@ -1,6 +1,7 @@
 
-export const decimal_date = (date: Date, format: "YYYY-MM-DD" | "decimal") => {
-  if (format === "YYYY-MM-DD"){
+export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal") => {
+  if (format === "yyyy-mm-dd"){
+      let date = new Date(sampDate)
       let yr = date.getFullYear();
       let m = date.getMonth() ?? 0;
       let d = date.getDate() ?? 0;
@@ -12,8 +13,8 @@ export const decimal_date = (date: Date, format: "YYYY-MM-DD" | "decimal") => {
       )
 
       return decimal_date_value;
-  } else if (format === "decimal") {
-    let decimal_date = parseFloat(date.toString()) 
+  } else  {
+    let decimal_date = parseFloat(sampDate) 
     return decimal_date
   }
   };

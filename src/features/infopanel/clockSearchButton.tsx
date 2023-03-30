@@ -136,7 +136,7 @@ return (
                     <option value={"aic"}>
                       AIC
                     </option>
-                  </Select>
+        </Select>
         </div>
       </div>
       {isSearching

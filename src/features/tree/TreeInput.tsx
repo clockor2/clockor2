@@ -22,7 +22,7 @@ export function TreeInput(props: any) {
     const loadExample = () => {
         dispatch(setSource(exampleNewick))
         dispatch(setRegressionInputDefaults({
-            format: "YYYY-MM-DD",
+            format: "yyyy-mm-dd",
             delimiter: "_",
             loc: "-1",
             group: "-2"

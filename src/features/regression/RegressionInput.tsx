@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextInput, Label } from 'flowbite-react';
+import { TextInput, Label, Select, Tooltip } from 'flowbite-react';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectSource, selectCurrentTree, selectBestFittingRoot, setTipData} from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
@@ -13,20 +13,12 @@ export function RegressionInput(props: any) {
   const sourceNewick = useAppSelector(selectSource);
   const currentTree = useAppSelector(selectCurrentTree)
   const bestFitTree = useAppSelector(selectBestFittingRoot)
-  const [format, setFormat] = useState<string>(defaults.format);
+  const [format, setFormat] = useState<"yyyy-mm-dd" | "decimal">(defaults.format);
   const [delimiter, setDelimiter] = useState<string>(defaults.delimiter);
   const [loc, setLoc] = useState<string>(defaults.loc);
   const [group, setGroup] = useState<string>(defaults.group);
-  //const [sourcePhylotree, setBestFittingRoot] = useState<>();
-  
 
   const dispatch = useAppDispatch();
-
-  //  below moved to core.ts
-  // const createNumericGroups = (groupings: Array<string>) => {
-  //   let unique = groupings.filter((v, i, a) => a.indexOf(v) === i);
-  //   return groupings.map(group => unique.indexOf(group))
-  // }
 
   const handelNegativeIndexes = (splitTipName: Array<string>, delimiter: string, loc: number): number => {
     if (loc < 0) {
@@ -49,7 +41,7 @@ export function RegressionInput(props: any) {
     
     const decimal_dates = tipNames.map( (name) => {
       let date = extractPartOfTipName(name, delimiter, loc)
-      return decimal_date(new Date(date))
+      return decimal_date(date, format)
     })
 
       
@@ -88,19 +80,32 @@ export function RegressionInput(props: any) {
       <div className='text-xl'>Parse from tip labels</div>
       <div className='flex justify-between space-x-4 '>
         <div className='flex-auto w-64'>
-          <Label
-            htmlFor='format'
-            value='Date format'
-          />
-          <TextInput
-            id="format"
-            placeholder="YYYY-MM-DD"
-            type="text"
-            required={true}
-            onChange={e => setFormat(e.target.value)}
-            value={format}
 
-          />
+         <Tooltip
+            content="Use YYYY-MM-DD for YYYY-MM"
+            trigger="hover">
+            <Label
+              htmlFor='format'
+              value='Date format'
+            />
+          </Tooltip>
+          
+          <Select
+                      title="Use 'YYYY-MM-DD' for 'YYYY-MM'"
+                      id="format"
+                      required={true}
+                      name="type"
+                      value={format}
+                      onChange={e => setFormat(e.target.value as "yyyy-mm-dd" | "decimal")}
+                    >
+                      <option value={"yyyy-mm-dd"}>
+                        YYYY-MM-DD
+                      </option>
+                      <option value={"decimal"}>
+                        Decimal Date
+                      </option>
+          </Select>
+
         </div>
         <div className='flex-auto w-16'>
           <Label
