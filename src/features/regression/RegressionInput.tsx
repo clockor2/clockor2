@@ -34,7 +34,6 @@ function TipLabelForm(props: any) {
     return decimal_date(date, format)
   })
 
-    
   let groupings: string[]
   if (group) {
     groupings = props.tipNames.map((name: string) => {
@@ -135,12 +134,19 @@ function TipLabelForm(props: any) {
 
 
 export function RegressionInput(props: any) {
+  const dispatch = useAppDispatch();
   const currentTree = useAppSelector(selectCurrentTree)
   const phylotreeTree = new phylotree(currentTree)
   const tipNames: Array<string> = getTipNames(phylotreeTree)
 
-  const dispatch = useAppDispatch();
-
+  phylotreeTree.nodes.each((n: any) => {
+    if (!n.data.attribute) {
+      n.data.attribute = "0.0";
+    } 
+  });
+  phylotreeTree.setBranchLength((n: any) => {
+    return n.data.attribute;
+  });
 
   const handleSubmit =  (decimal_dates: number[], groupings: string[]) => {
     const tipHeights = getTipHeights(phylotreeTree)
