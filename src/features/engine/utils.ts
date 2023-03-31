@@ -19,6 +19,15 @@ export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal")
   }
   };
 
+export const date_decimal = (sampDate: number): Date => {
+    var year = parseInt(sampDate.toString());
+    var reminder = sampDate - year;
+    var daysPerYear = 365.25
+    var miliseconds = reminder * daysPerYear * 24 * 60 * 60 * 1000;
+    var yearDate = new Date(year, 0, 1);
+    return new Date(yearDate.getTime() + miliseconds);
+};
+
 export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNames: number[], groupings:number[]) => {
     /**
      * Splits arrays into groups 
