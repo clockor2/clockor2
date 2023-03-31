@@ -1,11 +1,4 @@
-// eslint-disable-next-line 
-
-
-import {phylotree, rootToTip} from "phylotree" // for clock search TODO: Add best fitting root soon!
-
-// import { group } from "console";
-// import { maxHeaderSize } from "http";
-
+import { date_decimal } from "./utils";
 const chroma = require("chroma-js") // TODO: Learn about why this works instead of import
 
 // class to contain local clock model, incl. data points and information criteria
@@ -37,7 +30,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
 
     // Pushing plotly object for base lock
     var point = {
-      x: lcm.baseClock.x,
+      x: lcm.baseClock.x.map(e => date_decimal(e)),
       y: lcm.baseClock.y,
       text: lcm.baseClock.tip,
       marker: {color: '#000000', size: 5},
@@ -49,7 +42,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
     plot.push(point);
 
     var line = {
-      x: lcm.baseClock.x,
+      x: lcm.baseClock.x.map(e => date_decimal(e)),
       y: lcm.baseClock.fitY,
       name: "Global",
       marker : {color: '#000000'},
@@ -68,7 +61,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
     if (lcm.localClock){
       for (let i = 0; i < lcm.localClock.length; i++) {
         var point1 = {
-          x: lcm.localClock[i].x,
+          x: lcm.localClock[i].x.map(e => date_decimal(e)),
           y: lcm.localClock[i].y,
           text: lcm.localClock[i].tip,
           marker: {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
@@ -80,7 +73,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
         plot.push(point1);
 
         var line1 = {
-          x: lcm.localClock[i].x,
+          x: lcm.localClock[i].x.map(e => date_decimal(e)),
           y: lcm.localClock[i].fitY,
           text: `${lcm.groupNames[i+1] ?? `Local Clock ${i+1}`}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
           marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
