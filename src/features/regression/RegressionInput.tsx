@@ -36,6 +36,17 @@ export function RegressionInput(props: any) {
   const handleSubmit =  (event: any) => {
     event.preventDefault();
     const phylotreeTree = new phylotree(currentTree)
+
+    phylotreeTree.nodes.each((n: any) => {
+      if (!n.data.attribute) {
+        n.data.attribute = "0.0";
+      } 
+    });
+    phylotreeTree.setBranchLength((n: any) => {
+      return n.data.attribute;
+    });
+  
+
     const tipNames: Array<string> = getTipNames(phylotreeTree)
     const tipHeights = getTipHeights(phylotreeTree)
     
