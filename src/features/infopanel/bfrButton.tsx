@@ -40,27 +40,12 @@ const toggleBestFittingRoot = () => {
           let bfrGrp = bfrTips.map(e => tipData[e].group)
           let bfrHeights = getTipHeights(bestFitTree)
 
-          console.log("Match check - group")
-          console.log(
-            bfrTips.map((e: string, i: number) => e.includes(bfrGrp[i]))
-          )
-          console.log("Match check - date")
-          console.log(
-            bfrTips.map((e: string, i: number) => e.includes(bfrDates[i]))
-          )
-          
-          console.log("TIP DATA HERE")
-          console.log(tipData)
-          
-
           const bestFitRegression = regression(
             bfrHeights,
             bfrDates,
             bfrGrp,
             bfrTips
           )
-          console.log("Reg-Test" + bestFitRegression.baseClock.r2)
-          console.log("OUt DaTES " + bfrDates.slice(0,5))
 
           dispatch(setBestFittingRegression(bestFitRegression))
           dispatch(setCurrentTree(nwk));

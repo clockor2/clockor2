@@ -41,6 +41,7 @@ function createWorker(nwk: string, dates: number[], nodes: number[], tipData: an
  * @returns {Promise<string>} - A Promise that resolves with the Newick string of the best rooted tree.
  */
 export async function globalRootParallel(nwk: string, dates: number[], tipData: any) {
+
   var t0 = new Date().getTime();
 
   const tree = new phylotree(nwk);
@@ -65,9 +66,6 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
 
   var r2 = prime.map((e: any) => e.r2);
 
-  console.log("R2")
-  console.log(r2.filter(e => e > 0.17))
-
   var bestR2 = Math.max(...r2);
 
   var bestIndx = r2.indexOf(bestR2);
@@ -79,13 +77,16 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
 
   var t1 = new Date().getTime()
 
-  console.log("Time Taken for BFR(s) " + Math.abs(t1-t0) / 1000)
-
-  console.log("Tree Test")
-  console.log("Original Tree")
-  console.log(tree.getBranchLengths().filter((e: number) => (e)).reduce((a: number,b: number) => a+b,0))
-  console.log("BFR Treee")
-  console.log(bestTree.getBranchLengths().filter((e: number) => (e)).reduce((a: number,b: number) => a+b,0))
+  console.log("Time Taken for BFR " + Math.abs(t1-t0) / 1000 + "s")
+  console.log("Legnth before BFR: " + tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
+  console.log("Legnth after BFR: " + bestTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
+  console.log(
+    `Same Length: ${
+      tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+      ===
+      bestTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+    }`
+  )
   
   return bestTree.getNewick();
 }
@@ -101,16 +102,6 @@ function rerootAndScale(bestTree: any, best: any) {
   if (best.nodeIndx !== 0) {
     bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx]);
   }
-
-  bestTree.nodes.each((n: any) => {
-    if (n.data.__mapped_bl) {
-      n.data.attribute = n.data.__mapped_bl.toString();
-    } 
-  });
-
-  bestTree.setBranchLength((n: any) => {
-    return n.data.attribute;
-  });
 
   let bl = [
     bestTree.nodes.children[0].data.attribute,
@@ -154,7 +145,7 @@ export function localRoot(tree: any, dates: number[]) {
     tree.nodes.children[1].data.attribute
   ].map(e => parseFloat(e))
 
-    let length = bl.reduce((a, b) => a+b, 0)
+  let length = bl.reduce((a, b) => a+b, 0)
 
   // Efficiency boost skipping opimisation for effectively 0-length branches
   // (ie. < 10^-8)
@@ -175,7 +166,7 @@ export function localRoot(tree: any, dates: number[]) {
     return -1 * linearRegression({ x: dates, y: tipHeightsNew, tip: tipNames, name: 'NA' }).r2;
   };
 
-  let alpha = minimize(univariateFunction, { lowerBound: 0, upperBound: 1 });
+  let alpha = minimize(univariateFunction, { lowerBound: 0, upperBound: 1, tolerance: 1e-5});
   return { alpha: alpha, r2: -1 * univariateFunction(alpha) };
 }
 
