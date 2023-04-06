@@ -11,7 +11,8 @@ export function Menu(){
       <div>
         <Navbar
           fluid={true}
-          rounded={true}
+          rounded={false}
+          className="!bg-slate-700 "
         >
           <Navbar.Brand href="/">
             <img
@@ -19,25 +20,25 @@ export function Menu(){
               className="mr-3 h-6 sm:h-9"
               alt="Clockor2 Logo"
             />
-            <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+            <span className="self-center whitespace-nowrap text-xl font-semibold text-white dark:text-white">
               Clockor2
             </span>
           </Navbar.Brand>
           <Navbar.Toggle />
-          <Navbar.Collapse>
-            <Navbar.Link onClick={toggleModal} >
+          <Navbar.Collapse >
+            <Navbar.Link className="!text-white cursor-pointer"  onClick={toggleModal} >
               About
-            </Navbar.Link>
-            <Navbar.Link href="/">
+            </Navbar.Link >
+            <Navbar.Link className="!text-white"  href="/">
               Docs 
             </Navbar.Link>
-            <Navbar.Link href="/">
+            <Navbar.Link className="!text-white"  href="/">
               Citation
             </Navbar.Link>
-            <Navbar.Link href="https://github.com/clockor2/clockor2">
+            <Navbar.Link className="!text-white"  href="https://github.com/clockor2/clockor2">
               Code
             </Navbar.Link>
-            <Navbar.Link href="/">
+            <Navbar.Link className="!text-white"  href="/">
               Contact
             </Navbar.Link>
           </Navbar.Collapse>
