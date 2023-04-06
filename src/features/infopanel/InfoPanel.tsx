@@ -16,12 +16,6 @@ export function InfoPanel() {
     window.dispatchEvent(new Event('resize'));
   }
 
-  const sourcePhylotree = useAppSelector(selectSource);
-  const bestFittingPhylotree = useAppSelector(selectBestFittingRoot);
-  const sourceData = useAppSelector(selectData);
-  const bestFitData = useAppSelector(selectBestFitData);
-  const dispatch = useAppDispatch();
-
 
   // Getting state to log in buttons. Eg. num clocks
   const data = useAppSelector(selectCurrentData);
@@ -33,37 +27,36 @@ export function InfoPanel() {
 
   return (
     <div>
-      <div className="flex flex-row items-center border-t-2 py-2 shadow-lg pl-2" >
-        <div onClick={togglePanel}>
-          {isOpen
-            ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 hover:text-blue-200">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+      <div className="flex justify-between items-center border-t-2 shadow-lg px-2 bg-slate-50">
+        <div className="flex flex-row items-center space-x-3 py-4" >
+          <button onClick={togglePanel}>
+            {isOpen
+              ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 hover:text-blue-700">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+              : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 hover:text-blue-700">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
             </svg>
-            : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 hover:text-blue-200">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          }
+            
+            }
+          </button>
+          <div className="flex items-center">
+            <span className="pr-1">Clocks</span>
+            <Badge> {data?.localClock ? data?.localClock.length : 1} </Badge>
+          </div>
+          <div className="flex items-center">
+            <span className="pr-1">Tips</span>
+            <Badge>{data?.baseClock.tip.length}</Badge>
+          </div>
         </div>
-        <div className="flex items-center p-1 ">
-          <span className="pr-2 text-xl">Clocks</span>
-          <Badge> {data?.localClock ? data?.localClock.length : 1} </Badge>
-        </div>
-
-        <div className="flex items-center p-1 ">
-          <BFRButton/>
-        </div>
-
-        <div className="flex items-center p-1 ">
-          <ClockSearchButton />
-          <Label className="pl-1">
-            Local Clock Search
-          </Label>
+        <div className="flex items-center space-x-3 py-2">
+            <BFRButton/>
+            <ClockSearchButton />
         </div>
       </div>
-        
       {isOpen && data
       ? // Nesting ternary operator for 1 or more clocks
-      <div className="max-h-[62.5vh] overflow-y-scroll">
+      <div className="max-h-[62.5vh] overflow-y-scroll border-t">
         {typeof data?.localClock == "undefined"
           ?
           <div className="shrink flex flex-col space-x-8 bg-slate-50 justify-center overflow-y-scroll">
