@@ -1,14 +1,12 @@
 import { Checkbox, Label, Spinner } from "flowbite-react";
-//import { CircularProgress, CircularProgressProps } from "@mui/material"
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { selectCurrentData, setCurrentData, selectData, selectBestFitData } from '../regression/regressionSlice';
+import { setCurrentData, selectData, selectBestFitData } from '../regression/regressionSlice';
 import { setBestFittingRegression } from "../regression/regressionSlice";
-import { selectTipNames, selectSource, selectTipHeights, setBestFittingRoot, selectCurrentTree, selectBestFittingRoot, setCurrentTree, selectTipData} from '../tree/treeSlice';
+import { selectSource, setBestFittingRoot, selectBestFittingRoot, setCurrentTree, selectTipData} from '../tree/treeSlice';
 import { globalRootParallel } from "../engine/bestFittingRoot";
 import { getTipNames, getTipHeights } from "../engine/utils";
 import { regression } from "../engine/core";
-import { reorderData } from "../engine/bestFittingRoot";
 import { phylotree }  from "phylotree";
 
 export function BFRButton () {
@@ -67,34 +65,22 @@ const toggleBestFittingRoot = () => {
   }
 }
 
-if (bfrExists.current) {
+if (!bfrExists.current && useBestFittingRoot) {
     return (
-    <div className="flex items-center p-1 ">
-      <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} defaultChecked={useBestFittingRoot}/>
-      <Label className="pl-1" htmlFor="bestRoot">
-        Best Fitting Root
-      </Label>
-    </div>
+      <div className="flex items-center">
+        <Label className="pr-1" htmlFor="bestRoot">
+          Finding Best Fitting Root
+        </Label>
+        <Spinner/>
+      </div>
     )
-} else if (!bfrExists.current && !useBestFittingRoot) {
-      return (
-        <div className="flex items-center p-1 ">
-          <Checkbox id="bestRoot" onClick={toggleBestFittingRoot} defaultChecked={useBestFittingRoot}/>
-          <Label className="pl-1" htmlFor="bestRoot">
-            Best Fitting Root
-          </Label>
-        </div>
-        )
-} else if (!bfrExists.current && useBestFittingRoot) {
+} else {
     return (
-    <div>
-      <Spinner/>
-      <Label className="pl-1" htmlFor="bestRoot">
-        Finding Best Fitting Root
-      </Label>
-    </div>
+      <div className="flex items-center">
+        <Label className="pr-1 cursor-pointer" htmlFor="bestRoot">
+          Best Fitting Root
+        </Label>
+        <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} defaultChecked={useBestFittingRoot}/>
+      </div>
     )
-  } else {
-    return(<div></div>)// Never happens - for completeness
-  }
-}
+}}
