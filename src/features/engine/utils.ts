@@ -58,13 +58,13 @@ export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNa
     children?: TreeNode[];
 
   }
-  function dfs(node: TreeNode, distanceFromRoot: number, leafDistances: Map<string, number>): Map<string, number> {
+  function dfs(tree: any, node: TreeNode, distanceFromRoot: number, leafDistances: Map<string, number>): Map<string, number> {
     if (!node.children || node.children.length === 0) {
       leafDistances.set(node.data.name, distanceFromRoot);
     } else {
       node.children.forEach((child) => {
         const distance = Number(child.data.attribute) || 0;
-        dfs(child, distanceFromRoot + distance, leafDistances);
+        dfs(tree, child, distanceFromRoot + distance, leafDistances);
       });
     }
     return leafDistances;
@@ -72,7 +72,7 @@ export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNa
   
   function computeDistances(tree: any): Map<string, number> {
     const leafDistances = new Map<string, number>();
-    return dfs(tree.nodes, 0, leafDistances);
+    return dfs(tree, tree.nodes, 0, leafDistances);
   }
 
   export const getTipHeights = (tree: any): number[] => {

@@ -17,26 +17,18 @@ self.onmessage = ({ data: { nwk, dates, nodeNums, tipData } }) => { /* eslint-di
   // first node case
   treePrime = new phylotree(nwk);
   treePrime.reroot(treePrime.nodes.descendants()[nodeNums[0]]);
-  // set branch lengths
-  treePrime.nodes.each((n: any) => {
-    if (n.data.__mapped_bl){
-      n.data.attribute = n.data.__mapped_bl.toString();
-    }
-  })
 
-  // datesPrime = reorderData(
-  //   dates,
-  //   tree.getTips().map((e: any) => e.data.name),
-  //   treePrime.getTips().map((e: any) => e.data.name)
-  // )
   datesPrime = getTipNames(treePrime).map(
     e => tipData[e].date
+  )
+  var grpPrime = getTipNames(treePrime).map(
+    e => tipData[e].group
   )
 
   best = {
     ...localRoot(
       treePrime,
-      datesPrime
+      tipData
     ),
     nodeIndx: nodeNums[0]
     }
@@ -44,36 +36,44 @@ self.onmessage = ({ data: { nwk, dates, nodeNums, tipData } }) => { /* eslint-di
   // compare to rest of nodes
   for (let i=1; i<nodeNums.length; i++) {
     treePrime = new phylotree(nwk);
+
     treePrime.reroot(treePrime.nodes.descendants()[nodeNums[i]]);
-    // set branch lengths
-     treePrime.nodes.each((n: any) => {
-      if (n.data.__mapped_bl) {
-        n.data.attribute = n.data.__mapped_bl.toString();
-      } 
-    });
-
-    treePrime.setBranchLength((n: any) => {
-      return n.data.attribute;
-    });
-
-    // datesPrime = reorderData(
-    //   dates,
-    //   tree.getTips().map((e: any) => e.data.name),
-    //   treePrime.getTips().map((e: any) => e.data.name)
-    // )
-    let datesPrime = getTipNames(treePrime).map(
-      e => tipData[e].date
+    treePrime.setBranchLength(
+      (n: any) => n.data.__mapped_bl
     )
+
+    // // A check for length
+    // // uing 10 x EPSILON to avoid false mismatches
+    // if ((Math.abs(
+    //     tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+    //     -
+    //     treePrime.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+    //   ) > 10 * Number.EPSILON)) {
+    //   console.log("Length Not Preserved")
+    //   console.log("Length before BFR: " + tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
+    //   console.log("Length after BFR: " + treePrime.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
+    //   console.log("Diff: " + Math.abs(
+    //     tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+    //     -
+    //     treePrime.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+    //   ))
+    //   console.log("EPSILON: " + Number.EPSILON)
+    // }
 
     localOptimum = {
       ...localRoot(
         treePrime,
-        datesPrime
+        tipData
       ),
       nodeIndx: nodeNums[i]
     }
 
-    if (localOptimum.r2 - best.r2 > 1e-08) {
+    // REMOVE AFter debug
+    if (nodeNums[i] == 36) {
+      console.log(localOptimum)
+    }
+    
+    if (localOptimum.r2 - best.r2 > Number.EPSILON) {
       best = localOptimum;
     }
   }
