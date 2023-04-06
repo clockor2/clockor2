@@ -63,7 +63,7 @@ export const createGroups = (decimal_dates:number[], tipHeights: number[], tipNa
       leafDistances.set(node.data.name, distanceFromRoot);
     } else {
       node.children.forEach((child) => {
-        const distance = Number(child.data.attribute) || 0;
+        const distance = Number(tree.branch_length_accessor(child)) || 0;
         dfs(tree, child, distanceFromRoot + distance, leafDistances);
       });
     }
