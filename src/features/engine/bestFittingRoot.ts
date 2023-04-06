@@ -1,6 +1,10 @@
 import { phylotree } from "phylotree";
 import { linearRegression } from "./core";
 import { getTipHeights, getTipNames } from "./utils";
+import { useAppSelector } from "../../app/hooks";
+import { selectTipData } from "../tree/treeSlice";
+import { regression } from "../engine/core";
+
 var minimize = require("minimize-golden-section-1d");
 
 export interface localOptima {
@@ -48,10 +52,15 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
   var nodes = tree.nodes.descendants();
   var nodeNums = nodes.map((e: any, i: number) => i).slice(1);
 
-  var nodeNumsChunked = spliceIntoChunks(
-    nodeNums,
-    (nodeNums.length - 1) / window.navigator.hardwareConcurrency
-  );
+  var nodeNumsChunked = 
+  nodeNums.length > window.navigator.hardwareConcurrency
+  ?
+    spliceIntoChunks(
+      nodeNums,
+      (nodeNums.length - 1) / window.navigator.hardwareConcurrency
+    )
+  :
+    [nodeNums];
 
   var promises = nodeNumsChunked.map((e: number[]) =>
     createWorker(nwk, dates, e, tipData)
@@ -60,7 +69,7 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
   var prime = (await Promise.all(promises));
 
   prime.unshift({
-    ...localRoot(tree, dates),
+    ...localRoot(tree, tipData),
     nodeIndx: 0,
   });
 
@@ -75,19 +84,22 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
 
   rerootAndScale(bestTree, best);
 
+  bestTree.nodes.each( (n: any) => {
+    console.log(typeof n.data.__mapped_bl)
+  if (n.data.__mapped_bl){
+    n.data.arrribute = n.data.__mapped_bl.toString()
+   } else {
+    n.data.arrribute = "0"
+   }
+  })
+  bestTree.setBranchLength( (n: any) => {
+     return n.data.attribute
+  })
+
   var t1 = new Date().getTime()
 
   console.log("Time Taken for BFR " + Math.abs(t1-t0) / 1000 + "s")
-  console.log("Legnth before BFR: " + tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
-  console.log("Legnth after BFR: " + bestTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
-  console.log(
-    `Same Length: ${
-      tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
-      ===
-      bestTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
-    }`
-  )
-  
+
   return bestTree.getNewick();
 }
 
@@ -97,28 +109,33 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
  * @param {any} bestTree - The best rooted phylotree instance.
  * @param {any} best - The best local optima information.
  */
-function rerootAndScale(bestTree: any, best: any) {
+export function rerootAndScale(bestTree: any, best: any) {
 
   if (best.nodeIndx !== 0) {
+
     bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx]);
+
+  } else if (best.nodeIndx === 0) {
+
+    bestTree.nodes.each((n: any) => {
+      n.data.__mapped_bl = bestTree.branch_length_accessor(n);
+    });
+
   }
 
-  let bl = [
-    bestTree.nodes.children[0].data.attribute,
-    bestTree.nodes.children[1].data.attribute
-  ].map (
-    e => parseFloat(e)
-  )
-  let len = bl.reduce((p,c) => p+c, 0)
+    let bl = [
+      bestTree.branch_length_accessor(bestTree.nodes.children[0]),
+      bestTree.branch_length_accessor(bestTree.nodes.children[1])
+    ].map (
+      e => parseFloat(e)
+    )
 
-  bestTree.nodes.children[0].data.attribute = (best.alpha * len).toString();
-  bestTree.nodes.children[1].data.attribute = ((1 - best.alpha) * len).toString();
+    let len = bl.reduce((a,b) => a+b, 0)
 
-  bestTree.setBranchLength((n: any) => {
-    return n.data.attribute;
-  });
-
+    bestTree.nodes.children[0].data.__mapped_bl = (best.alpha * len).toString();
+    bestTree.nodes.children[1].data.__mapped_bl = ((1 - best.alpha) * len).toString();
 }
+
 
 /**
  * Finds the best local root for a given phylogenetic tree.
@@ -127,9 +144,10 @@ function rerootAndScale(bestTree: any, best: any) {
  * @param {number[]} dates - An array of dates associated with each tip of the tree.
  * @returns {object} - An object containing the best alpha value and the corresponding R2 value.
  */
-export function localRoot(tree: any, dates: number[]) {
+export function localRoot(tree: any, tipData: any) {
   var tipNames: string[] = getTipNames(tree);
-  var tipHeights: number[] = getTipHeights(tree);
+  var tipHeights: number[] = getTipHeights(tree); 
+  var dates = tipNames.map(e => tipData[e].date)
 
   var desc0: string[] = tree.nodes.children[0].leaves().map(
     (e: any) => e.data.name
@@ -141,32 +159,30 @@ export function localRoot(tree: any, dates: number[]) {
   }
 
   let bl = [
-    tree.nodes.children[0].data.attribute,
-    tree.nodes.children[1].data.attribute
+    tree.branch_length_accessor(tree.nodes.children[0]),
+    tree.branch_length_accessor(tree.nodes.children[1])
   ].map(e => parseFloat(e))
 
   let length = bl.reduce((a, b) => a+b, 0)
 
-  // Efficiency boost skipping opimisation for effectively 0-length branches
-  // (ie. < 10^-8)
-  // if (length <= 1e-8) {
-  //   return { 
-  //     alpha: 0.5, 
-  //     r2: linearRegression({ x: dates, y: tipHeights, tip: tipNames, name: 'NA' }).r2
-  //   }
-  // }
+  // Skipping opimisation for effectively 0-length branches
+  if (bl.some(e => e < Number.EPSILON)) {
+    return { 
+      alpha: 0.5, 
+      r2: linearRegression({ x: dates, y: tipHeights, tip: tipNames, name: 'NA' }).r2
+    }
+  }
 
-  const univariateFunction = (x: number) => {
-    let tipHeightsNew = tipHeights.map(
-      (e, i) =>
-        indicator[i] * (e - bl[0] + (x * length)) + // changed indx
-        (1 - indicator[i]) * (e - bl[1] + ((1 - x) * length)) // changed indx
+  function univariateFunction(x: number) {
+    let tipHeightsNew = tipHeights.map((e, i) =>
+        indicator[i] * (e - bl[0] + (x * length)) +
+        (1 - indicator[i]) * (e - bl[1] + ((1 - x) * length))
     );
-
     return -1 * linearRegression({ x: dates, y: tipHeightsNew, tip: tipNames, name: 'NA' }).r2;
   };
 
-  let alpha = minimize(univariateFunction, { lowerBound: 0, upperBound: 1, tolerance: 1e-5});
+  let alpha = minimize(univariateFunction, { lowerBound: 0, upperBound: 1, tolerance: Number.EPSILON, maxIterations: 1000});
+  
   return { alpha: alpha, r2: -1 * univariateFunction(alpha) };
 }
 

@@ -35,6 +35,25 @@ const toggleBestFittingRoot = () => {
 
           let bestFitTree = new phylotree(nwk) 
 
+          let tree = new phylotree(sourceNwk)
+
+          console.log("Length before BFR: " + tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
+          console.log("Length after BFR: " + bestFitTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
+          console.log(
+            `Same Length: ${Math.abs(
+              tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+              -
+              bestFitTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+            ) < Number.EPSILON
+            }`
+          )
+          console.log("Diff Check with basal length: " +
+          Math.abs(
+            tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+            -
+            bestFitTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+          ))
+
           let bfrTips = getTipNames(bestFitTree);
           let bfrDates = bfrTips.map(e => tipData[e].date)
           let bfrGrp = bfrTips.map(e => tipData[e].group)
@@ -54,6 +73,7 @@ const toggleBestFittingRoot = () => {
           bfrExists.current = true 
         }
         )
+
 
   }
 

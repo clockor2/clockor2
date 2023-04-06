@@ -54,7 +54,6 @@ export function Regression(props: any) {
     } else {
       isMounted.current = true;
     }
-    console.log('hoverPoints', currentData);
   }, [highlightedId, currentData])
 
 
