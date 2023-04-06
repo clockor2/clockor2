@@ -4,6 +4,7 @@ import { localRoot, rerootAndScale, reorderData, globalRootParallel} from './bes
 import { linearRegression } from './core';
 //const phylotree = require("phylotree");
 import { phylotree, rootToTip } from "phylotree"
+
 describe('Testing reorderData()', () => {
   let bestTree = new phylotree('((A:1, B:2):1,(C:1, D:2):3);')
   let expDates = [2, 3, 4, 5];
