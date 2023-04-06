@@ -55,10 +55,13 @@ export function ClockSearchButton(props: any) {
 
 return (
 <div>
-        <button onClick={toggleModal} className=' text-slate-600 hover:text-blue-300 p-1 m-3 rounded-md border border-transparent hover:border-blue-200'>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-1 -1 20 20" strokeWidth={0.75} stroke="currentColor" className="w-6 h-6">
-          <path d="M8 2C4.691 2 2 4.691 2 8s2.691 6 6 6 6-2.691 6-6-2.691-6-6-6zm6.312 10.897l5.395 5.396a1 1 0 11-1.414 1.414l-5.396-5.395A7.954 7.954 0 018 16c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8a7.946 7.946 0 01-1.688 4.897zM9 5a1 1 0 10-2 0v3a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L9 7.586V5z" fill="#5C5F62"/>
-        </svg>
+        <button onClick={toggleModal} className='flex text-slate-600 items-center text-gray-700 hover:text-blue-700 '>
+            <div className="text-sm font-medium  dark:text-gray-300 cursor-pointer" >
+              Local Clock Search
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1" stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
         </button>
         <React.Fragment>
           <Modal

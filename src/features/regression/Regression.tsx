@@ -68,14 +68,23 @@ export function Regression(props: any) {
     showlegend: currentData && currentData?.length > 2 ? true : false,
     autosize: true,
     legend: {
-      y: 0.5
+      orientation: 'h', 
+      x: 0.5, 
+      y: 1.05,
+      xanchor: 'center',
     },
     margin: {
       l: 60,
       r: 30,
       b: 30,
-      t: 30,
+      t: 5,
       pad: 0
+    },
+    barmode: 'overlay',
+    modebar: {
+      // vertical modebar button layout
+      orientation: 'v',
+      // for demonstration purposes
     },
   };
 
@@ -86,9 +95,10 @@ export function Regression(props: any) {
         onUnhover={() => dispatch(setHighlightedId(null))} 
         onHover={(event) => onHover(event)}
         data={PlotlyData}  
+        // @ts-ignore
         layout={layout}
         style={{width: "100%", height: "100%"}}
-        config={{responsive: true}}
+        config={{responsive: true, displaylogo: false}}
       />
     </div>
   );

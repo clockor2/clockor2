@@ -86,25 +86,27 @@ function App() {
         <Menu></Menu>
         <main id="main" className='flex h-full'>
           {currentTree === ""?
-          <div className='flex flex-col items-center w-full h-full border-t-2 '>
+          <div className='flex flex-col items-center w-full h-full'>
             <div className='h-full w-full lg:w-1/3' >
               <TreeInput  />
             </div>
           </div>
           :
-            <div className='w-1/2 h-full border-t-2 border-r-2'>
+            <div className='w-1/2 h-full border-r-2'>
               <div className='relative'>
                 <div className='flex absolute z-50 top-0 right-0'>
-                  <DownloadButton 
-                    source={currentTree} 
-                    getNewick={() =>  {
-                      return treeRef.current?.exportNewick()
-                    }}
-                    getSVG={() =>  {
-                      return treeRef.current?.exportSVG()
-                    }}
-                    />
-                  <SettingsButton saveSettings={onChange}   />
+                  <div className='relative flex items-end justify-between space-x-2 px-2 pt-2'>
+                    <DownloadButton 
+                      source={currentTree} 
+                      getNewick={() =>  {
+                        return treeRef.current?.exportNewick()
+                      }}
+                      getSVG={() =>  {
+                        return treeRef.current?.exportSVG()
+                      }}
+                      />
+                    <SettingsButton saveSettings={onChange}   />
+                  </div>
                 </div>
               </div>
               <Tree 
@@ -126,7 +128,7 @@ function App() {
           }
           
           {currentTree?
-            <div className='w-full h-full border-t-2'>
+            <div className='w-full h-full'>
               {regressionData?.baseClock ?  
                   <div className='flex flex-col justify-between h-full'>
                     <Regression size={size} />
