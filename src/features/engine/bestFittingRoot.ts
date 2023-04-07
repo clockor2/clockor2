@@ -87,9 +87,9 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
   bestTree.nodes.each( (n: any) => {
     console.log(typeof n.data.__mapped_bl)
   if (n.data.__mapped_bl){
-    n.data.arrribute = n.data.__mapped_bl.toString()
+    n.data.attribute = n.data.__mapped_bl.toString()
    } else {
-    n.data.arrribute = "0"
+    n.data.attribute = "0"
    }
   })
   bestTree.setBranchLength( (n: any) => {
@@ -116,11 +116,10 @@ export function rerootAndScale(bestTree: any, best: any) {
     bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx]);
 
   } else if (best.nodeIndx === 0) {
-
     bestTree.nodes.each((n: any) => {
       n.data.__mapped_bl = bestTree.branch_length_accessor(n);
     });
-
+    bestTree.setBranchLength((node:any) => node.data.__mapped_bl)
   }
 
     let bl = [
@@ -166,7 +165,8 @@ export function localRoot(tree: any, tipData: any) {
   let length = bl.reduce((a, b) => a+b, 0)
 
   // Skipping opimisation for effectively 0-length branches
-  if (bl.some(e => e < Number.EPSILON)) {
+  if (length < Number.EPSILON) {
+    console.log('Skipping node!');
     return { 
       alpha: 0.5, 
       r2: linearRegression({ x: dates, y: tipHeights, tip: tipNames, name: 'NA' }).r2
