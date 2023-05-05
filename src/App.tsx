@@ -68,11 +68,19 @@ function App() {
   }, [regressionData])
 
   useEffect(() => {
-    if (!size) {
+    function handleResize() {
+      console.log('resized to: ', window.innerWidth, 'x', window.innerHeight)
       const gridRef = document.querySelector("#main")
       let height = gridRef?.getBoundingClientRect().height
       let width = gridRef?.getBoundingClientRect().width
-        setSize({height: height, width: width ? width/2 : undefined})    
+        setSize({height: height, width: width ? width/2 : undefined})  
+    }
+    if (!size) {
+      handleResize() 
+    }
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
     }
   }, [size])
 
@@ -92,7 +100,7 @@ function App() {
             </div>
           </div>
           :
-            <div className='w-1/2 h-full border-r-2'>
+            <div id="Tree" className='w-1/2 h-full border-r-2'>
               <div className='relative'>
                 <div className='flex absolute z-50 top-0 right-0'>
                   <div className='relative flex items-end justify-between space-x-2 px-2 pt-2'>
@@ -131,7 +139,7 @@ function App() {
             <div className='w-full h-full'>
               {regressionData?.baseClock ?  
                   <div className='flex flex-col justify-between h-full'>
-                    <Regression size={size} />
+                    <Regression />
                     <InfoPanel />
                     
                   </div>

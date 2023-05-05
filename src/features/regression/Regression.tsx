@@ -5,7 +5,6 @@ import { plotify } from '../engine/core';
 import { selectCurrentData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
-import { EnumDeclaration } from 'typescript';
 
 const Plot = createPlotlyComponent(Plotly)
 
