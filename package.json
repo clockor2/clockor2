@@ -29,6 +29,7 @@
     "lodash": "^4.17.21",
     "minimize-golden-section-1d": "^3.0.0",
     "paralleljs": "github:parallel-js/parallel.js",
+    "phylojs": "^1.1.2",
     "phylotree": "^1.0.17",
     "plotly.js": "^2.14.0",
     "react": "^18.2.0",
