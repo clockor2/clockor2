@@ -1,6 +1,5 @@
-import { phylotree } from "phylotree" 
 import { regression, LocalClockModel } from "./core"
-import { getTipHeights, getTipNames } from "./utils"
+import { Tree, readNewick } from "phylojs";
 
 /**
  * Creates a web worker for clock search in background thread
@@ -45,7 +44,7 @@ export const clockSearch = (
     icMetric: "aic" | "aicc" | "bic"
     ) => {
   
-    var tree = new phylotree(nwk)
+    var tree = readNewick(nwk)
     
     var allGroups: string[][][] = [];
     for (let i = 1; i <= maxClocks; i++) {
@@ -56,24 +55,22 @@ export const clockSearch = (
                 i
             ))
     }
-    // converting to group string
-    var allTips = tree.getTips().map((e: any) => e.data.name)
+
+    var tipNames = tree.getTipLabels();
+    var tipHeights = tree.getRTTDist();
 
     // error for too many clocks
     const error = Error(`Too may clocks for minimum clade size. Spurious results await`)
-    if (maxClocks > Math.floor(allTips.length / minCladeSize) ){
+    if (maxClocks > Math.floor(tipNames.length / minCladeSize) ){
       console.error(error.message)
     } 
 
 
     var groupsNumbered = allGroups.map(
       (e:string[][]) => makeGroups(
-        allTips, 
+        tipNames, 
         e)
     )
-
-    var tipNames = getTipNames(tree);
-    var tipHeights = getTipHeights(tree);
     
     var fits: LocalClockModel[] = [];
     for (let i = 0; i < allGroups.length; i++){
@@ -87,7 +84,7 @@ export const clockSearch = (
             );     
     }
 
-    // Now find the most supported configuration. Want baseIC iff only one group
+    // Now find the most supported configuration. Want baseIC iff one group
     var ic: number[] = fits.map(
         e => e.localClock ? e.localIC[icMetric] : e.baseIC[icMetric]
         );
@@ -98,18 +95,17 @@ export const clockSearch = (
     return fits[indexBest];
   }
   
-  export function getGroups (tree: any, minGroupSize: number, numClocks: number): string[][][] {
-    var tipNodes = tree.getInternals().map((e: any) => e.leaves())
+  export function getGroups (tree: Tree, minGroupSize: number, numClocks: number): string[][][] {
+    var tipNodes = tree.getNodeList().map(
+      e => tree.getSubtree(e).getTipLabels()
+    )
 
     // TODO: Throw error if numClocks > nTips / minGroupSize. Needs Parse Int
-
-    var tips = tipNodes.map(
-      (e: any) => e.map((e1: any) => e1.data.name)
-      ).sort(
-        (a: string[], b: string[]) => {return b.length - a.length}
-      ).filter(
-        (e: string[]) => e.length >= minGroupSize
-      );
+    var tips = tipNodes.sort(
+      (a: string[], b: string[]) => {return b.length - a.length}
+    ).filter(
+      (e: string[]) => e.length >= minGroupSize
+    );
   
     // [1,...,tips.length] as array for combn()
     let nums = [...Array(tips.length)].map((e, i) => i).slice(1);

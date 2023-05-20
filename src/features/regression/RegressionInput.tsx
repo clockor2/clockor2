@@ -5,29 +5,20 @@ import { selectCurrentTree, setTipData} from '../tree/treeSlice';
 import { decimal_date } from '../engine/utils';
 import { regression } from '../engine/core';
 import { selectRegressionInputDefaults, setData } from './regressionSlice';
-import {phylotree} from "phylotree"
 import { getTipHeights, getTipNames } from '../engine/utils';
 import { TipLabelForm } from './components/tipLabelForm';
 import { CSVInput } from './components/csvUploadForm';
-
+import { readNewick, Tree } from 'phylojs'
+import { read } from 'fs';
 
 export function RegressionInput(props: any) {
   const dispatch = useAppDispatch();
   const currentTree = useAppSelector(selectCurrentTree)
-  const phylotreeTree = new phylotree(currentTree)
-  const tipNames: Array<string> = getTipNames(phylotreeTree)
-
-  phylotreeTree.nodes.each((n: any) => {
-    if (!n.data.attribute) {
-      n.data.attribute = "0.0";
-    } 
-  });
-  phylotreeTree.setBranchLength((n: any) => {
-    return n.data.attribute;
-  });
+  const inputTree = readNewick(currentTree)
+  const tipNames = inputTree.getTipLabels()
 
   const handleSubmit =  (decimal_dates: number[], groupings: string[]) => {
-    const tipHeights = getTipHeights(phylotreeTree)
+    const tipHeights = inputTree.getRTTDist()
 
     const regression_data = regression(
       tipHeights,
@@ -38,7 +29,7 @@ export function RegressionInput(props: any) {
 
     dispatch(setData(regression_data))
 
-    let tipDataArr = tipNames.map(
+    let tipDataArr = tipNames.map( // UPTO: Make tip date arr using phylojs
       (e: string, i: number) => {
         return [
           e,

@@ -1,10 +1,5 @@
-import { phylotree } from "phylotree";
 import { linearRegression } from "./core";
-import { getTipHeights, getTipNames } from "./utils";
-import { useAppSelector } from "../../app/hooks";
-import { selectTipData } from "../tree/treeSlice";
-import { regression } from "../engine/core";
-
+import { Tree, readNewick, writeNewick } from "phylojs";
 var minimize = require("minimize-golden-section-1d");
 
 export interface localOptima {
@@ -48,8 +43,8 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
 
   var t0 = new Date().getTime();
 
-  const tree = new phylotree(nwk);
-  var nodes = tree.nodes.descendants();
+  const tree: Tree = readNewick(nwk);
+  var nodes = tree.getNodeList();
   var nodeNums = nodes.map((e: any, i: number) => i).slice(1);
 
   var nodeNumsChunked = 
@@ -80,59 +75,40 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
   var bestIndx = r2.indexOf(bestR2);
   var best: any = prime[bestIndx];
 
-  let bestTree = new phylotree(nwk);
+  let bestTree = readNewick(nwk);
 
   rerootAndScale(bestTree, best);
-
-  bestTree.nodes.each( (n: any) => {
-    console.log(typeof n.data.__mapped_bl)
-  if (n.data.__mapped_bl){
-    n.data.attribute = n.data.__mapped_bl.toString()
-   } else {
-    n.data.attribute = "0"
-   }
-  })
-  bestTree.setBranchLength( (n: any) => {
-     return n.data.attribute
-  })
 
   var t1 = new Date().getTime()
 
   console.log("Time Taken for BFR " + Math.abs(t1-t0) / 1000 + "s")
 
-  return bestTree.getNewick();
+  return writeNewick(bestTree);
 }
 
 /**
  * Reroots at best node and rescales basal branch lengths.
  * 
- * @param {any} bestTree - The best rooted phylotree instance.
+ * @param {Tree} bestTree - The best rooted phylotree instance.
  * @param {any} best - The best local optima information.
+ * @returns {void} - Only manipulates bestTree
  */
-export function rerootAndScale(bestTree: any, best: any) {
+export function rerootAndScale(bestTree: Tree, best: any): void {
 
   if (best.nodeIndx !== 0) {
-
-    bestTree.reroot(bestTree.nodes.descendants()[best.nodeIndx]);
-
-  } else if (best.nodeIndx === 0) {
-    bestTree.nodes.each((n: any) => {
-      n.data.__mapped_bl = bestTree.branch_length_accessor(n);
-    });
-    bestTree.setBranchLength((node:any) => node.data.__mapped_bl)
+    bestTree.reroot(bestTree.getNodeList()[best.nodeIndx]);
   }
 
-    let bl = [
-      bestTree.branch_length_accessor(bestTree.nodes.children[0]),
-      bestTree.branch_length_accessor(bestTree.nodes.children[1])
-    ].map (
-      e => parseFloat(e)
-    )
+  let bl = bestTree.root.children.map(
+    e => e.branchLength
+  ).map(
+    e => e == undefined ? 0 : e
+  )
 
-    let len = bl.reduce((a,b) => a+b, 0)
+  let len = bl.reduce((a,b) => a+b, 0)
 
-    bestTree.nodes.children[0].data.__mapped_bl = (best.alpha * len).toString();
-    bestTree.nodes.children[1].data.__mapped_bl = ((1 - best.alpha) * len).toString();
+  bestTree.root.children[0].branchLength = (best.alpha * len);
+  bestTree.root.children[1].branchLength = ((1 - best.alpha) * len);
 }
 
 
@@ -143,29 +119,27 @@ export function rerootAndScale(bestTree: any, best: any) {
  * @param {number[]} dates - An array of dates associated with each tip of the tree.
  * @returns {object} - An object containing the best alpha value and the corresponding R2 value.
  */
-export function localRoot(tree: any, tipData: any) {
-  var tipNames: string[] = getTipNames(tree);
-  var tipHeights: number[] = getTipHeights(tree); 
+export function localRoot(tree: Tree, tipData: any) {
+  var tipNames: string[] = tree.getTipLabels();
+  var tipHeights: number[] = tree.getRTTDist(); 
   var dates = tipNames.map(e => tipData[e].date)
 
-  var desc0: string[] = tree.nodes.children[0].leaves().map(
-    (e: any) => e.data.name
-  );
+  var desc0: string[] = tree.getSubtree(tree.root.children[0]).getTipLabels();
 
   var indicator: number[] = [];
   for (let i = 0; i < tipNames.length; i++) {
     desc0.includes(tipNames[i]) ? indicator.push(1) : indicator.push(0);
   }
 
-  let bl = [
-    tree.branch_length_accessor(tree.nodes.children[0]),
-    tree.branch_length_accessor(tree.nodes.children[1])
-  ].map(e => parseFloat(e))
-
-  let length = bl.reduce((a, b) => a+b, 0)
+  let bl = tree.root.children.map(
+    e => e.branchLength
+  ).map(
+    e => e == undefined ? 0 : e
+  )
+  let len = bl.reduce((a, b) => a+b, 0)
 
   // Skipping opimisation for effectively 0-length branches
-  if (length < Number.EPSILON) {
+  if (len < Number.EPSILON) {
     console.log('Skipping node!');
     return { 
       alpha: 0.5, 
@@ -175,8 +149,8 @@ export function localRoot(tree: any, tipData: any) {
 
   function univariateFunction(x: number) {
     let tipHeightsNew = tipHeights.map((e, i) =>
-        indicator[i] * (e - bl[0] + (x * length)) +
-        (1 - indicator[i]) * (e - bl[1] + ((1 - x) * length))
+        indicator[i] * (e - bl[0] + (x * len)) +
+        (1 - indicator[i]) * (e - bl[1] + ((1 - x) * len))
     );
     return -1 * linearRegression({ x: dates, y: tipHeightsNew, tip: tipNames, name: 'NA' }).r2;
   };
