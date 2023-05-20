@@ -7,7 +7,7 @@ import { selectSource, setBestFittingRoot, selectBestFittingRoot, setCurrentTree
 import { globalRootParallel } from "../engine/bestFittingRoot";
 import { getTipNames, getTipHeights } from "../engine/utils";
 import { regression } from "../engine/core";
-import { phylotree }  from "phylotree";
+import { readNewick, Tree } from "phylojs";
 
 export function BFRButton () {
 
@@ -31,31 +31,31 @@ const toggleBestFittingRoot = () => {
         (nwk: string) => { 
           dispatch(setBestFittingRoot(nwk)) 
 
-          let bestFitTree = new phylotree(nwk) 
+          let bestFitTree = readNewick(nwk) 
 
-          let tree = new phylotree(sourceNwk)
+          let tree = readNewick(sourceNwk)
 
-          console.log("Length before BFR: " + tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
-          console.log("Length after BFR: " + bestFitTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0))
+          console.log("Length before BFR: " + tree.getTotalBranchLength())
+          console.log("Length after BFR: " + bestFitTree.getTotalBranchLength())
           console.log(
             `Same Length: ${Math.abs(
-              tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+              tree.getTotalBranchLength()
               -
-              bestFitTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+              bestFitTree.getTotalBranchLength()
             ) < Number.EPSILON
             }`
           )
           console.log("Diff Check with basal length: " +
           Math.abs(
-            tree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+            tree.getTotalBranchLength()
             -
-            bestFitTree.getBranchLengths().filter((e: number) => e).reduce((a: number, b: number) => a+b, 0)
+            bestFitTree.getTotalBranchLength()
           ))
 
-          let bfrTips = getTipNames(bestFitTree);
-          let bfrDates = bfrTips.map(e => tipData[e].date)
-          let bfrGrp = bfrTips.map(e => tipData[e].group)
-          let bfrHeights = getTipHeights(bestFitTree)
+          let bfrTips = bestFitTree.getTipLabels();
+          let bfrDates = bfrTips.map(e => tipData[e].date);
+          let bfrGrp = bfrTips.map(e => tipData[e].group);
+          let bfrHeights = bestFitTree.getRTTDist();
 
           const bestFitRegression = regression(
             bfrHeights,

@@ -16,14 +16,7 @@ export function InfoPanel() {
     window.dispatchEvent(new Event('resize'));
   }
 
-
-  // Getting state to log in buttons. Eg. num clocks
   const data = useAppSelector(selectCurrentData);
-  // setting num clocks using ternary operator - if local clocks defined, use that plus 1
-  //const numClocks = data && data.localClock ? data?.localClock.length : 1;
-
-  // console.log('BOOL TEST')
-  // console.log(`${data?.baseIC.aicc - data?.localIC.aicc < 0}`)
 
   return (
     <div>
