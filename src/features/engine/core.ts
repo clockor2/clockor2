@@ -22,7 +22,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
   const plot = [] as Plotly.Data[];
   if (lcm != null) {
     // generate colour scale. Use viridis-ish default
-    const cols = lcm.localClock.length > 0
+    const cols = lcm.localClock !== undefined
       ?
       chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length)
       :
@@ -88,12 +88,6 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
   } else {
     return null;
   }
-  }
-
-
-
-interface Style {
-  color: string;
 }
 
 export interface Regression {
@@ -268,8 +262,6 @@ export function AICc(regs: Regression[]): number {
 
 export function AIC(regs: Regression[]): number {
   var f = regs.length;
-  var n = regs.map((n, i, a) => regs[i].y.length).reduce(
-    (a, b) => a + b, 0)
   var totLogLik = 0;
 
   for (let i = 0; i < regs.length; i++) {

@@ -1,12 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
-interface TipData {
-  tip: string
-  group: string
-  date: number
-}
-
 export interface TreeState {
   source: string
   bestRootTree: string

@@ -102,7 +102,7 @@ export function rerootAndScale(bestTree: Tree, best: any): void {
   let bl = bestTree.root.children.map(
     e => e.branchLength
   ).map(
-    e => e == undefined ? 0 : e
+    e => e === undefined ? 0 : e
   )
 
   let len = bl.reduce((a,b) => a+b, 0)
@@ -134,7 +134,7 @@ export function localRoot(tree: Tree, tipData: any) {
   let bl = tree.root.children.map(
     e => e.branchLength
   ).map(
-    e => e == undefined ? 0 : e
+    e => e === undefined ? 0 : e
   )
   let len = bl.reduce((a, b) => a+b, 0)
 
@@ -158,10 +158,6 @@ export function localRoot(tree: Tree, tipData: any) {
   let alpha = minimize(univariateFunction, { lowerBound: 0, upperBound: 1, tolerance: Number.EPSILON, maxIterations: 1000});
   
   return { alpha: alpha, r2: -1 * univariateFunction(alpha) };
-}
-
-interface TipIndices {
-  [key: string]: number;
 }
 
 /**

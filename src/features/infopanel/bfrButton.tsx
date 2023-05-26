@@ -6,7 +6,7 @@ import { setBestFittingRegression } from "../regression/regressionSlice";
 import { selectSource, setBestFittingRoot, selectBestFittingRoot, setCurrentTree, selectTipData} from '../tree/treeSlice';
 import { globalRootParallel } from "../engine/bestFittingRoot";
 import { regression } from "../engine/core";
-import { readNewick, Tree } from "phylojs";
+import { readNewick } from "phylojs";
 
 export function BFRButton () {
 

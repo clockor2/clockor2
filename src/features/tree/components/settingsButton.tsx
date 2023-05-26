@@ -1,4 +1,4 @@
-import { Button, Checkbox, Label, Modal, Select } from "flowbite-react";
+import { Checkbox, Label, Modal, Select } from "flowbite-react";
 import React, { useState } from "react";
 
 export interface TreeSettings {
@@ -43,10 +43,6 @@ export function SettingsButton({
       setSettings(newSettings);
       saveSettings(newSettings)
     };
-
-    const save = () => {
-      toggleModal()
-    }
 
     return (
       <div>

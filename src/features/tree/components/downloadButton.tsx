@@ -1,6 +1,4 @@
-import { Dropdown, Checkbox, Label, Modal, Select } from "flowbite-react";
 import React, { useState } from "react";
-
 
 type Props = {
     source: string;

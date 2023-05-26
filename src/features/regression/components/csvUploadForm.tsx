@@ -3,7 +3,7 @@ import { useAppDispatch } from '../../../app/hooks';
 import { decimal_date } from '../../engine/utils';
 import {useDropzone} from 'react-dropzone';
 import styles from '../Regression.module.css';
-import { Label, Select, Table, Tooltip } from 'flowbite-react';
+import { Select, Table, Tooltip } from 'flowbite-react';
 
 function parseCSV(csvData: string, delimiter: string = ','): string[][] {
   let parsedCSV = csvData.trim().split('\n').map((line) => line.split(delimiter).map((cell) => cell.trim()));

@@ -4,7 +4,7 @@ import createPlotlyComponent from "react-plotly.js/factory"
 import { plotify } from '../engine/core';
 import { selectCurrentData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { selectHighlightedId, selectTipNames, setHighlightedId } from '../tree/treeSlice';
+import { selectHighlightedId, setHighlightedId } from '../tree/treeSlice';
 
 const Plot = createPlotlyComponent(Plotly)
 

@@ -7,17 +7,12 @@ import { readNewick, Tree } from "phylojs";
 // workerMessageHandler is directly addressed
 self.onmessage = ({ data: { nwk, nodeNums, tipData } }) => { /* eslint-disable-line no-restricted-globals */
   var treePrime: Tree
-  var datesPrime: number[] = []
   var localOptimum: localOptima
   var best: localOptima
 
   // first node case
   treePrime = readNewick(nwk);
   treePrime.reroot(treePrime.getNodeList()[nodeNums[0]]);
-
-  datesPrime = treePrime.getTipLabels().map(
-    (e: string) => tipData[e].date
-  )
 
   best = {
     ...localRoot(

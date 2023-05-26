@@ -1,20 +1,9 @@
 import { Label, Modal, Select, Spinner } from "flowbite-react";
-import { setClockSearchData, setCurrentData, selectCurrentData, selectClockSearchData  } from "../regression/regressionSlice";
+import { setClockSearchData, setCurrentData, selectCurrentData  } from "../regression/regressionSlice";
 import { selectCurrentTree } from "../tree/treeSlice";
 import React, { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import { phylotree } from "phylotree";
 import { createClockSearchWorker } from "../engine/clockSearch";
-import { LocalClockModel } from "../engine/core";
-
-
-/* TODO
-1. Define new states for clock search data - DONE
-2. Setup Object for clock search input - DONE
-3. Form and Modal to collect input - takes current tree, maxGroups, minGrpSize, IC metric -DONE
-3.5. handle submit function -DONE
-4. Run button to do clockSearch() and reset data - DONE
-5. Button to show clockSearch Data after run */
 
 export function ClockSearchButton(props: any) {
     var nTips = useAppSelector(selectCurrentData)?.baseClock.x.length ?? 0;
