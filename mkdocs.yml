@@ -1,0 +1,31 @@
+
+site_name: Clockor2
+repo_url: https://github.com/clockor2/clockor2
+
+theme:
+  name: "material"
+  homepage: https://write-the.wytamma.com/
+  logo: images/logo.png
+  favicon: images/favicon.ico
+  palette: 
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    logo: fontawesome/solid/robot
+  features:
+    - toc.follow
+    - content.action.edit
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+plugins:
+- search

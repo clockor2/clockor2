@@ -13,3 +13,18 @@
 > This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) TS template.
 
 https://excalidraw.com/#room=cd8788b3e45c91459bff,yUUKoNE0Ci4orhrBPfaRwQ
+
+## Docs 
+
+Build the docs using mkdocs. You can install mkdocs with pip.
+
+Create a virtual env && Install docs deps (only need to run once).
+
+```bash
+python3 -m venv env
+env/bin/pip install  mkdocs-material
+```
+
+2. 
+2. install requiermetns 
+
