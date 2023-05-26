@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useAppDispatch } from '../../app/hooks';
 import { setSource  } from './treeSlice';
-import {useDropzone} from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 import styles from './Tree.module.css';
-import {exampleNewick} from './exampleNewick'
+import { exampleNewick } from './exampleNewick'
 import { setRegressionInputDefaults } from '../regression/regressionSlice';
 
 function validateNewickString(text: string) {
