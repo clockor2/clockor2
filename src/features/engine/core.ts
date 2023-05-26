@@ -22,7 +22,7 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
   const plot = [] as Plotly.Data[];
   if (lcm != null) {
     // generate colour scale. Use viridis-ish default
-    const cols = lcm.localClock
+    const cols = lcm.localClock.length > 0
       ?
       chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length)
       :
@@ -152,42 +152,13 @@ export const regression = (
   return lcm;
 }
 
-// Clock search function. Conver to a generator later
-// icMetric is the information criterion used to find 'best' state. TODO: Need to read these as part of input: aic | aicc | bic
-// export const clockSearch = (tree: any,
-//   minCladeSize: number,
-//   numClocks: number,
-//   tipHeights: Array<number>,
-//   dates: Array<number>,
-//   tipNames: Array<string>,
-//   icMetric: string) => {
-
-//   // generate all possibilities for groupings
-//   let allGroups = getGroups(tree, minCladeSize, numClocks);
-//   let allGroupsNumber = allGroups.map((e: string[][]) => groupToNum(e, tips));
-
-//   // Loop through group possibilities and append to fits
-//   let fits: LocalClockModel[] = [];
-//   for (let i = 0; i < allGroups.length; i++){
-//       fits.push(regression(tipHeights, dates, allGroups[i], tipNames)); 
-//   }
-
-//   // Now find the most supported configuration
-//   // Getting array of IC values based on selected IC TODO: Add capability for multiple ICs
-//   const ic = fits.map(e => e[icMetric as keyof LocalClockModel]) // TODO: Test here!
-
-//   var icMaxStep = ic.indexOf(Math.max(...(ic as number[]))); // TODO: This might throw an error if we never see output
-
-//   return fits[icMaxStep];
-// }
-
 ////////////////////////////////////////////////////////
 // BELOW: FUNCTIONS USED INSIDE CORE ENGINE FUNCTIONS //
 ////////////////////////////////////////////////////////
 
 // function groups points for local clock regresion
 // 0th element of array is always points for single clock
-const groupData = (
+export const groupData = (
   tipHeights: Array<number>,
   dates: Array<number>,
   groupings:  Array<string>,
@@ -232,7 +203,6 @@ const groupData = (
 export function linearRegression(points: DataGroup) {
   let reg = {} as Regression;
 
-  // carrying tips over first
   reg.tip = points.tip;
 
   let x = points.x;
@@ -253,20 +223,17 @@ export function linearRegression(points: DataGroup) {
       sum_yy += (y[j]*y[j]);
   } 
 
-  // Include these later after agreeing on how to pass to front end
   reg.x = x;
   reg.y = y;
   reg.slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
   reg.intercept = (sum_y - reg.slope * sum_x)/n;
   reg.fitY = x.map(e => (reg.slope * e + reg.intercept));
   reg.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
-  //calculate log likelihood
   
   let error = y.map((n, i, a) => y[i] - reg.fitY[i]); 
   // estiamted variance of error
   let sigSq = error.map(n => Math.pow(n, 2)).reduce(
     (a, b) => a + b, 0) * (1 / reg.fitY.length);
-  //reg.logLik = y.map((e, i) => Math.log(normalDensity(e, reg.fitY[i], sigSq))).reduce((a, b) => a + b); 
   reg.logLik = y.map((e, i) => Math.log(
     normalDensity(e, reg.fitY[i], sigSq)
     )
@@ -325,109 +292,4 @@ export function BIC(regs: Regression[]): number {
     }
   }
     return (3 * f * Math.log(n) - (2 * totLogLik)); 
-}
-
-export function getGroups (tree: any, minCladeSize: number, numClocks: number): string[][][] {
-  // Sets of tips descending from each node
-  var tips: any = [];
-  // list tips descending from each node
-  tree.nodes.each((node: any) => tips.push(node.leaves())); 
-  // map to just tip names
-  var tips = tips.map((e0: any) => e0.map((e1: any) => e1.data.name));
-  // De-duplicate tips (artefact from d3 hierarchy)
-  var uniqueTips = tips.map(
-    (e: string[]) => JSON.stringify(e)
-    ).filter(
-      (e: string[], i: number, a: string[][]) => {return a.indexOf(e) === i}
-      ).map(
-       (e: string) => JSON.parse(e)
-        )
-  // Sort clades based on size. Largest (all tips) goes first
-  var sortedUniqueTips = uniqueTips.sort((a: string[], b: string[]) => {return b.length - a.length});
-
-  // Filter out all clades with fewer than ${minCladeSize} tips
-  var finalClades = sortedUniqueTips.filter((e: string[]) => e.length >= minCladeSize);
-
-  // array from 1:(finalClades.length) possible clades to draw combinations
-  var grpNums = Array.from(Array(finalClades.length).keys());
-  // +1 to account for 0th base clock
-  //var grpNums = grpNums.map((e: number, i: number ) => i+1); 
-  
-  // remove 0th group - that being all tips. Add back in later
-  grpNums.shift()
-  // get all combinations of groups to make up ${numClocks} local clocks
-  let comb = combn(grpNums, (numClocks - 1))
-  // add 0th clade for background rate
-  comb.map((e: number[]) => e.unshift(0)); 
-
-  // Convert number combinations to corresponding groups of tips
-  let allGroups: string[][][] = [];
-  for (let i = 0; i < comb.length; i++){
-    allGroups.push(
-      comb[i].map(
-        (e: number) => finalClades[e]
-      )
-    );
-  }
-
-  //return groups after converting to non-intersecting groups;
-  return allGroups.map(e => getUnique(e));
-
-  // TODO: Size-filtering and defend against requesting too many clocks
-}
-
-// function takes string[][] and maps each to unique values assuming each string[] is nested as for allGroups
-export function getUnique(x: string[][]): string[][] {
-  return x.map((e0: string[], i) => e0.filter(
-      (e1: string) => {
-        if(i+1 < x.length) { 
-          return !x[i+1].includes(e1); 
-        } else {
-          return true;
-        }
-      })
-  );
-}
-
-// A function that takes a list of tips and returns group number based on an element of allGroups
-function groupToNum(arr: string[][], tips: string[]): number[] {
-    let groupings: number[] = []; 
-
-    for (let i = 0; i < tips.length; i++){
-      var tmp = [];
-      
-      for (let j = 0; j < arr.length; j++) {
-        if (arr[j].indexOf(tips[i]) > -1) {
-          groupings[i] = j;
-        } 
-      }
-    }
-  return groupings;
-} // TODO: Include a test here to check that output is all integers and that ordering of tips matches input
-
-
-// generating combinations of groups
- export function combn(arr: any[], k: number): number[][] {
-  // Store all possible combinations in a result array
-  const result: number[][] = [];
-
-  // Generate all combinations using a recursive helper function
-  function generateCombinations(currentIndex: number, currentCombination: any[]): void {
-    // If the current combination has the desired length, add it to the result array
-    if (currentCombination.length === k) {
-      result.push(currentCombination);
-      return;
-    }
-
-    // Generate all possible combinations starting from the next element in the array
-    for (let i = currentIndex; i < arr.length; i++) {
-      generateCombinations(i + 1, currentCombination.concat(arr[i]));
-    }
-  }
-
-  // Start the recursive process with the first element in the array
-  generateCombinations(0, []);
-
-  // Return the result array
-  return result;
 }

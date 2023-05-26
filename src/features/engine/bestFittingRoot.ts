@@ -140,7 +140,7 @@ export function localRoot(tree: Tree, tipData: any) {
 
   // Skipping opimisation for effectively 0-length branches
   if (len < Number.EPSILON) {
-    console.log('Skipping node!');
+    console.log('BFR Skipping node! <==> Sum Basal Branch Lengths < Number.EPSILON');
     return { 
       alpha: 0.5, 
       r2: linearRegression({ x: dates, y: tipHeights, tip: tipNames, name: 'NA' }).r2
@@ -165,35 +165,13 @@ interface TipIndices {
 }
 
 /**
- * Reorders an array of data based on the correspondence between the current and target tip names.
- *
- * @param {number[]} arr - The array of data to be reordered.
- * @param {string[]} currentTip - An array of the current tip names.
- * @param {string[]} targetTip - An array of the target tip names.
- * @returns {number[]} - The reordered array of data.
- */
-export function reorderData(arr: number[], currentTip: string[], targetTip: string[]) {
-  const targetTipIndices: TipIndices = {};
-  for (let i = 0; i < targetTip.length; i++) {
-    targetTipIndices[targetTip[i]] = i;
-  }
-
-  const arrOrdered = currentTip.map((tip) => {
-    const index = targetTipIndices[tip];
-    return arr[index];
-  });
-
-  return arrOrdered;
-}
-
-/**
  * Splits an array into chunks of the specified size.
  *
  * @param {number[]} arr - The array to be split into chunks.
  * @param {number} chunkSize - The size of each chunk.
  * @returns {number[][]} - An array of chunks.
  */
-function spliceIntoChunks(arr: number[], chunkSize: number) {
+export function spliceIntoChunks(arr: number[], chunkSize: number) {
   const res = [];
   while (arr.length > 0) {
     const chunk = arr.splice(0, chunkSize);

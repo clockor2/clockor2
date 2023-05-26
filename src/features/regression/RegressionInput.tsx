@@ -1,15 +1,10 @@
-import React, { useState } from 'react';
-import { TextInput, Label, Select, Tooltip } from 'flowbite-react';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectCurrentTree, setTipData} from '../tree/treeSlice';
-import { decimal_date } from '../engine/utils';
 import { regression } from '../engine/core';
-import { selectRegressionInputDefaults, setData } from './regressionSlice';
-import { getTipHeights, getTipNames } from '../engine/utils';
+import { setData } from './regressionSlice';
 import { TipLabelForm } from './components/tipLabelForm';
 import { CSVInput } from './components/csvUploadForm';
-import { readNewick, Tree } from 'phylojs'
-import { read } from 'fs';
+import { readNewick } from 'phylojs'
 
 export function RegressionInput(props: any) {
   const dispatch = useAppDispatch();
@@ -29,7 +24,7 @@ export function RegressionInput(props: any) {
 
     dispatch(setData(regression_data))
 
-    let tipDataArr = tipNames.map( // UPTO: Make tip date arr using phylojs
+    let tipDataArr = tipNames.map( // TODO: Make tip date arr using phylojs
       (e: string, i: number) => {
         return [
           e,

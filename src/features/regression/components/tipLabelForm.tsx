@@ -3,6 +3,7 @@ import { TextInput, Label, Select, Tooltip } from 'flowbite-react';
 import { useAppSelector } from '../../../app/hooks';
 import { decimal_date } from '../../engine/utils';
 import { selectRegressionInputDefaults } from '../regressionSlice';
+import { extractPartOfTipName } from '../../engine/utils';
 
 export function TipLabelForm(props: any) {
     const defaults = useAppSelector(selectRegressionInputDefaults);
@@ -10,19 +11,6 @@ export function TipLabelForm(props: any) {
     const [delimiter, setDelimiter] = useState<string>(defaults.delimiter);
     const [loc, setLoc] = useState<string>(defaults.loc);
     const [group, setGroup] = useState<string>(defaults.group);
-  
-    const handelNegativeIndexes = (splitTipName: Array<string>, delimiter: string, loc: number): number => {
-      if (loc < 0) {
-        loc = splitTipName.length + loc
-      }
-      return loc
-    }
-  
-    const extractPartOfTipName = (name: string, delimiter: string, location: string): string => {
-      let splitTipName = name.split(delimiter)
-      let loc = handelNegativeIndexes(splitTipName, delimiter, parseInt(location))
-      return name.split(delimiter)[loc]
-    }
   
     const decimal_dates = props.tipNames.map( (name: string) => {
       let date = extractPartOfTipName(name, delimiter, loc)
