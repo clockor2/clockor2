@@ -18,8 +18,8 @@ interface InfoMetric {
 
 // function to make plottable points
 // method for plotly plotting
-export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
-  const plot = [] as Plotly.Data[];
+export function plotify(lcm: LocalClockModel | null): any[] | null {
+  const plot = [] as any[];
   if (lcm != null) {
     // generate colour scale. Use viridis-ish default
     const cols = lcm.localClock !== undefined
@@ -37,7 +37,8 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
       mode: "markers",
       name: "Global",
       legendgroup: "Global",
-      showlegend: false
+      showlegend: false,
+      type: "scattergl"
     }
     plot.push(point);
 
@@ -46,14 +47,15 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
       y: lcm.baseClock.fitY,
       name: "Global",
       marker : {color: '#000000'},
-      mode: "lines",
+      mode: "line",
       text: lcm.localClock
       ? 
         `Global<br>R2: ${lcm.baseClock.r2.toFixed(2)}` 
       : 
         `R2: ${lcm.baseClock.r2.toFixed(2)}`,
 
-      legendgroup: "Global"
+      legendgroup: "Global",
+      type: "scattergl"
     }
     plot.push(line);
 
@@ -68,7 +70,8 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
           mode: "markers",
           legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
           name: lcm.groupNames[i+1],
-          showlegend: false
+          showlegend: false,
+          type: "scattergl"
         }
         plot.push(point1);
 
@@ -77,9 +80,10 @@ export function plotify(lcm: LocalClockModel | null): Plotly.Data[] | null {
           y: lcm.localClock[i].fitY,
           text: `${lcm.groupNames[i+1] ?? `Local Clock ${i+1}`}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
           marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
-          mode: "lines",
+          mode: "line",
           legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
-          name: lcm.groupNames[i+1]
+          name: lcm.groupNames[i+1],
+          type: "scattergl"
         }
         plot.push(line1);
       }

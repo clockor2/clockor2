@@ -1,12 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
-import createPlotlyComponent from "react-plotly.js/factory"
 import { plotify } from '../engine/core';
 import { selectCurrentData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, setHighlightedId } from '../tree/treeSlice';
-
-const Plot = createPlotlyComponent(Plotly)
+import Plot from "react-plotly.js";
 
 function getPointNumber(id:string, data: Plotly.Data[]) {
   let i = -1
