@@ -94,7 +94,16 @@ export function Regression(props: any) {
         // @ts-ignore
         layout={layout}
         style={{width: "100%", height: "100%"}}
-        config={{responsive: true, displaylogo: false}}
+        config={{
+          responsive: true, 
+          displaylogo: false, 
+          toImageButtonOptions: {
+            format: 'svg', // one of png, svg, jpeg, webp
+            filename: 'clockor2',
+            // height: 500,
+            // width: 700,
+            scale: 1 // Multiply title/legend/axis/canvas sizes by this factor
+        }}}
       />
     </div>
   );
