@@ -1,6 +1,6 @@
 # Clockor2
 
-![](public/logo512.png)
+![](public/logo-with-text.png)
 
 - framework: react - https://www.youtube.com/watch?v=s2skans2dP4&ab_channel=DennisIvy  
 - style: https://flowbite-react.com/ Flowbite (TailwindCSS)
