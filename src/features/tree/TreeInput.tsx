@@ -44,10 +44,12 @@ export function TreeInput(props: any) {
     }, [acceptedFiles, dispatch])
 
     return (
-        <section className="flex flex-col justify-center h-full  mx-6  text-slate-500 ">
+        <section className="flex flex-col justify-center mx-6 pt-6 pb-16 text-slate-500 ">
             <div className=' ' >
-                <div className='flex justify-center'>
-                    <img  src='/logo-with-text.png' alt=""/>
+                <div className='flex justify-center '>
+                    <div className=' max-w-xl'  >
+                        <img src='/logo-with-text.png' alt="clockor2 logo"/>
+                    </div>
                 </div>
                 <div className=' text-center'>
                     <p className=' font-semibold'>
@@ -55,7 +57,7 @@ export function TreeInput(props: any) {
                     </p>
 
                 </div>
-                <div {...getRootProps({className: styles.dropzone + " bg-slate-100 border-zinc-500 hover:cursor-pointer hover:shadow-md mt-6 mx-20"})}>
+                <div {...getRootProps({className: styles.dropzone + " bg-slate-100 border-zinc-500 hover:cursor-pointer hover:shadow-md mt-6 md:mx-20"})}>
                     <div className=' flex justify-center items-center space-x-12 w-full py-6'>
                         <img className=' w-20' src='/newick.png' alt=""/>
                         <div className=' flex flex-col items-center'>

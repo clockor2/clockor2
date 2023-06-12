@@ -94,8 +94,8 @@ function App() {
         <Menu></Menu>
         <main id="main" className='flex h-full'>
           {currentTree === ""?
-          <div className='flex flex-col items-center w-full overflow-auto'>
-            <div className='h-full max-w-screen-lg' >
+          <div className='flex flex-col items-center w-full h-full overflow-auto'>
+            <div className='max-w-screen-lg' >
               <TreeInput  />
             </div>
           </div>

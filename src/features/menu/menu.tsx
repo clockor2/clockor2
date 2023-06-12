@@ -16,11 +16,11 @@ export function Menu(){
         >
           <Navbar.Brand href="/">
             <img
-              src="/android-chrome-512x512.png"
-              className="mr-3 h-6 sm:h-9"
+              src="logo.svg"
+              className="mr-1 h-8"
               alt="Clockor2 Logo"
             />
-            <span className="self-center whitespace-nowrap text-xl font-semibold text-white dark:text-white">
+            <span className="self-center whitespace-nowrap text-2xl font-semibold text-white dark:text-white">
               Clockor2
             </span>
           </Navbar.Brand>
