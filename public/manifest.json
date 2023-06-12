@@ -1,6 +1,7 @@
 {
   "short_name": "Clockor2",
   "name": "Clockor2",
+  "description":"Inferring global and local strict molecular clocks using root-to-tip regression",
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",
@@ -44,6 +45,7 @@
     }
   ],
   "start_url": ".",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#334155",
   "background_color": "#ffffff"
