@@ -38,8 +38,8 @@ export function Menu(){
             <Navbar.Link className="!text-white"  href="https://github.com/clockor2/clockor2">
               Code
             </Navbar.Link>
-            <Navbar.Link className="!text-white"  href="/">
-              Contact
+            <Navbar.Link className="!text-white"  href="https://github.com/clockor2/clockor2/issues/new/choose">
+              Report Bug
             </Navbar.Link>
           </Navbar.Collapse>
         </Navbar>
