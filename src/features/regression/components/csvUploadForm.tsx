@@ -140,7 +140,7 @@ export function CSVInput(props: any) {
                 ))}
               </Table.Head>
               <Table.Body className="divide-y" >
-                {tableData.map((row, rowIndex) => (
+                {tableData.slice(0, 500).map((row, rowIndex) => (
                   <Table.Row key={rowIndex} className="text-xs bg-white dark:border-gray-700 dark:bg-gray-800">
                     {headers.map((header, cellIndex) => (
                       <Table.Cell key={cellIndex} className={`${header === 'tip' ? "break-all" : "whitespace-nowrap"} !px-2 !py-2 font-medium text-gray-900 dark:text-white`}>
@@ -149,6 +149,15 @@ export function CSVInput(props: any) {
                     ))}
                   </Table.Row>
                 ))}
+                { tableData.length > 500 ? 
+                  <Table.Row className="text-xs bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <Table.Cell className="!px-2 !py-2 font-medium text-gray-900 dark:text-white">
+                      ... {tableData.length - 500} rows not shown
+                    </Table.Cell>
+                  </Table.Row>
+                :
+                  <div></div>
+                }
               </Table.Body>
             </Table>
           </div>
