@@ -1,20 +1,47 @@
-# Clockor2
-
 ![](public/logo-with-text.png)
 
-- framework: react - https://www.youtube.com/watch?v=s2skans2dP4&ab_channel=DennisIvy  
-- style: https://flowbite-react.com/ Flowbite (TailwindCSS)
-- state: https://react-redux.js.org/tutorials/quick-start  
-- tree: https://gitlab.com/cgps/phylocanvas/phylocanvas.gl  
-- plot: https://github.com/plotly/react-plotly.js/#event-handler-props  
-- wasm: https://tkat0.github.io/posts/how-to-create-a-react-app-with-rust-and-wasm
-- drag and drop: https://react-dropzone.js.org/#section-opening-file-dialog-programmatically
+Welcome to the Clockor2 code base! The Clockor2 app is available at [clockor2.github.io](https://clockor2.github.io/).
 
-> This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) TS template.
+Clockor2 is open-source and licensed under the [GNU General Public License v3.0](https://github.com/clockor2/clockor2/blob/main/LICENSE). We welcome contributions, feature requests, and bug reports. See below for a guide on developing Clockor2.  
 
-https://excalidraw.com/#room=cd8788b3e45c91459bff,yUUKoNE0Ci4orhrBPfaRwQ
+## Development
+
+Clockor2 is built with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) TS template. 
+
+To get started clone the repo and install the dependencies.
+
+```bash
+git clone https://github.com/clockor2/clockor2.git && cd clockor2
+npm install
+```
+
+Start the development server for local development.
+
+```bash
+npm run start
+```
+
+Run test with [jest](https://jestjs.io/) 
+
+```bash
+npm run test
+```
+
+Some of the tools used by the project include:
+
+- React - https://www.youtube.com/watch?v=s2skans2dP4&ab_channel=DennisIvy  
+- Flowbite - https://flowbite-react.com/
+- Redux - https://react-redux.js.org/tutorials/quick-start  
+- Phylocanvas - https://gitlab.com/cgps/phylocanvas/phylocanvas.gl  
+- Plotly - https://github.com/plotly/react-plotly.js
+
+The initial design plan:
+
+![](docs/images/design-plan.png)
 
 ## Docs 
+
+Setting up the doc environment requires a few extra steps. 
 
 Create a virtual env && Install docs deps (only need to run once).
 
