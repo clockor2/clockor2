@@ -1,13 +1,56 @@
 import { Modal, Navbar } from "flowbite-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 
 export function Menu(){
   const [isToggled,setToggle] = useState(false);
-    const toggleModal = () => {
-      setToggle(!isToggled)
-    }
-    return (
+  const toggleModal = () => {
+    setToggle(!isToggled)
+  }
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const beforeInstallPromptListener = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', beforeInstallPromptListener);
+
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener('beforeinstallprompt', beforeInstallPromptListener);
+    };
+  }, []);
+
+  const handleInstallClick = () => {
+    if (!deferredPrompt) return;
+
+    // Show the prompt
+    deferredPrompt.prompt();
+
+    // Wait for the user to respond to the prompt
+    deferredPrompt.userChoice
+      .then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        setDeferredPrompt(null);
+      });
+  };
+
+  const showInstall = () =>  {
+    if (deferredPrompt) {
+      return (
+        <Navbar.Link className="!text-white cursor-pointer"  onClick={handleInstallClick}>
+          Install 
+        </Navbar.Link>
+      )
+      }
+  }
+  return (
       <div>
         <Navbar
           fluid={true}
@@ -16,7 +59,7 @@ export function Menu(){
         >
           <Navbar.Brand href="/">
             <img
-              src="logo.svg"
+              src="logo.png"
               className="mr-1 h-8"
               alt="Clockor2 Logo"
             />
@@ -32,6 +75,7 @@ export function Menu(){
             <Navbar.Link className="!text-white"  href="/">
               Docs 
             </Navbar.Link>
+            {showInstall()}
             <Navbar.Link className="!text-white"  href="/">
               Citation
             </Navbar.Link>
