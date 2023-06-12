@@ -63,9 +63,14 @@ export function Menu(){
               className="mr-1 h-8"
               alt="Clockor2 Logo"
             />
-            <span className="self-center whitespace-nowrap text-2xl font-semibold text-white dark:text-white">
-              Clockor2
-            </span>
+            <div className="whitespace-nowrap font-semibold text-white dark:text-white">
+              <span className="text-2xl">
+                Clockor2
+              </span>
+              <span className="text-sm pl-1">
+                v{__VERSION__}
+              </span>
+            </div>
           </Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse >

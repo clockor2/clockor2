@@ -1,6 +1,7 @@
 // https://alchemy.com/blog/how-to-polyfill-node-core-modules-in-webpack-5
 const webpack = require('webpack');
 const WorkBoxPlugin = require('workbox-webpack-plugin');
+const packageData = require('./package.json');
 
 module.exports = function override(config) {
     const fallback = config.resolve.fallback || {};
@@ -23,6 +24,9 @@ module.exports = function override(config) {
         new webpack.ProvidePlugin({
             process: 'process/browser',
             Buffer: ['buffer', 'Buffer']
+        }),
+        new webpack.DefinePlugin({
+            __VERSION__: JSON.stringify(packageData.version),
         })
     ])
     return config;
