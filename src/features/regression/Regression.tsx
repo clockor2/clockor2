@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Plotly from "plotly.js";
 import { plotify } from '../engine/core';
 import { selectCurrentData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { selectHighlightedId, setHighlightedId } from '../tree/treeSlice';
+import { selectHighlightedId, selectSelectedIds, setHighlightedId, setSelectedIds } from '../tree/treeSlice';
 import Plot from "react-plotly.js";
 
 function getPointNumber(id:string, data: Plotly.Data[]) {
@@ -24,14 +24,33 @@ function getPointNumber(id:string, data: Plotly.Data[]) {
 
 export function Regression(props: any) {
   
-  const highlightedId = useAppSelector(selectHighlightedId)
   const currentData = plotify(useAppSelector(selectCurrentData));
+  const selectedIds = useAppSelector(selectSelectedIds)
+  const highlightedId = useAppSelector(selectHighlightedId)
   const isMounted = useRef(false);
   const dispatch = useAppDispatch();
 
   const onHover = (event:Plotly.PlotHoverEvent) => {
     // @ts-ignore
     dispatch(setHighlightedId(event.points[0].text))
+  }
+
+  const onlyUnique = (value: string, index: number, array: Array<string>) => {
+    return array.indexOf(value) === index;
+  }
+
+  const onSelected = (event:Plotly.PlotSelectionEvent) => {    
+    if (event) {
+      // @ts-ignore
+      const ids  = event.points.map((point) => point.text)
+      if (ids.length > 0){
+        dispatch(setSelectedIds(ids.filter(onlyUnique)))
+      }
+    } 
+  }
+
+  const onDeselect = () => {    
+    dispatch(setSelectedIds([]))
   }
 
   const highlightPoint = (id: null | string, data: Plotly.Data[]) => {
@@ -54,11 +73,26 @@ export function Regression(props: any) {
   }, [highlightedId, currentData])
 
 
-   
+
   // @ts-ignore
   // plotly bug fix
   var PlotlyData = currentData.map(el => {return {...el, marker:{...el.marker}}})
-
+  if (currentData && selectedIds.length > 0) {
+    let selectedpoints = currentData.map(el => {
+      let points: Array<any> = [];
+      if (Array.isArray(el.text)) {
+        points = selectedIds.flatMap(id => {
+          const index = el.text?.indexOf(id);
+          return index >= 0 ? [index] : [];
+        });
+      }
+      return points
+    })
+    PlotlyData = PlotlyData.map((obj, index) => {
+      return { ...obj, selectedpoints: selectedpoints[index]};
+    });
+  }
+ 
   const layout = { 
     uirevision: 'time',
     showlegend: currentData && currentData?.length > 2 ? true : false,
@@ -90,6 +124,8 @@ export function Regression(props: any) {
         divId='regression' 
         onUnhover={() => dispatch(setHighlightedId(null))} 
         onHover={(event) => onHover(event)}
+        onSelecting={(event) => onSelected(event)}
+        onDeselect={() => onDeselect()}
         data={PlotlyData}  
         // @ts-ignore
         layout={layout}
