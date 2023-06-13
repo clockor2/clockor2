@@ -31,7 +31,6 @@ export function SettingsButton({
     const [settings, setSettings] = useState<TreeSettings>(defaultSettings)
     
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      console.log(event);
       let newSettings
       if(event.target.type === 'checkbox') {
         newSettings = { ...settings, [event.target.name]: (event.target as HTMLInputElement).checked }

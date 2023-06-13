@@ -47,7 +47,7 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
       y: lcm.baseClock.fitY,
       name: "Global",
       marker : {color: '#000000'},
-      mode: "line",
+      mode: "lines",
       text: lcm.localClock
       ? 
         `Global<br>R2: ${lcm.baseClock.r2.toFixed(2)}` 
@@ -80,7 +80,7 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
           y: lcm.localClock[i].fitY,
           text: `${lcm.groupNames[i+1] ?? `Local Clock ${i+1}`}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
           marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
-          mode: "line",
+          mode: "lines",
           legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
           name: lcm.groupNames[i+1],
           type: "scattergl"
