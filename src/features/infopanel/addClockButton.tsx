@@ -1,6 +1,6 @@
 import { Tooltip } from "flowbite-react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { setCurrentData, selectCurrentData } from '../regression/regressionSlice';
+import { setCurrentData, selectCurrentData, setMode } from '../regression/regressionSlice';
 import { selectTipData, selectCurrentTree, selectSelectedIds, setSelectedIds} from '../tree/treeSlice';
 import { regression } from "../engine/core";
 import { readNewick } from "phylojs";
@@ -36,6 +36,7 @@ export function AddClockButton () {
         
         dispatch(setCurrentData(regression_data))
         dispatch(setSelectedIds([]))
+        dispatch(setMode("userSelected"))
     }
     return (
         

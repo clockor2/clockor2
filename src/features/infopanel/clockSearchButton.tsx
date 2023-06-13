@@ -1,5 +1,5 @@
 import { Label, Modal, Select, Spinner } from "flowbite-react";
-import { setClockSearchData, setCurrentData, selectCurrentData  } from "../regression/regressionSlice";
+import { setClockSearchData, setCurrentData, selectCurrentData, setMode  } from "../regression/regressionSlice";
 import { selectCurrentTree } from "../tree/treeSlice";
 import React, { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
@@ -37,6 +37,7 @@ export function ClockSearchButton(props: any) {
 
       dispatch(setClockSearchData(groupConfig))
       dispatch(setCurrentData(groupConfig))
+      dispatch(setMode("clockSearch"))
       setIsSearching(false)
       toggleModal()
 

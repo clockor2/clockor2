@@ -1,7 +1,7 @@
 import { Checkbox, Label, Spinner } from "flowbite-react";
 import { useState, useRef } from "react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { setCurrentData, selectData, selectBestFitData } from '../regression/regressionSlice';
+import { setCurrentData, selectData, selectBestFitData, selectUsingBFR, setUsingBFR } from '../regression/regressionSlice';
 import { setBestFittingRegression } from "../regression/regressionSlice";
 import { selectSource, setBestFittingRoot, selectBestFittingRoot, setCurrentTree, selectTipData} from '../tree/treeSlice';
 import { globalRootParallel } from "../engine/bestFittingRoot";
@@ -15,6 +15,7 @@ const bestFitNwk = useAppSelector(selectBestFittingRoot);
 const sourceData = useAppSelector(selectData);
 const bestFitData = useAppSelector(selectBestFitData);
 const tipData = useAppSelector(selectTipData);
+const usingBFR = useAppSelector(selectUsingBFR);
 const dispatch = useAppDispatch();
 
 const bfrExists = useRef(false);
@@ -66,6 +67,7 @@ const toggleBestFittingRoot = () => {
           dispatch(setBestFittingRegression(bestFitRegression))
           dispatch(setCurrentTree(nwk));
           dispatch(setCurrentData(bestFitRegression));
+          dispatch(setUsingBFR(!usingBFR));
           
           bfrExists.current = true 
         }
@@ -77,10 +79,12 @@ const toggleBestFittingRoot = () => {
   if (useBestFittingRoot && sourceData && bfrExists.current) {
     dispatch(setCurrentTree(sourceNwk));
     dispatch(setCurrentData(sourceData));
+    dispatch(setUsingBFR(!usingBFR));
 
   } else if (!useBestFittingRoot && bestFitData && bfrExists.current) {
     dispatch(setCurrentTree(bestFitNwk));
     dispatch(setCurrentData(bestFitData));
+    dispatch(setUsingBFR(!usingBFR));
   }
 }
 
