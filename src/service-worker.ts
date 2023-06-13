@@ -31,6 +31,11 @@ const fileExtensionRegexp = new RegExp('/[^/?]+\\.[^/]+$');
 registerRoute(
   // Return false to exempt requests from being fulfilled by index.html.
   ({ request, url }: { request: Request; url: URL }) => {
+    if (url.origin === 'https://clockor2.github.io' && (url.pathname === '/clockor2/' || url.pathname === '/clockor2')) {
+      // If the request is for the special URL, don't handle it in the service worker.
+      // The request will be handled by the network instead.
+      return false;
+    }
     // If this isn't a navigation, skip.
     if (request.mode !== 'navigate') {
       return false;
