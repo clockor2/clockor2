@@ -33,7 +33,6 @@ export function RegressionInput(props: any) {
       }
     )
     let tipData = Object.fromEntries(tipDataArr)
-    console.log(tipData);
     
     dispatch(setTipData(tipData))
 
