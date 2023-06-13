@@ -60,12 +60,17 @@ function App() {
       const colours = chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(numberOfGroups); // move this to state
       let styles: any = {}
       
-      Object.keys(groups).forEach(function(key: string, index: number) {
-        styles[key] = {fillColour: colours[groups[key]], };
-      });
+      if (regressionData.localClock !== undefined) {
+          Object.keys(groups).forEach(function(key: string, index: number) {
+            styles[key] = {fillColour: colours[groups[key]], };
+          });
+      } else {
+        Object.keys(groups).forEach(function(key: string, index: number) {
+          styles[key] = {fillColour: "#000000", };
+        });
+      }
       setNodeStyles(styles)
     }
-    
   }, [regressionData])
 
   useEffect(() => {
