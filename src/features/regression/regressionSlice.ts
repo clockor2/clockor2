@@ -14,6 +14,8 @@ export interface RegressionState {
   bestFitData: LocalClockModel | null;
   currentData: LocalClockModel | null;
   clockSearchData: LocalClockModel | null;
+  mode: null | "userSelected" | "clockSearch";
+  usingBFR: boolean;
   regressionInputDefaults: RegressionInputDefaults
 }
 
@@ -22,6 +24,8 @@ const initialState: RegressionState = {
   bestFitData: null,
   currentData: null,
   clockSearchData: null,
+  mode: null,
+  usingBFR: false,
   regressionInputDefaults: {
     format: "yyyy-mm-dd",
     delimiter: "",
@@ -49,6 +53,12 @@ export const regressionSlice = createSlice({
     setClockSearchData: (state, action: PayloadAction<LocalClockModel>) => {
       state.clockSearchData = action.payload;
     },
+    setMode: (state, action: PayloadAction<null | "userSelected" | "clockSearch">) => {
+      state.mode = action.payload;
+    },
+    setUsingBFR: (state, action: PayloadAction<boolean>) => {
+      state.usingBFR = action.payload;
+    },
     // Use the PayloadAction type to declare the contents of `action.payload`
     setRegressionInputDefaults: (state, action: PayloadAction<RegressionInputDefaults>) => {
       state.regressionInputDefaults = action.payload;
@@ -56,7 +66,7 @@ export const regressionSlice = createSlice({
   },
 });
 
-export const { setData, setRegressionInputDefaults, setCurrentData, setBestFittingRegression, setClockSearchData} = regressionSlice.actions;
+export const { setData, setRegressionInputDefaults, setCurrentData, setBestFittingRegression, setClockSearchData, setMode, setUsingBFR } = regressionSlice.actions;
 
 // The functions below are called selectors and allow us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -66,5 +76,7 @@ export const selectRegressionInputDefaults = (state: RootState) => state.regress
 export const selectCurrentData = (state: RootState) => state.regression.currentData;
 export const selectBestFitData = (state: RootState) => state.regression.bestFitData;
 export const selectClockSearchData = (state: RootState) => state.regression.clockSearchData;
+export const selectMode = (state: RootState) => state.regression.mode;
+export const selectUsingBFR = (state: RootState) => state.regression.usingBFR;
 
 export default regressionSlice.reducer;
