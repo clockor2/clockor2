@@ -7,7 +7,7 @@ import { RegressionInput } from './features/regression/RegressionInput';
 import './App.css';
 import { useAppSelector } from './app/hooks';
 import { selectCurrentData } from './features/regression/regressionSlice';
-import { selectCurrentTree } from './features/tree/treeSlice';
+import { selectCurrentTree, selectSelectedIds } from './features/tree/treeSlice';
 import { Menu } from './features/menu/menu';
 import { defaultSettings, SettingsButton, TreeSettings } from './features/tree/components/settingsButton';
 import { DownloadButton } from './features/tree/components/downloadButton';
@@ -43,6 +43,7 @@ function App() {
   const [settings, setSettings] = useState<TreeSettings>(defaultSettings)
   const currentTree = useAppSelector(selectCurrentTree);
   const regressionData = useAppSelector(selectCurrentData);
+  const selectedIds = useAppSelector(selectSelectedIds)
   const [nodeStyles, setNodeStyles] = useState<NodeStyles>({});
   const treeRef = createRef<TreeExportFuctions>();
 
@@ -69,7 +70,7 @@ function App() {
 
   useEffect(() => {
     function handleResize() {
-      console.log('resized to: ', window.innerWidth, 'x', window.innerHeight)
+      // console.log('resized to: ', window.innerWidth, 'x', window.innerHeight)
       const gridRef = document.querySelector("#main")
       let height = gridRef?.getBoundingClientRect().height
       let width = gridRef?.getBoundingClientRect().width
@@ -120,7 +121,7 @@ function App() {
               <Tree 
                 ref={treeRef}
                 source={currentTree}
-                selectedIds={[]}
+                selectedIds={selectedIds}
                 size={size}
                 showLabels={true}
                 styles={nodeStyles}

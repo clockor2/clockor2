@@ -6,8 +6,11 @@ import { MetricCard } from './components/cards';
 import { ResultsTable } from "./components/resultsTable";
 import { ClockSearchButton } from "./clockSearchButton";
 import { BFRButton } from "./bfrButton";
+import { selectSelectedIds } from "../tree/treeSlice";
+import { AddClockButton } from "./addClockButton"
 
 export function InfoPanel() {
+  const selectedIds = useAppSelector(selectSelectedIds)
   const [isOpen, setOpen] = useState(false);
   const togglePanel = () => {
     setOpen(!isOpen)
@@ -64,13 +67,23 @@ export function InfoPanel() {
             }
           </button>
           <div className="flex items-center">
-            <span className="pr-1">Clocks</span>
-            <Badge> {data?.localClock ? data?.localClock.length : 1} </Badge>
-          </div>
-          <div className="flex items-center">
             <span className="pr-1">Tips</span>
             <Badge>{data?.baseClock.tip.length}</Badge>
           </div>
+          <div className="flex items-center">
+            <span className="pr-1">Clocks</span>
+            <Badge>{data?.localClock ? data?.localClock.length : 1}</Badge>
+          </div>
+          {selectedIds.length > 0
+            ? <div className="flex items-center">
+                <span className="pr-1">Selected</span>
+                <Badge>{selectedIds.length}</Badge>
+                <AddClockButton />
+              </div>
+            :
+            <div></div>
+          }
+          
         </div>
         <div className="flex items-center space-x-3 py-2">
           <BFRButton />

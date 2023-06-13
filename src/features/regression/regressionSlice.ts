@@ -14,7 +14,6 @@ export interface RegressionState {
   bestFitData: LocalClockModel | null;
   currentData: LocalClockModel | null;
   clockSearchData: LocalClockModel | null;
-  selectedIds: string[],
   regressionInputDefaults: RegressionInputDefaults
 }
 
@@ -23,7 +22,6 @@ const initialState: RegressionState = {
   bestFitData: null,
   currentData: null,
   clockSearchData: null,
-  selectedIds: [],
   regressionInputDefaults: {
     format: "yyyy-mm-dd",
     delimiter: "",
@@ -64,7 +62,6 @@ export const { setData, setRegressionInputDefaults, setCurrentData, setBestFitti
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectData = (state: RootState) => state.regression.data;
-export const selectSelectedIds = (state: RootState) => state.regression.selectedIds;
 export const selectRegressionInputDefaults = (state: RootState) => state.regression.regressionInputDefaults;
 export const selectCurrentData = (state: RootState) => state.regression.currentData;
 export const selectBestFitData = (state: RootState) => state.regression.bestFitData;

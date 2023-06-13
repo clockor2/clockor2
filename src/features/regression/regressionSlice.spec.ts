@@ -8,7 +8,6 @@ describe('counter reducer', () => {
     bestFitData: null,
     currentData: null,
     clockSearchData: null,
-    selectedIds: [],
     regressionInputDefaults: {
       format: "yyyy-mm-dd",
       delimiter: "",
