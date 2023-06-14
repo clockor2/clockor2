@@ -45,7 +45,7 @@ export function ClockSearchButton(props: any) {
 
 return (
 <div>
-        <button onClick={toggleModal} className='flex text-slate-600 items-center text-gray-700 hover:text-blue-700 '>
+        <button onClick={toggleModal} className='flex items-center text-gray-700 hover:text-blue-700 '>
             <div className="text-sm font-medium  dark:text-gray-300 cursor-pointer" >
               Local Clock Search
             </div>

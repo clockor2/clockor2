@@ -17,11 +17,10 @@ export function ResetDataButton() {
     }
     return (
 
-        <div className="flex items-center">
-            <Label className="text-sm font-medium !text-gray-700 dark:text-gray-300 pr-1 cursor-pointer" htmlFor="bestRoot">
-                Reset
-            </Label >
-            <Checkbox className="cursor-pointer" id="resetData" onClick={reset} defaultChecked={false} />
+        <div className="flex items-center text-center justify-end align-top text-gray-700 hover:text-blue-700">
+            <button className="px-1 text-sm font-medium rounded-md border border-gray-300 bg-slate-200 dark:text-gray-300 cursor-pointer "  onClick={reset}>
+                <span>Reset</span>
+            </button >
         </div>
 
     )
