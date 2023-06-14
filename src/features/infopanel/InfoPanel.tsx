@@ -82,16 +82,13 @@ export function InfoPanel() {
                 <Badge>{selectedIds.length}</Badge>
                 <AddClockButton />
               </div>
-            :
-            <div></div>
+            : <div></div>
           }
         </div>
         <div className="flex items-center space-x-3 py-2">
-        {dataMode == "userSelected" || dataMode == "clockSearch"
-            ? 
-              <ResetDataButton />
-            :
-            <div></div>
+          {dataMode
+            ? <ResetDataButton />
+            : <div></div>
           }
           <BFRButton />
           <ClockSearchButton />

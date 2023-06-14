@@ -100,7 +100,7 @@ if (!bfrExists.current && useBestFittingRoot) {
 } else {
     return (
       <div className="flex items-center">
-        <Label  className="text-sm font-medium !text-gray-700 dark:text-gray-300 pr-1 cursor-pointer" htmlFor="bestRoot">
+        <Label color=""  className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-700 pr-1 cursor-pointer" htmlFor="bestRoot">
           Best Fitting Root
         </Label >
         <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} defaultChecked={useBestFittingRoot}/>
