@@ -44,7 +44,7 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
       }
     }
 
-    self.postMessage(best); /* eslint-disable-line no-restricted-globals */
+    //self.postMessage(best); /* eslint-disable-line no-restricted-globals */
   
   } else if (bfrMode == "RSS") {
     best = {
@@ -75,7 +75,6 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
         best = localOptimum;
       }
     }
-
     self.postMessage(best); /* eslint-disable-line no-restricted-globals */
   }
 }; 

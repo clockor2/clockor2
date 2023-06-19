@@ -235,6 +235,8 @@ export function localRootRSS(tree: Tree, tipData: any) {
   
   let rms = sum_yyprime - (Math.pow(sum_typrime, 2) / sum_tt)
 
+  console.log({ alpha: alpha, value: rms, method: "RSS" })
+  
   return { alpha: alpha, value: rms, method: "RSS" };
 
 }

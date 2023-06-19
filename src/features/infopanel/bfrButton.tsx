@@ -20,6 +20,11 @@ const dispatch = useAppDispatch();
 
 const bfrExists = useRef(false);
 
+const [bfrMethod, swapBFRMethod] = useState<"RSS" | "R2">("RSS");
+const changeBFRMethod = () => {
+  swapBFRMethod(bfrMethod == "RSS" ? "R2" : "RSS");
+}
+
 const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
 const toggleBestFittingRoot = () => {
   invertBestFittingRoot(!useBestFittingRoot);
@@ -27,7 +32,7 @@ const toggleBestFittingRoot = () => {
   if (sourceData && !bfrExists.current) {
 
       var dates = sourceData.baseClock.x;
-      globalRootParallel(sourceNwk, dates, tipData).then(
+      globalRootParallel(sourceNwk, dates, tipData, bfrMethod).then(
         (nwk: string) => { 
           dispatch(setBestFittingRoot(nwk)) 
 
