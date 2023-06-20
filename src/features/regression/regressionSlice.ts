@@ -9,9 +9,14 @@ interface RegressionInputDefaults {
   group: string
 }
 
+interface BFRData {
+  R2: LocalClockModel | null,
+  RSS : LocalClockModel | null
+}
+
 export interface RegressionState {
   data: LocalClockModel | null;
-  bestFitData: LocalClockModel | null;
+  bestFittingRootData: BFRData;
   currentData: LocalClockModel | null;
   clockSearchData: LocalClockModel | null;
   mode: null | "userSelected" | "clockSearch";
@@ -21,7 +26,7 @@ export interface RegressionState {
 
 const initialState: RegressionState = {
   data: null,
-  bestFitData: null,
+  bestFittingRootData: { R2: null, RSS: null },
   currentData: null,
   clockSearchData: null,
   mode: null,
@@ -47,8 +52,8 @@ export const regressionSlice = createSlice({
     setCurrentData: (state, action: PayloadAction<LocalClockModel>) => {
       state.currentData = action.payload;
     },
-    setBestFittingRegression: (state, action: PayloadAction<LocalClockModel>) => {
-      state.bestFitData = action.payload;
+    setBestFittingRootData: (state, action: PayloadAction<BFRData>) => {
+      state.bestFittingRootData = action.payload;
     },
     setClockSearchData: (state, action: PayloadAction<LocalClockModel>) => {
       state.clockSearchData = action.payload;
@@ -66,7 +71,7 @@ export const regressionSlice = createSlice({
   },
 });
 
-export const { setData, setRegressionInputDefaults, setCurrentData, setBestFittingRegression, setClockSearchData, setMode, setUsingBFR } = regressionSlice.actions;
+export const { setData, setRegressionInputDefaults, setCurrentData, setBestFittingRootData, setClockSearchData, setMode, setUsingBFR } = regressionSlice.actions;
 
 // The functions below are called selectors and allow us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -74,7 +79,7 @@ export const { setData, setRegressionInputDefaults, setCurrentData, setBestFitti
 export const selectData = (state: RootState) => state.regression.data;
 export const selectRegressionInputDefaults = (state: RootState) => state.regression.regressionInputDefaults;
 export const selectCurrentData = (state: RootState) => state.regression.currentData;
-export const selectBestFitData = (state: RootState) => state.regression.bestFitData;
+export const selectBestFittingRootData = (state: RootState) => state.regression.bestFittingRootData;
 export const selectClockSearchData = (state: RootState) => state.regression.clockSearchData;
 export const selectMode = (state: RootState) => state.regression.mode;
 export const selectUsingBFR = (state: RootState) => state.regression.usingBFR;

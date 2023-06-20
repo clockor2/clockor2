@@ -1,9 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
+export interface BFRState {
+  R2: string | null
+  RSS: string | null
+  using: "R2" | "RSS" | null
+}
+
 export interface TreeState {
   source: string
-  bestRootTree: string
+  bestFittingRoot: BFRState
   currentTree: string
   tipNames: string[]
   tipHeights: number[]
@@ -14,7 +20,7 @@ export interface TreeState {
 
 const initialState: TreeState = {
   source: '',
-  bestRootTree: '',
+  bestFittingRoot: { R2: null, RSS: null, using: null },
   currentTree: '',
   tipNames: [],
   tipHeights: [],
@@ -41,8 +47,8 @@ export const treeSlice = createSlice({
       state.source = action.payload;
       state.currentTree = state.source;
     },
-    setBestFittingRoot: (state, action: PayloadAction<string>) => {
-      state.bestRootTree = action.payload;
+    setBestFittingRoot: (state, action: PayloadAction<BFRState>) => {
+      state.bestFittingRoot = action.payload;
     },
     setCurrentTree: (state, action: PayloadAction<string>) => {
       state.currentTree = action.payload;
@@ -70,7 +76,7 @@ export const selectTipNames = (state: RootState) => state.tree.tipNames;
 export const selectTipHeights = (state: RootState) => state.tree.tipHeights;
 export const selectSelectedIds = (state: RootState) => state.tree.selectedIds;
 export const selectHighlightedId = (state: RootState) => state.tree.highlightedId;
-export const selectBestFittingRoot = (state: RootState) => state.tree.bestRootTree;
+export const selectBestFittingRoot = (state: RootState) => state.tree.bestFittingRoot
 export const selectCurrentTree = (state: RootState) => state.tree.currentTree;
 export const selectTipData= (state: RootState) => state.tree.tipData;
 

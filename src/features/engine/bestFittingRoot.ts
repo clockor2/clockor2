@@ -70,25 +70,30 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
       ...localRootR2(tree, tipData),
       nodeIndx: 0,
     })
+
+    let r2 = prime.map((e: any) => e.value);
+    let bestR2 = Math.max(...r2);
+    let bestIndx = r2.indexOf(bestR2);
+    var best: any = prime[bestIndx];
+
   } else if (bfrMode == "RSS") {
     prime.unshift({
       ...localRootRSS(tree, tipData),
       nodeIndx: 0,
     })
+
+    let rss = prime.map((e: any) => e.value);
+    let minRSS = Math.min(...rss);
+    let bestIndx = rss.indexOf(minRSS);
+    var best: any = prime[bestIndx];
+
   }
-
-  var r2 = prime.map((e: any) => e.r2);
-
-  var bestR2 = Math.max(...r2);
-
-  var bestIndx = r2.indexOf(bestR2);
-  var best: any = prime[bestIndx];
 
   let bestTree = readNewick(nwk);
 
   rerootAndScale(bestTree, best);
 
-  var t1 = new Date().getTime()
+  let t1 = new Date().getTime()
 
   console.log("Time Taken for BFR " + Math.abs(t1 - t0) / 1000 + "s")
 
@@ -220,7 +225,7 @@ export function localRootRSS(tree: Tree, tipData: any) {
 
   let alpha = 2 * (numerator / denominator) + (bl[0] / len)
   alpha = Math.max(Math.min(alpha, 1), 0.0)
-  
+
   // get rms now
   let yprime = tipHeights
     .map(
@@ -235,8 +240,6 @@ export function localRootRSS(tree: Tree, tipData: any) {
   
   let rms = sum_yyprime - (Math.pow(sum_typrime, 2) / sum_tt)
 
-  console.log({ alpha: alpha, value: rms, method: "RSS" })
-  
   return { alpha: alpha, value: rms, method: "RSS" };
 
 }

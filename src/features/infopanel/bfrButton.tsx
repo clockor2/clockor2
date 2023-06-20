@@ -1,99 +1,142 @@
-import { Checkbox, Label, Spinner } from "flowbite-react";
+import { Checkbox, Label, Spinner, Dropdown } from "flowbite-react";
 import { useState, useRef } from "react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { setCurrentData, selectData, selectBestFitData, selectUsingBFR, setUsingBFR } from '../regression/regressionSlice';
-import { setBestFittingRegression } from "../regression/regressionSlice";
-import { selectSource, setBestFittingRoot, selectBestFittingRoot, setCurrentTree, selectTipData} from '../tree/treeSlice';
+import { setCurrentData, selectData, selectBestFittingRootData, setUsingBFR } from '../regression/regressionSlice';
+import { setBestFittingRootData } from "../regression/regressionSlice";
+import { selectSource, setBestFittingRoot, setCurrentTree, selectTipData, selectBestFittingRoot } from '../tree/treeSlice';
 import { globalRootParallel } from "../engine/bestFittingRoot";
 import { regression } from "../engine/core";
 import { readNewick } from "phylojs";
 
-export function BFRButton () {
-
-const sourceNwk = useAppSelector(selectSource);
-const bestFitNwk = useAppSelector(selectBestFittingRoot);
-const sourceData = useAppSelector(selectData);
-const bestFitData = useAppSelector(selectBestFitData);
-const tipData = useAppSelector(selectTipData);
-const usingBFR = useAppSelector(selectUsingBFR);
-const dispatch = useAppDispatch();
-
-const bfrExists = useRef(false);
-
-const [bfrMethod, swapBFRMethod] = useState<"RSS" | "R2">("RSS");
-const changeBFRMethod = () => {
-  swapBFRMethod(bfrMethod == "RSS" ? "R2" : "RSS");
+function handleChange(event: boolean) {
+  console.log(event);
 }
 
-const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
-const toggleBestFittingRoot = () => {
-  invertBestFittingRoot(!useBestFittingRoot);
+export function BFRButton() {
 
-  if (sourceData && !bfrExists.current) {
+  const sourceNwk = useAppSelector(selectSource);
+  const bfrTrees = useAppSelector(selectBestFittingRoot);
+  const sourceData = useAppSelector(selectData);
+  const bestFitData = useAppSelector(selectBestFittingRootData);
+  const tipData = useAppSelector(selectTipData);
+  const dispatch = useAppDispatch();
+
+  const bfrCalculated = useRef<{ R2: boolean, RSS: boolean }>({ R2: false, RSS: false });
+
+  const [bfrMethod, swapBFRMethod] = useState<"RSS" | "R2">("RSS");
+
+  const handleMethodChange = (method: "RSS" | "R2") => {
+    if (method !== bfrMethod && useBestFittingRoot) {
+
+      // reset if other bfr doesn't exist yet
+      if (!bfrCalculated.current[method] && sourceData && bfrTrees) {
+        invertBestFittingRoot(!useBestFittingRoot);
+        dispatch(setCurrentTree(sourceNwk));
+        dispatch(setCurrentData(sourceData));
+        dispatch(setBestFittingRoot(
+          {
+            ...bfrTrees,
+            using: null
+          }
+        ));
+
+      } else if (bfrCalculated.current[method] && bestFitData[method] && bfrTrees[method]) {
+        //@ts-ignore
+        dispatch(setCurrentTree(bfrTrees[method]));
+        //@ts-ignore
+        dispatch(setCurrentData(bestFitData[method]));
+        dispatch(setBestFittingRoot(
+          {
+            ...bfrTrees,
+            using: method
+          }
+        ));
+      }
+
+      swapBFRMethod(method)
+    }
+    if (!useBestFittingRoot && method !== bfrMethod && sourceData) {
+      dispatch(setCurrentTree(sourceNwk));
+        dispatch(setCurrentData(sourceData));
+        dispatch(setBestFittingRoot(
+          {
+            ...bfrTrees,
+            using: null
+          }
+        ));
+
+      swapBFRMethod(method)
+    }
+  }
+
+  const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
+  const toggleBestFittingRoot = () => {
+
+    if (sourceData && !bfrCalculated.current[bfrMethod]) {
 
       var dates = sourceData.baseClock.x;
       globalRootParallel(sourceNwk, dates, tipData, bfrMethod).then(
-        (nwk: string) => { 
-          dispatch(setBestFittingRoot(nwk)) 
+        (nwk: string) => {
 
-          let bestFitTree = readNewick(nwk) 
+          let newBFRState = {
+            ...bfrTrees,
+            [bfrMethod]: nwk,
+            using: bfrMethod
+          }
+          dispatch(setBestFittingRoot(newBFRState))
 
-          let tree = readNewick(sourceNwk)
-
-          console.log("Length before BFR: " + tree.getTotalBranchLength())
-          console.log("Length after BFR: " + bestFitTree.getTotalBranchLength())
-          console.log(
-            `Same Length: ${Math.abs(
-              tree.getTotalBranchLength()
-              -
-              bestFitTree.getTotalBranchLength()
-            ) < Number.EPSILON
-            }`
-          )
-          console.log("Diff Check with basal length: " +
-          Math.abs(
-            tree.getTotalBranchLength()
-            -
-            bestFitTree.getTotalBranchLength()
-          ))
-
+          // BFR regression data
+          let bestFitTree = readNewick(nwk)
           let bfrTips = bestFitTree.getTipLabels();
           let bfrDates = bfrTips.map(e => tipData[e].date);
           let bfrGrp = bfrTips.map(e => tipData[e].group);
           let bfrHeights = bestFitTree.getRTTDist();
-
-          const bestFitRegression = regression(
+          let bestFitRegression = regression(
             bfrHeights,
             bfrDates,
             bfrGrp,
             bfrTips
           )
 
-          dispatch(setBestFittingRegression(bestFitRegression))
+          let newBFRData = {
+            ...bestFitData,
+            [bfrMethod]: bestFitRegression
+          }
+          dispatch(setBestFittingRootData(newBFRData))
+
           dispatch(setCurrentTree(nwk));
           dispatch(setCurrentData(bestFitRegression));
-          dispatch(setUsingBFR(!usingBFR));
-          
-          bfrExists.current = true 
+
+          bfrCalculated.current[bfrMethod] = true
+          invertBestFittingRoot(!useBestFittingRoot);
+
         }
-        )
+      )
+    }
 
+    if (useBestFittingRoot && sourceData && bfrTrees) {
+      dispatch(setCurrentTree(sourceNwk));
+      dispatch(setCurrentData(sourceData));
+      dispatch(setBestFittingRoot(
+        {
+          ...bfrTrees,
+          using: bfrMethod
+        }
+      ));
+      invertBestFittingRoot(!useBestFittingRoot);
+
+    } else if (!useBestFittingRoot && bestFitData[bfrMethod] && bfrTrees[bfrMethod]) {
+      //@ts-ignore
+      dispatch(setCurrentTree(bfrTrees[bfrMethod]));
+      //@ts-ignore
+      dispatch(setCurrentData(bestFitData[bfrMethod]));
+
+      invertBestFittingRoot(!useBestFittingRoot);
+    }
 
   }
 
-  if (useBestFittingRoot && sourceData && bfrExists.current) {
-    dispatch(setCurrentTree(sourceNwk));
-    dispatch(setCurrentData(sourceData));
-    dispatch(setUsingBFR(!usingBFR));
-
-  } else if (!useBestFittingRoot && bestFitData && bfrExists.current) {
-    dispatch(setCurrentTree(bestFitNwk));
-    dispatch(setCurrentData(bestFitData));
-    dispatch(setUsingBFR(!usingBFR));
-  }
-}
-
-if (!bfrExists.current && useBestFittingRoot) {
+  if (!bfrCalculated.current[bfrMethod] && useBestFittingRoot) {
     return (
       <div className="flex items-center">
         <Label className="text-sm font-medium !text-gray-700 dark:text-gray-300 pr-1" htmlFor="bestRoot">
@@ -102,13 +145,31 @@ if (!bfrExists.current && useBestFittingRoot) {
         <Spinner size="md" />
       </div>
     )
-} else {
+  } else {
     return (
       <div className="flex items-center">
-        <Label color=""  className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-700 pr-1 cursor-pointer" htmlFor="bestRoot">
-          Best Fitting Root
-        </Label >
-        <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} defaultChecked={useBestFittingRoot}/>
+        <div className="flex items-center pr-2">
+          <Label color="" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-700 pr-1 cursor-pointer" htmlFor="bestRoot">
+            Best Fitting Root
+          </Label >
+          <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} checked={useBestFittingRoot} onChange={() => { }} />
+        </div>
+        <div className="flex items-center">
+          <Dropdown
+            size="sm"
+            inline
+            label={`Method: ${bfrMethod}`}
+            className="text-sm font-medium !text-gray-700 dark:text-gray-300"
+          >
+            <Dropdown.Item onClick={() => handleMethodChange("RSS")}>
+              Residual Sum of Squares
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleMethodChange("R2")}>
+              R-Squared
+            </Dropdown.Item>
+          </Dropdown>
+        </div>
       </div>
     )
-}}
+  }
+}
