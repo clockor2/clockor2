@@ -34,6 +34,7 @@ Some of the tools used by the project include:
 - Redux - https://react-redux.js.org/tutorials/quick-start  
 - Phylocanvas - https://gitlab.com/cgps/phylocanvas/phylocanvas.gl  
 - Plotly - https://github.com/plotly/react-plotly.js
+- phylojs - https://github.com/clockor2/phylojs
 
 The initial design plan:
 
