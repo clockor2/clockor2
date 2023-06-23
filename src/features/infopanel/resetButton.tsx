@@ -20,8 +20,6 @@ export function ResetDataButton() {
                 dispatch(setCurrentData(currentBFRData)) 
             : 
                 dispatch(setCurrentData(inputData));
-
-            dispatch(setMode(null))
         }
     }
     return (

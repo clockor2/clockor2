@@ -5,7 +5,7 @@ import treeReducer, {
 describe('tree reducer', () => { //TODO: Make test meaningful
   const initialState: TreeState = {
     source: '',
-    bestFittingRoot: { R2: null, RSS: null, using: null },
+    bestFittingRoot: { R2: null, RMS: null, using: null },
     currentTree: '',
     tipNames: [],
     tipHeights: [],

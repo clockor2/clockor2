@@ -11,7 +11,7 @@ interface RegressionInputDefaults {
 
 interface BFRData {
   R2: LocalClockModel | null,
-  RSS : LocalClockModel | null
+  RMS : LocalClockModel | null
 }
 
 export interface RegressionState {
@@ -26,7 +26,7 @@ export interface RegressionState {
 
 const initialState: RegressionState = {
   data: null,
-  bestFittingRootData: { R2: null, RSS: null },
+  bestFittingRootData: { R2: null, RMS: null },
   currentData: null,
   clockSearchData: null,
   mode: null,

@@ -27,6 +27,9 @@ export function ResultsTable(props: Props) {
                         <var>R<sup>2</sup></var>
                     </Table.HeadCell>
                     <Table.HeadCell>
+                        Residual Mean Squared
+                    </Table.HeadCell>
+                    <Table.HeadCell>
                         Rate
                     </Table.HeadCell>
                     <Table.HeadCell>
@@ -40,6 +43,7 @@ export function ResultsTable(props: Props) {
                         <Table.Cell >{props.model.groupNames[i+1]}</Table.Cell>
                         <Table.Cell >{props.model.localClock[i].x.length}</Table.Cell>
                         <Table.Cell >{props.model.localClock[i].r2.toFixed(3)}</Table.Cell>
+                        <Table.Cell >{numToScientific(props.model.localClock[i].rms, 3)}</Table.Cell>
                         <Table.Cell >{numToScientific(props.model.localClock[i].slope, 3)}</Table.Cell>
                         <Table.Cell >{(-1 * props.model.localClock[i].intercept / props.model.localClock[i].slope).toFixed(3)}</Table.Cell>
                     </Table.Row>
@@ -55,6 +59,9 @@ export function ResultsTable(props: Props) {
                         <var>R<sup>2</sup></var>
                     </Table.HeadCell>
                     <Table.HeadCell>
+                        Residual Mean Squared
+                    </Table.HeadCell>
+                    <Table.HeadCell>
                         Rate
                     </Table.HeadCell>
                     <Table.HeadCell>
@@ -66,6 +73,7 @@ export function ResultsTable(props: Props) {
                     <Table.Row key="trow">
                         <Table.Cell key="rowNTip">{props.model.baseClock.x.length}</Table.Cell>
                         <Table.Cell key="rowR2">{props.model.baseClock.r2.toFixed(3)}</Table.Cell>
+                        <Table.Cell key="rowRMS">{numToScientific(props.model.baseClock.rms, 3)}</Table.Cell>
                         <Table.Cell key="rowSlope">{numToScientific(props.model.baseClock.slope, 3)}</Table.Cell>
                         <Table.Cell key="rowXInt">{(-1 * props.model.baseClock.intercept / props.model.baseClock.slope).toFixed(3)}</Table.Cell>
                     </Table.Row>

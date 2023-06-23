@@ -5,7 +5,7 @@ import counterReducer, {
 describe('counter reducer', () => {
   const initialState: RegressionState = {
     data: null,
-    bestFittingRootData: { R2: null, RSS: null },
+    bestFittingRootData: { R2: null, RMS: null },
     currentData: null,
     clockSearchData: null,
     mode: null,

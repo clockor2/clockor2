@@ -1,4 +1,4 @@
-import { localRootR2, localRootRSS, localOptima } from "./bestFittingRoot";
+import { localRootR2, localRootRMS, localOptima } from "./bestFittingRoot";
 import { readNewick, Tree } from "phylojs";
 
 
@@ -39,21 +39,21 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
         method: "R2"
       }
 
-      if (localOptimum.value - best.value > Number.EPSILON) {
+      if (localOptimum.value - best.value > 0) {
         best = localOptimum;
       }
     }
 
     self.postMessage(best); /* eslint-disable-line no-restricted-globals */
   
-  } else if (bfrMode == "RSS") {
+  } else if (bfrMode == "RMS") {
     best = {
-      ...localRootRSS(
+      ...localRootRMS(
         treePrime,
         tipData
       ),
       nodeIndx: nodeNums[0],
-      method: "RSS"
+      method: "RMS"
     }
 
     // compare to rest of nodes
@@ -63,18 +63,19 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
       treePrime.reroot(treePrime.getNodeList()[nodeNums[i]]);
 
       localOptimum = {
-        ...localRootRSS(
+        ...localRootRMS(
           treePrime,
           tipData
         ),
         nodeIndx: nodeNums[i],
-        method: "RSS"
+        method: "RMS"
       }
 
-      if (localOptimum.value - best.value < 0) {
+      if (best.value - localOptimum.value > 0) {
         best = localOptimum;
       }
     }
+
     self.postMessage(best); /* eslint-disable-line no-restricted-globals */
   }
 }; 

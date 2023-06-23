@@ -1,4 +1,4 @@
-import { localRootR2, localRootRSS, rerootAndScale, spliceIntoChunks } from './bestFittingRoot';
+import { localRootR2, localRootRMS, rerootAndScale, spliceIntoChunks } from './bestFittingRoot';
 import { Tree, readNewick, writeNewick } from 'phylojs';
 import { decimal_date } from './utils';
 import { readFileSync } from 'fs';
@@ -184,7 +184,7 @@ describe('localRootRSS()', () => {
         date: 5
       }
     }
-    let est: any = localRootRSS(testTree, tipData);
+    let est: any = localRootRMS(testTree, tipData);
 
     console.log(est)
     expect(est.alpha).toBeCloseTo(0.25, 2)
@@ -207,7 +207,7 @@ describe('localRootRSS()', () => {
       }
     };
 
-    let obj = localRootRSS(
+    let obj = localRootRMS(
       tree,
       tipData
     )

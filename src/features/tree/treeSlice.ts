@@ -3,8 +3,8 @@ import { RootState } from '../../app/store';
 
 export interface BFRState {
   R2: string | null
-  RSS: string | null
-  using: "R2" | "RSS" | null
+  RMS: string | null
+  using: "R2" | "RMS" | null
 }
 
 export interface TreeState {
@@ -20,7 +20,7 @@ export interface TreeState {
 
 const initialState: TreeState = {
   source: '',
-  bestFittingRoot: { R2: null, RSS: null, using: null },
+  bestFittingRoot: { R2: null, RMS: null, using: null },
   currentTree: '',
   tipNames: [],
   tipHeights: [],

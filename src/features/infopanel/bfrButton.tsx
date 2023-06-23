@@ -8,10 +8,6 @@ import { globalRootParallel } from "../engine/bestFittingRoot";
 import { regression } from "../engine/core";
 import { readNewick } from "phylojs";
 
-function handleChange(event: boolean) {
-  console.log(event);
-}
-
 export function BFRButton() {
 
   const sourceNwk = useAppSelector(selectSource);
@@ -21,11 +17,11 @@ export function BFRButton() {
   const tipData = useAppSelector(selectTipData);
   const dispatch = useAppDispatch();
 
-  const bfrCalculated = useRef<{ R2: boolean, RSS: boolean }>({ R2: false, RSS: false });
+  const bfrCalculated = useRef<{ R2: boolean, RMS: boolean }>({ R2: false, RMS: false });
 
-  const [bfrMethod, swapBFRMethod] = useState<"RSS" | "R2">("RSS");
+  const [bfrMethod, swapBFRMethod] = useState<"RMS" | "R2">("RMS");
 
-  const handleMethodChange = (method: "RSS" | "R2") => {
+  const handleMethodChange = (method: "RMS" | "R2") => {
     if (method !== bfrMethod && useBestFittingRoot) {
 
       // reset if other bfr doesn't exist yet
@@ -161,7 +157,7 @@ export function BFRButton() {
             label={`Method: ${bfrMethod}`}
             className="text-sm font-medium !text-gray-700 dark:text-gray-300"
           >
-            <Dropdown.Item onClick={() => handleMethodChange("RSS")}>
+            <Dropdown.Item onClick={() => handleMethodChange("RMS")}>
               Residual Sum of Squares
             </Dropdown.Item>
             <Dropdown.Item onClick={() => handleMethodChange("R2")}>
