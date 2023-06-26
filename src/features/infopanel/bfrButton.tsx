@@ -1,7 +1,7 @@
 import { Checkbox, Label, Spinner, Dropdown } from "flowbite-react";
 import { useState, useRef } from "react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { setCurrentData, selectData, selectBestFittingRootData, setUsingBFR } from '../regression/regressionSlice';
+import { setCurrentData, selectCurrentData, selectData, selectBestFittingRootData, setMode, selectMode } from '../regression/regressionSlice';
 import { setBestFittingRootData } from "../regression/regressionSlice";
 import { selectSource, setBestFittingRoot, setCurrentTree, selectTipData, selectBestFittingRoot } from '../tree/treeSlice';
 import { globalRootParallel } from "../engine/bestFittingRoot";
@@ -15,6 +15,8 @@ export function BFRButton() {
   const sourceData = useAppSelector(selectData);
   const bestFitData = useAppSelector(selectBestFittingRootData);
   const tipData = useAppSelector(selectTipData);
+  const mode = useAppSelector(selectMode);
+  const currentData = useAppSelector(selectCurrentData);
   const dispatch = useAppDispatch();
 
   const bfrCalculated = useRef<{ R2: boolean, RMS: boolean }>({ R2: false, RMS: false });
@@ -101,8 +103,8 @@ export function BFRButton() {
           dispatch(setBestFittingRootData(newBFRData))
 
           dispatch(setCurrentTree(nwk));
-          dispatch(setCurrentData(bestFitRegression));
-
+          dispatch(setCurrentData(bestFitRegression))
+          
           bfrCalculated.current[bfrMethod] = true
           invertBestFittingRoot(!useBestFittingRoot);
 
@@ -130,6 +132,8 @@ export function BFRButton() {
       invertBestFittingRoot(!useBestFittingRoot);
     }
 
+    //  TODO: Retain user selected clocks for future update
+    dispatch(setMode(null))
   }
 
   if (!bfrCalculated.current[bfrMethod] && useBestFittingRoot) {

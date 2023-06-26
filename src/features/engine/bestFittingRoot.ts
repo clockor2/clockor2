@@ -217,7 +217,7 @@ export function localRootR2(tree: Tree, tipData: any) {
 //   let S_ty = 0.0;
 
 //   // Adjust root-to-tip distances. All basal branch length to right child.
-//   let y = tipHeights.map((e,i) => e + (1-c[i])*(bl[0]))
+//   let y = tipHeights.map((e,i) => e - (c[i]*bl[0]))
 
 //   let y_bar = y.reduce((a,b) => a+b)/y.length;
 //   let t_bar = t.reduce((a,b) => a+b)/t.length;

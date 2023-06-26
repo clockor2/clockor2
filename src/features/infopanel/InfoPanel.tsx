@@ -1,7 +1,7 @@
 import { Badge } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useAppSelector } from '../../app/hooks';
-import { selectCurrentData } from '../regression/regressionSlice';
+import { selectCurrentData, selectMode } from '../regression/regressionSlice';
 import { MetricCard } from './components/cards';
 import { ResultsTable } from "./components/resultsTable";
 import { ClockSearchButton } from "./clockSearchButton";
@@ -21,6 +21,7 @@ export function InfoPanel() {
 
   const bfrStatus = useAppSelector(selectBestFittingRoot);
   const data = useAppSelector(selectCurrentData);
+  const mode = useAppSelector(selectMode)
   let startMinIC = undefined
   if (data) {
     startMinIC =  
@@ -86,7 +87,7 @@ export function InfoPanel() {
           }
         </div>
         <div className="flex items-center space-x-3 py-2">
-          {bfrStatus.using
+          {mode
             ? <ResetDataButton />
             : <div></div>
           }

@@ -21,6 +21,7 @@ export function ResetDataButton() {
             : 
                 dispatch(setCurrentData(inputData));
         }
+        dispatch(setMode(null))
     }
     return (
 
