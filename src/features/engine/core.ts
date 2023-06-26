@@ -104,6 +104,7 @@ export interface Regression {
   sigSq: number;
   r2: number;
   logLik: number;
+  rms: number;
 }
 
 // Groups of points pertaining to one local clock
@@ -238,6 +239,12 @@ export function linearRegression(points: DataGroup) {
     ).reduce(
       (a, b) => a + b
       ); 
+
+  let rss = reg.fitY
+      .map((e,i) => e-reg.y[i])
+      .map(e => Math.pow(e,2))
+      .reduce((a,b) => a+b)
+  reg.rms = rss / (reg.y.length - 2);
 
   return reg;
 }

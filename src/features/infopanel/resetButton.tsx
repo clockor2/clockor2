@@ -1,19 +1,27 @@
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { setCurrentData, selectUsingBFR, setMode, selectBestFitData } from '../regression/regressionSlice';
+import { setCurrentData, setMode, selectBestFittingRootData } from '../regression/regressionSlice';
+import { selectBestFittingRoot } from '../tree/treeSlice';
 import { selectData } from '../regression/regressionSlice';
 import { Label, Checkbox } from 'flowbite-react';
 
 export function ResetDataButton() {
     const dispatch = useAppDispatch();
     const inputData = useAppSelector(selectData);
-    const usingBFR = useAppSelector(selectUsingBFR);
-    const bfrData = useAppSelector(selectBestFitData);
+    const bfrData = useAppSelector(selectBestFittingRootData);
+    const bfrTrees = useAppSelector(selectBestFittingRoot);
 
     const reset = () => {
+
+        let currentBFRData = bfrTrees.using ? bfrData[bfrTrees.using] : null;
+
         if (inputData) {
-            usingBFR && bfrData ? dispatch(setCurrentData(bfrData)) : dispatch(setCurrentData(inputData));
-            dispatch(setMode(null))
+            (currentBFRData) 
+            ? 
+                dispatch(setCurrentData(currentBFRData)) 
+            : 
+                dispatch(setCurrentData(inputData));
         }
+        dispatch(setMode(null))
     }
     return (
 
