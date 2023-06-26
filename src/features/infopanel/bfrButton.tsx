@@ -158,7 +158,7 @@ export function BFRButton() {
           <Dropdown
             size="sm"
             inline
-            label={`Method: ${bfrMethod}`}
+            label={`Objective: ${bfrMethod == "RMS" ? "Residual Mean Square" : 'R-Squared' }`}
             className="text-sm font-medium !text-gray-700 dark:text-gray-300"
           >
             <Dropdown.Item onClick={() => handleMethodChange("RMS")}>
