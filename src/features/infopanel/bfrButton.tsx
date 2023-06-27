@@ -154,17 +154,20 @@ export function BFRButton() {
           </Label >
           <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} checked={useBestFittingRoot} onChange={() => { }} />
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center !text-sm !text-gray-700 !font-medium">
           <Dropdown
-            size="sm"
             inline
-            label={`Objective: ${bfrMethod == "RMS" ? "Residual Mean Square" : 'R-Squared' }`}
-            className="text-sm font-medium !text-gray-700 dark:text-gray-300"
+            label={ bfrMethod === "RMS" ? "RMS" : 'R²' }
           >
-            <Dropdown.Item onClick={() => handleMethodChange("RMS")}>
-              Residual Sum of Squares
+            <Dropdown.Header>
+              <span className="block text-sm font-bold text">
+                Select a method to find the best fitting root 
+              </span>
+            </Dropdown.Header>
+            <Dropdown.Item onClick={() => handleMethodChange("RMS")} className={bfrMethod === "RMS" ? "text-blue-700" : ''} >
+              Residual-mean-squared
             </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleMethodChange("R2")}>
+            <Dropdown.Item onClick={() => handleMethodChange("R2")} className={bfrMethod === "R2" ? "text-blue-700" : ''}>
               R-Squared
             </Dropdown.Item>
           </Dropdown>
