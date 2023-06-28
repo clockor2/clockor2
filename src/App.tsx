@@ -151,7 +151,7 @@ function App() {
                   </div>
                   :
                   <div className='flex flex-col items-center justify-center h-full'>
-                    <div className="w-1/2">
+                    <div className=" px-10">
                       <RegressionInput />
                     </div>
                   </div>
