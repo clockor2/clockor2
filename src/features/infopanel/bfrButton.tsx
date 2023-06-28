@@ -68,9 +68,12 @@ export function BFRButton() {
   }
 
   const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
+  const [isCalculating, setCalculating] = useState(false);
+
   const toggleBestFittingRoot = () => {
 
     if (sourceData && !bfrCalculated.current[bfrMethod]) {
+      setCalculating(true)
 
       var dates = sourceData.baseClock.x;
       globalRootParallel(sourceNwk, dates, tipData, bfrMethod).then(
@@ -107,7 +110,7 @@ export function BFRButton() {
           
           bfrCalculated.current[bfrMethod] = true
           invertBestFittingRoot(!useBestFittingRoot);
-
+          setCalculating(false)
         }
       )
     }
@@ -131,12 +134,12 @@ export function BFRButton() {
 
       invertBestFittingRoot(!useBestFittingRoot);
     }
-
+    
     //  TODO: Retain user selected clocks for future update
     dispatch(setMode(null))
   }
 
-  if (!bfrCalculated.current[bfrMethod] && useBestFittingRoot) {
+  if (isCalculating) {
     return (
       <div className="flex items-center">
         <Label className="text-sm font-medium !text-gray-700 dark:text-gray-300 pr-1" htmlFor="bestRoot">
@@ -152,7 +155,7 @@ export function BFRButton() {
           <Label color="" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-700 pr-1 cursor-pointer" htmlFor="bestRoot">
             Best Fitting Root
           </Label >
-          <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} checked={useBestFittingRoot} onChange={() => { }} />
+          <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} checked={useBestFittingRoot} />
         </div>
         <div className="flex items-center !text-sm !text-gray-700 !font-medium">
           <Dropdown
