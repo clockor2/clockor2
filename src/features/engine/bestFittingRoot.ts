@@ -64,7 +64,7 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
   );
 
   var prime = (await Promise.all(promises));
-  
+
   if (bfrMode == "R2") {
     prime.unshift({
       ...localRootR2(tree, tipData),
@@ -121,16 +121,16 @@ export function rerootAndScale(bestTree: Tree, best: any): void {
   )
   console.log("BL Reroot and rescale")
   console.log(bl)
-  let len = bl.reduce((a, b) => a + b, 0)
+  let len = bl[0] + bl[1] // TODO: Ensure bifurcating here
 
   let tLen1 = bestTree.getTotalBranchLength()
-  
+
   bestTree.root.children[0].branchLength = (best.alpha * len);
   bestTree.root.children[1].branchLength = ((1 - best.alpha) * len);
 
   let tlen2 = bestTree.getTotalBranchLength();
 
-  console.log(`Same Tree-length? : ${tLen1-tlen2}`)
+  console.log(`Same Tree-length? : ${tLen1 - tlen2}`)
 }
 
 
@@ -184,75 +184,41 @@ export function localRootR2(tree: Tree, tipData: any) {
 }
 
 /**
- * Finds the best local root for a given phylogenetic tree base on residual sum of swuares.
+ * Finds scalar of basal branch length to place root with RMS optimisation.
  *
- * @param {any} tree - A phylotree instance representing the phylogenetic tree.
- * @param {any} tipData - Object associating dates and tip names.
- * @returns {object} - An object containing the best alpha value and the corresponding R2 value.
+ * @param {number[]} y - Starting RTT distances. Hoist to one side.
+ * @param {number[]} t - Tip Dates.
+ * @param {number[]} c - Indicator for which side of the root (Left/Right) that tips descend from.
+ * @returns {number}  - Optimal proportion.
  */
-// export function localRootRMS(tree: Tree, tipData: any) {
-//   var tipNames: string[] = tree.getTipLabels();
-//   var tipHeights: number[] = tree.getRTTDist();
-//   var t = tipNames.map(e => tipData[e].date)
+export function bfrPropRMS(y: number[], t: number[], c: number[]) {
+  c = c.map((e) => -1 * ((2 * e) - 1));
+  const N: number = y.length;
+  const t_bar: number = t.reduce((a, b) => a + b, 0) / N;
+  const d_bar: number = y.reduce((a, b) => a + b, 0) / N;
+  const c_bar: number = c.reduce((a, b) => a + b, 0) / N;
 
-//   var leftBranchTips: string[] = tree.getSubtree(tree.root.children[0]).getTipLabels();
-//   var c: number[] = [];
-//   for (let i = 0; i < tipNames.length; i++) {
-//     leftBranchTips.includes(tipNames[i]) ? c.push(1) : c.push(-1);
-//   }
+  const Sdc: number = sumProduct(y.map((e) => d_bar - e), c.map((e) => c_bar - e));
+  const Scc: number = sumProduct(c.map((e) => c_bar - e), c.map((e) => c_bar - e));
+  const Std: number = sumProduct(t.map((e) => t_bar - e), y.map((e) => d_bar - e));
+  const Stc: number = sumProduct(t.map((e) => t_bar - e), c.map((e) => c_bar - e));
+  const Stt: number = sumProduct(t.map((e) => t_bar - e), t.map((e) => t_bar - e));
 
-//   let bl = tree.root.children.map(
-//     e => e.branchLength
-//   ).map(
-//     e => e === undefined ? 0 : e
-//   )
-//   if (bl.length > 2) console.warn("BFR: More than 2 child branches!")
-//   let len = bl.reduce((a, b) => a + b, 0)
+  const num: number = Sdc - (Std * Stc / Stt);
+  const den: number = Scc - (Stc * Stc / Stt);
 
-//   // sum variables for alpha
-//   let S_tt = 0.0;
-//   let S_tc = 0.0;
-//   let S_yc = 0.0;
-//   let S_cc = 0.0;
-//   let S_ty = 0.0;
+  return num / den;
+}
 
-//   // Adjust root-to-tip distances. All basal branch length to right child.
-//   let y = tipHeights.map((e,i) => e - (c[i]*bl[0]))
 
-//   let y_bar = y.reduce((a,b) => a+b)/y.length;
-//   let t_bar = t.reduce((a,b) => a+b)/t.length;
-//   let c_bar = c.reduce((a,b) => a+b)/c.length;
+// Auxiliary 
+export function sumProduct(arr1: number[], arr2?: number[]): number {
+    if (arr2) {
+        return arr1.reduce((acc, curr, index) => acc + curr * arr2[index], 0);
+    }
+    return arr1.reduce((acc, curr) => acc + curr, 0);
+}
 
-//   for (let i=0; i<tipHeights.length; i++){
-//     S_tt += Math.pow(t_bar - t[i], 2)
-//     S_tc += (t_bar - t[i])*(c_bar - c[i])
-//     S_ty += (t_bar - t[i])*(y_bar - y[i])
-//     S_cc += (c_bar - c[i])*(c_bar - c[i])
-//   }
-
-//   let numerator = (S_yc - (S_tc*S_ty*(1/S_tt)));
-//   let denominator = ((S_cc)-(S_tc*S_tc*(1/S_tt)));
-//   let alpha = numerator / (denominator*len);
-//   alpha = Math.max(Math.min(alpha, 1), 0)
-
-//   // rms
-//   let yPrime = y.map((e,i) => e + c[i]*(alpha*len))
-//   let Syy_prime = 0.0;
-//   let Sty_prime = 0.0;
-//   let y_Prime_bar = yPrime.reduce((a,b) => a+b)/yPrime.length;
-
-//   for (let i=0; i<tipHeights.length; i++){
-//     Syy_prime += (y_Prime_bar - yPrime[i])*(y_Prime_bar - yPrime[i]);
-//     Sty_prime += (y_Prime_bar - yPrime[i])*(t_bar - t[i]);
-//   }
-//   let rms = (Syy_prime - (1/S_tt)*(Sty_prime)*(Sty_prime)) / (y.length-2);
-
-//   return { alpha: alpha, value: rms, method: "RMS" };
-// }
-
-/////////////////////////////////////////////////////////////////////////////////////
-////////////////// Implementing Tempest RMS Code For Now ////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
 /**
  * Finds the best local root for a given phylogenetic tree base on residual sum of swuares.
  *
@@ -261,6 +227,7 @@ export function localRootR2(tree: Tree, tipData: any) {
  * @returns {object} - An object containing the best alpha value and the corresponding R2 value.
  */
 export function localRootRMS(tree: Tree, tipData: any) {
+  // TODO: There is a lot of "1-x" stuff below. Refactor later to just work in terms of x / alpha
   var tipNames: string[] = tree.getTipLabels();
   var tipHeights: number[] = tree.getRTTDist();
   var t = tipNames.map(e => tipData[e].date)
@@ -269,9 +236,8 @@ export function localRootRMS(tree: Tree, tipData: any) {
   var c: number[] = [];
   for (let i = 0; i < tipNames.length; i++) {
     leftBranchTips.includes(tipNames[i]) ? c.push(0) : c.push(1);
+    //leftBranchTips.includes(tipNames[i]) ? c.push(1) : c.push(0);
   }
-  let n = c.reduce((a,b) => a+b)
-  let N = c.length
 
   let bl = tree.root.children.map(
     e => e.branchLength
@@ -279,51 +245,24 @@ export function localRootRMS(tree: Tree, tipData: any) {
     e => e === undefined ? 0 : e
   )
   if (bl.length > 2) console.warn("BFR: More than 2 child branches!")
-  let sumLength = bl.reduce((a, b) => a + b, 0)
+  //let sumLength = bl.reduce((a, b) => a + b, 0)
+  let sumLength = bl[0] + bl[1]
 
-   let y = tipHeights;
-  for (let j = 0; j < y.length; j++) { // little fiddling with the root-to-tip divergences to get the right input vector
+  let y = tipHeights;
+  // Hoist all basal branch length to right
+  for (let j = 0; j < y.length; j++) { 
     y[j] = y[j] + (1-c[j])*(sumLength-bl[0]) - c[j]*(sumLength-bl[0]);
+    //y[j] = y[j] + (1-c[j])*(bl[0]) - c[j]*(bl[0]);
   }
-  
-  let sum_tt = 0.0;
-  let sum_t = 0.0;
-  let sum_y = 0.0;
-  let sum_ty = 0.0;
-  let sum_tc = 0.0;
-  let Nd = N;
-  let nd = n;
-  
-  for (let i = 0; i < N; i++) {
-      sum_tt += t[i] * t[i];
-      sum_t += t[i];
-      sum_y += y[i];
-      sum_ty += t[i] * y[i];
-      sum_tc += t[i] * c[i];
-  }
-  let y_bar = sum_y / Nd;
-  let t_bar = sum_t / Nd;
 
-  let C = sum_tt - (sum_t * sum_t / Nd);
-  let sumAB = 0.0;
-  let sumAA = 0.0;
-
-  for (let i = 0; i < N; i++) {
-      let Ai = 2*c[i] - 
-              ((2*nd-Nd)/Nd) +
-          (2*(t_bar-t[i])/(C*Nd))*(Nd*sum_tc - nd*sum_t) - 1;
-      let Bi = (y[i] - y_bar)
-              + ((t_bar - t[i]) / (C * Nd)) * ((Nd * sum_ty) - (sum_t * sum_y));
-
-      sumAB += Ai * Bi;
-      sumAA += Ai * Ai;
-  }
-  let x = -sumAB / (sumLength * sumAA);
+  let x = bfrPropRMS(y, t, c) / sumLength;
   x = Math.min(Math.max(x, 0.0), 1.0);
   let alpha = 1-x;
+  //let alpha = x;
 
   // rms
   let yPrime = y.map((e,i) => e + c[i]*((1-alpha)*sumLength) - (1-c[i])*((1-alpha)*sumLength))
+  //let yPrime = y.map((e,i) => e + c[i]*(alpha*sumLength) - (1-c[i])*(alpha*sumLength))
 
   let rms = linearRegression({ x: t, y: yPrime, tip: tipNames, name: 'NA' }).rms
 

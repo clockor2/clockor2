@@ -1,4 +1,4 @@
-import { localRootR2, localRootRMS, rerootAndScale, spliceIntoChunks } from './bestFittingRoot';
+import { localRootR2, localRootRMS, rerootAndScale, spliceIntoChunks, sumProduct, bfrPropRMS } from './bestFittingRoot';
 import { Tree, readNewick, writeNewick } from 'phylojs';
 import { decimal_date } from './utils';
 import { readFileSync } from 'fs';
@@ -274,48 +274,91 @@ describe('spliceIntoChunks()', () => {
   });
 })
 
-// // Would ideally have tests for wrapper globalRootParallel() Too
-// describe('Testing globalRootParallel()', () => {
-//     test('Ladder tree with 5 tips - branch lengths equal?', () => {
 
-//       var testTree = readNewick(bestTree.getNewick())
-//       // testTree.reroot(testTree.nodes.descendants()[3])
-//       // testTree.nodes.data.name = 'root';
+describe('bfrProp()', () => {
+  test('Dummy data from R', () => {
+    const y = [1.907682, 1.239931, 1.55684, 0.9825374, 0.9554158, 2.443466, 2.567408, 1.105498, 1.282354, 1.345682];
+    const t = [12.863594, 9.626995,  9.289591, 12.064168, 12.535129,  9.670782,  9.162467, 8.588300, 10.757885,  9.48504];
+    const c = [1, 1, 0, 1, 0, 0, 0, 0, 1, 1];
 
-//       var dates = [1,2,3,4,5];
-//       const estTree = globalRootParallel(testTree, dates);
+    expect(
+      bfrPropRMS(y, t, c) - bfrPropTempest(y, t, c)
+    ).toBeCloseTo(
+      0
+    )
+  })
 
-//       rootToTip(bestTree);
-//       rootToTip(estTree);
+  test('Solutions to match', () => {
+    const nwk = readFileSync("src/features/engine/empiricalTestTree.nwk").toString();
+    const tree = readNewick(nwk);
+    var tipNames = tree.getTipLabels()
 
-//       expect(estTree.getNewick()).toEqual(bestTree.getNewick())
-//       expect(
-//         estTree.getTips().map((e: any) => e.data.rootToTip)
-//         ).toEqual(
-//           bestTree.getTips().map((e: any) => e.data.rootToTip)
-//           )
-//     });
-//   });
+    // generate input data
+    var t = tipNames.map((name: string) => {
+      let date = extractPartOfTipName(name, "_", "-1")
+      return decimal_date(date, "yyyy-mm-dd")
+    })
+    var y: number[] = tree.getRTTDist();
+  
+    var leftBranchTips: string[] = tree.getSubtree(tree.root.children[0]).getTipLabels();
+    var c: number[] = [];
+    for (let i = 0; i < tipNames.length; i++) {
+      leftBranchTips.includes(tipNames[i]) ? c.push(0) : c.push(1);
+    }
+  
+    let bl = tree.root.children.map(
+      e => e.branchLength
+    ).map(
+      e => e === undefined ? 0 : e
+    )
+    if (bl.length > 2) console.warn("BFR: More than 2 child branches!")
+    let sumLength = bl[0] + bl[1]
 
-  // describe('Testing globalRootParallel()', () => {
-  //   test('Ladder tree with 5 tips - newick?', () => {
+    for (let j = 0; j < y.length; j++) { // little fiddling with the root-to-tip divergences to get the right input vector
+      y[j] = y[j] + (1 - c[j]) * (sumLength - bl[0]) - c[j] * (sumLength - bl[0]);
+    }
 
-  //     var bestTree = readNewick('(A:1,(B:1,(C:1,(D:1, E:2):1):1):1);')
-  //     var testTree = readNewick(bestTree.newick_string)
-  //     testTree.reroot(testTree.nodes.descendants()[3])
-  //     testTree.nodes.data.name = 'root';
+    expect(
+      bfrPropRMS(y, t, c)
+    ).toBeCloseTo(
+      bfrPropTempest(y, t, c)
+    )
 
-  //     var dates = [1,2,3,4,5];
-  //     const estTree = globalRootParallel(testTree, dates);
+  });
+})
 
-  //     rootToTip(bestTree);
-  //     rootToTip(estTree);
+/**
+ * Finds scalar of basal branch length to place root with RMS optimisation from Tempest.
+ * Used for comparison of clockor2 solution.
+ *
+ * @param {number[]} y - Starting RTT distances. Hoist to one side.
+ * @param {number[]} t - Tip Dates.
+ * @param {number[]} c - Indicator for which side of the root (Left/Right) that tips descend from.
+ * @returns {number}  - Optimal proportion.
+ */
+export function bfrPropTempest(y: number[], t: number[], c: number[]): number {
+  const a: number[] = [];
+  const b: number[] = [];
+  const N: number = y.length;
+  const n: number = c.reduce((acc, curr) => acc + curr, 0);
+  const t_bar: number = t.reduce((acc, curr) => acc + curr, 0) / N;
+  const y_bar: number = y.reduce((acc, curr) => acc + curr, 0) / N;
+  const C: number =
+      t.reduce((acc, curr) => acc + curr * curr, 0) -
+      (1 / t.length) * Math.pow(t.reduce((acc, curr) => acc + curr, 0), 2);
 
-  //     expect(estTree.getNewick()).toEqual(bestTree.getNewick())
-  //     expect(
-  //       estTree.getTips().map((e: any) => e.data.rootToTip)
-  //       ).toEqual(
-  //         bestTree.getTips().map((e: any) => e.data.rootToTip)
-  //         )
-  //   });
-  // });
+  for (let i = 0; i < y.length; i++) {
+      a[i] =
+          2 * c[i] -
+          ((2 * n - N) / N) +
+          ((2 * (t_bar - t[i]) / (C * N)) * (N * sumProduct(c, t) - n * sumProduct(t))) -
+          1;
+
+      b[i] =
+          y[i] - y_bar +
+          ((t_bar - t[i]) / (C * N)) * (N * sumProduct(y, t) - sumProduct(y) * sumProduct(t));
+  }
+
+  const kappa: number = (-1 * sumProduct(a, b)) / sumProduct(a, a);
+  return kappa;
+}
