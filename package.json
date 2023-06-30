@@ -1,6 +1,6 @@
 {
   "name": "clockor2",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "private": true,
   "babel": {
     "presets": [
@@ -26,10 +26,8 @@
     "chroma-js": "^2.4.2",
     "flowbite": "^1.6.3",
     "flowbite-react": "^0.4.4",
-    "lodash": "^4.17.21",
     "minimize-golden-section-1d": "^3.0.0",
-    "paralleljs": "github:parallel-js/parallel.js",
-    "phylojs": "^1.1.2",
+    "phylojs": "^1.4.0",
     "plotly.js": "^2.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

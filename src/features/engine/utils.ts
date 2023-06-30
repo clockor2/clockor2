@@ -1,3 +1,4 @@
+import { readNewick, writeNewick } from "phylojs"
 
 export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal") => {
   if (format === "yyyy-mm-dd") {
@@ -41,4 +42,10 @@ export const extractPartOfTipName = (name: string, delimiter: string, location: 
   let splitTipName = name.split(delimiter)
   let loc = handelNegativeIndexes(splitTipName, delimiter, parseInt(location))
   return name.split(delimiter)[loc]
+}
+
+export function ladderiseNewick(nwk: string) {
+  let tr = readNewick(nwk)
+  tr.ladderise()
+  return writeNewick(tr)
 }
