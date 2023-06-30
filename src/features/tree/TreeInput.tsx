@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import styles from './Tree.module.css';
 import { exampleNewick } from './exampleNewick'
 import { setRegressionInputDefaults } from '../regression/regressionSlice';
+import { ladderiseNewick } from '../engine/utils';
 
 function validateNewickString(text: string) {
   console.log("Skipping newick validation!");
@@ -20,7 +21,7 @@ export function TreeInput(props: any) {
     );
 
     const loadExample = () => {
-        dispatch(setSource(exampleNewick))
+        dispatch(setSource(ladderiseNewick(exampleNewick)))
         dispatch(setRegressionInputDefaults({
             format: "yyyy-mm-dd",
             delimiter: "_",
@@ -35,7 +36,7 @@ export function TreeInput(props: any) {
             const text = (e.target as FileReader).result
             if (typeof(text) === 'string') {
                 const newick = validateNewickString(text)
-                dispatch(setSource(newick))
+                dispatch(setSource(ladderiseNewick(newick)))
             }
         };
         if (acceptedFiles.length === 1) {
