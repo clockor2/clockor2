@@ -62,13 +62,20 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
     // pushing plotly object for each local clock
     if (lcm.localClock){
       for (let i = 0; i < lcm.localClock.length; i++) {
+        let legendGroup
+        if (lcm.groupNames[i+1] !== undefined) {
+          legendGroup = lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`
+        } else {
+          legendGroup = `Local Clock ${i+1}`;
+        }
+        
         var point1 = {
           x: lcm.localClock[i].x.map(e => date_decimal(e)),
           y: lcm.localClock[i].y,
           text: lcm.localClock[i].tip,
           marker: {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
           mode: "markers",
-          legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
+          legendgroup: legendGroup,
           name: lcm.groupNames[i+1],
           showlegend: false,
           type: "scattergl"
@@ -81,7 +88,7 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
           text: `${lcm.groupNames[i+1] ?? `Local Clock ${i+1}`}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}`,
           marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
           mode: "lines",
-          legendgroup: lcm.groupNames[i+1].length > 1 ? lcm.groupNames[i+1] : `Local Clock ${i+1}`,
+          legendgroup: legendGroup,
           name: lcm.groupNames[i+1],
           type: "scattergl"
         }
