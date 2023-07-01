@@ -98,6 +98,7 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
 
   console.log("Time Taken for BFR " + Math.abs(t1 - t0) / 1000 + "s")
 
+  bestTree.ladderise()
   return writeNewick(bestTree);
 }
 
