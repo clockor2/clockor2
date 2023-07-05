@@ -4,10 +4,10 @@ interface Props {
     isMin: boolean;
 }
 
-let cardClassName = "block max-w-sm p-3 border-2 rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700";
+let cardClassName = "block max-w-sm p-3 border-2 bg-inherit rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700";
 
 export function MetricCard(props: Props){
-    let style = cardClassName + (props.isMin ? " bg-green-400 bg" : "bg-inherit");
+    let style = cardClassName + (props.isMin ? " border-green-400" : "");
     return (
         
         <div className={style}>
