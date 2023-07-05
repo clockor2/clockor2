@@ -20,8 +20,12 @@ export function AddClockButton () {
         let groupings: string[] = tipNames.map((name) => {
             if (selectedIds.includes(name)) {
                 return "User Selected"
-            } 
-            return tipData[name].group
+            } else if (tipData[name].group !== undefined){
+                return tipData[name].group
+            } else {
+                return "Background"
+            }
+         
         })
         
         let decimal_dates: number[] = tipNames.map((name) => {

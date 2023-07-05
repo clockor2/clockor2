@@ -18,14 +18,10 @@ export function TipLabelForm(props: any) {
     })
   
     let groupings: string[]
-    if (group) {
-      groupings = props.tipNames.map((name: string) => {
-        return extractPartOfTipName(name, delimiter, group)
-      })
-    } else {
-      groupings = props.tipNames.map(() => "none")
-    }
-  
+    groupings = props.tipNames.map((name: string) => {
+      return group !== undefined ? extractPartOfTipName(name, delimiter, group) : "Background"
+    })
+
     const handleSubmit = (event: any) => {
       event.preventDefault();
       props.onSubmit(decimal_dates, groupings)
