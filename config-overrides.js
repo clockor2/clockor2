@@ -12,7 +12,8 @@ module.exports = function override(config) {
         "http": require.resolve("stream-http"),
         "https": require.resolve("https-browserify"),
         "os": require.resolve("os-browserify"),
-        "url": require.resolve("url")
+        "url": require.resolve("url"),
+        "process": require.resolve("process/browser")  // this line is changed
     })
     config.resolve.fallback = fallback;
     config.plugins.forEach(plugin => {
@@ -22,7 +23,6 @@ module.exports = function override(config) {
       });
     config.plugins = (config.plugins || []).concat([
         new webpack.ProvidePlugin({
-            process: 'process/browser',
             Buffer: ['buffer', 'Buffer']
         }),
         new webpack.DefinePlugin({
