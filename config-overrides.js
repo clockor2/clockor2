@@ -29,5 +29,11 @@ module.exports = function override(config) {
             __VERSION__: JSON.stringify(packageData.version),
         })
     ])
+    config.module.rules.push({
+        test: /\.m?js/,
+        resolve: {
+            fullySpecified: false
+        }
+    })
     return config;
 }
