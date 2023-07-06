@@ -1,0 +1,14 @@
+name: release
+on:
+  push:
+    tags: ‘v*.*.*’
+  workflow_dispatch:
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PAT }}
+          repository: clockor2/clockor2.github.io
+          event-type: release
