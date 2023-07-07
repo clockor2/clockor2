@@ -97,10 +97,10 @@ export function InfoPanel() {
       </div>
       {isOpen && data
         ? // Nesting ternary operator for 1 or more clocks
-        <div className="max-h-[62.5vh] overflow-y-scroll border-t">
+        <div className="max-h-[62.5vh] overflow-y-auto border-t">
           {typeof data?.localClock == "undefined"
             ?
-            <div className="shrink flex flex-col space-x-8 bg-slate-50 justify-center overflow-y-scroll">
+            <div className="shrink flex flex-col space-x-8 bg-slate-50 justify-center">
               <div className=" flex text-2xl font-bold justify-center">
                 Global Clock
               </div>
@@ -113,23 +113,27 @@ export function InfoPanel() {
             </div>
 
             :
-            <div className="flex shrink flex-col px-5 pb-5 bg-slate-50 justify-center overflow-y-scroll">
-              <div className="pt-2 flex text-2xl font-bold justify-center ">
-                Global Clock
-              </div>
-              <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
-                <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={baseFavoured["aic"]} />
-                <MetricCard text="AIC" value={data?.baseIC.aic} isMin={baseFavoured["aicc"]} />
-                <MetricCard text="BIC" value={data?.baseIC.bic} isMin={baseFavoured["bic"]} />
+            <div className="flex shrink flex-col px-5 pb-5 bg-slate-50 justify-center">
+              <div className="flex items-center">
+                <div className="pl-2 w-48 flex text-3xl font-bold justify-center ">
+                  Global Clock
+                </div>
+                <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
+                  <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={baseFavoured["aic"]} />
+                  <MetricCard text="AIC" value={data?.baseIC.aic} isMin={baseFavoured["aicc"]} />
+                  <MetricCard text="BIC" value={data?.baseIC.bic} isMin={baseFavoured["bic"]} />
+                </div>
               </div>
               <ResultsTable model={data ?? undefined} clock={"global"} />
-              <div className="flex text-2xl font-bold justify-center pt-4">
-                Local Clock
-              </div>
-              <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
-                <MetricCard text="AICc" value={data?.localIC.aicc} isMin={!baseFavoured["aic"]} />
-                <MetricCard text="AIC" value={data?.localIC.aic} isMin={!baseFavoured["aicc"]} />
-                <MetricCard text="BIC" value={data?.localIC.bic} isMin={!baseFavoured["bic"]} />
+              <div className="flex items-center">
+                <div className="pl-2 w-48 flex text-3xl font-bold justify-center">
+                  Local Clock
+                </div>
+                <div className="flex space-x-8 p-10 bg-slate-50 justify-center">
+                  <MetricCard text="AICc" value={data?.localIC.aicc} isMin={!baseFavoured["aic"]} />
+                  <MetricCard text="AIC" value={data?.localIC.aic} isMin={!baseFavoured["aicc"]} />
+                  <MetricCard text="BIC" value={data?.localIC.bic} isMin={!baseFavoured["bic"]} />
+                </div>
               </div>
               <ResultsTable model={data ?? undefined} clock={"local"} />
 
