@@ -18,7 +18,7 @@ export function ResultsTable(props: Props) {
             head = [
                 <Table.Head key="thead">
                     <Table.HeadCell>
-                        Local Clock
+                        Clock
                     </Table.HeadCell>
                     <Table.HeadCell>
                         #Tips
@@ -53,6 +53,9 @@ export function ResultsTable(props: Props) {
                 head = [
                 <Table.Head key="thead">
                     <Table.HeadCell>
+                        Clock
+                    </Table.HeadCell>
+                    <Table.HeadCell>
                         #Tips
                     </Table.HeadCell>
                     <Table.HeadCell>
@@ -71,6 +74,7 @@ export function ResultsTable(props: Props) {
                 ]
                 rows.push(
                     <Table.Row key="trow">
+                        <Table.Cell key="name">Global</Table.Cell>
                         <Table.Cell key="rowNTip">{props.model.baseClock.x.length}</Table.Cell>
                         <Table.Cell key="rowSlope">{numToScientific(props.model.baseClock.slope, 3)}</Table.Cell>
                         <Table.Cell key="rowR2">{props.model.baseClock.r2.toFixed(3)}</Table.Cell>
