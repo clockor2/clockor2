@@ -77,6 +77,10 @@ export function InfoPanel() {
             <span className="pr-1">Clocks</span>
             <Badge>{data?.localClock ? data?.localClock.length : 1}</Badge>
           </div>
+          {mode
+            ? <ResetDataButton />
+            : <div></div>
+          }
           {selectedIds.length > 0
             ? <div className="flex items-center">
                 <span className="pr-1">Selected</span>
@@ -87,10 +91,6 @@ export function InfoPanel() {
           }
         </div>
         <div className="flex items-center space-x-3 py-2">
-          {mode
-            ? <ResetDataButton />
-            : <div></div>
-          }
           <BFRButton />
           <ClockSearchButton />
         </div>
