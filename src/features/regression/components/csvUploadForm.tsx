@@ -4,6 +4,7 @@ import { decimal_date } from '../../engine/utils';
 import {useDropzone} from 'react-dropzone';
 import styles from '../Regression.module.css';
 import { Select, Table, Tooltip } from 'flowbite-react';
+import { HiX } from 'react-icons/hi';
 
 function parseCSV(csvData: string, delimiter: string = ','): string[][] {
   let parsedCSV = csvData.trim().split('\n').map((line) => line.split(delimiter).map((cell) => cell.trim()));
@@ -88,6 +89,8 @@ export function CSVInput(props: any) {
         const reader = new FileReader()
         reader.onload = async (e:ProgressEvent) => { 
           const file  = (e.target as FileReader)
+          console.log(file);
+          
           const data = file.result
           if (typeof(data) === 'string') {
             const parsedData = parseCSV(data);
@@ -104,6 +107,7 @@ export function CSVInput(props: any) {
     }, [acceptedFiles, dispatch, tipNames])
 
     const handleSubmit = () => {
+
       const indexedData = indexDataByColumn(csvData);
       
       let decimal_dates = indexedData.date.map( (date: string) => {
@@ -133,7 +137,7 @@ export function CSVInput(props: any) {
       return (
         <div>
           <div className='px-1 max-h-52 overflow-y-auto mb-6 mt-2 pb-2'>
-            <Table className='!mb-2'>
+            <Table className='!mb-2 !drop-shadow-none	'>
               <Table.Head >
                 {headers.map((header, index) => (
                   <Table.HeadCell className='!px-2 !py-3' key={index}>{header}</Table.HeadCell>
@@ -162,9 +166,18 @@ export function CSVInput(props: any) {
             </Table>
           </div>
           <div className='flex justify-between items-center'>
+            <div className='flex flex-grow items-center space-x-2 justify-start ml-4'>
+              <Tooltip
+                content="Clear"
+                trigger="hover">
+                <button onClick={() => setTableData(null)} className='text-sm font-medium text-slate-400 hover:text-slate-500'>
+                  <HiX className="h-5 w-5" />
+                </button>
+              </Tooltip>
+            </div>
             <div className='flex flex-grow items-center space-x-2 justify-end mr-4'>
               <Tooltip
-                content="Use YYYY-MM-DD for YYYY-MM"
+                content="Use YYYY-MM-DD for YYYY-MM and YYYY"
                 trigger="hover">
                 <div className=' text-sm font-medium'>Date format</div>
               </Tooltip>
