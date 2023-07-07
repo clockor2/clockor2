@@ -12,7 +12,7 @@ function parseCSV(csvData: string, delimiter: string = ','): string[][] {
 }
 
 function sortRowsByList(parsedData: string[][], sortBy: string, orderList: string[]): string[][] {
-  const headers = parsedData[0];
+  const headers = parsedData[0].map((header) => header.toLowerCase());
   const data = parsedData.slice(1);
   const sortByIndex = headers.indexOf(sortBy);
 
@@ -87,13 +87,12 @@ export function CSVInput(props: any) {
 
     useEffect(() => {
         const reader = new FileReader()
+        let delimiter = ','
         reader.onload = async (e:ProgressEvent) => { 
           const file  = (e.target as FileReader)
-          console.log(file);
-          
           const data = file.result
           if (typeof(data) === 'string') {
-            const parsedData = parseCSV(data);
+            const parsedData = parseCSV(data, delimiter);
             const sortedData = sortRowsByList(parsedData, 'tip', tipNames);
             const tableData = processCSVData(sortedData)
             // // TODO check that all the tips are in the csv
@@ -102,9 +101,13 @@ export function CSVInput(props: any) {
           }
         };
         if (acceptedFiles.length === 1) {
+            console.log(acceptedFiles[0]);
+            if (acceptedFiles[0].name.endsWith('.tsv')) {
+              delimiter = '\t'
+            }
             reader.readAsText(acceptedFiles[0])
         }
-    }, [acceptedFiles, dispatch, tipNames])
+    }, [acceptedFiles, tipNames])
 
     const handleSubmit = () => {
 
@@ -113,18 +116,31 @@ export function CSVInput(props: any) {
       let decimal_dates = indexedData.date.map( (date: string) => {
         return decimal_date(date, format)
       })
-
+      console.log(indexedData);
+      if (indexedData.group === undefined) {
+        indexedData.group = Array(indexedData.date.length).fill('Background')
+      }
       props.onSubmit(decimal_dates, indexedData.group)
     }
 
     if (tableData === null) {
         return (
-          <section className="flex flex-col justify-center h-full mx-6 text-slate-500">
-              <div className=' ' >
+
+          <section className="flex flex-col justify-center h-full w-full text-slate-500">
+              <div className='mx-6'>
                   <div {...getRootProps({className: styles.dropzone + " h-full bg-slate-100 border-zinc-500 hover:cursor-pointer hover:shadow-md"})}>
+                      <div className=' flex justify-center items-center space-x-12 w-full py-2'>
+                        <img className=' w-20' src='images/csv.png' alt=""/>
+                          <div className=' flex flex-col items-center'>
+                                  <p className='text-2xl text-center'>Drag & drop</p>
+                                  or
+                                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2">
+                                      Select file
+                                  </button>
+                          </div>
+                      </div>
                       <input {...getInputProps()} />
-                      <p className='text-xl text-center'>Drag 'n' drop csv file here</p>
-                  </div>
+                    </div>
                   <div className='flex justify-center p-2'>
                       <a className='text-center text-sm text-slate-400 hover:text-slate-500' download="dates.csv" href='/MERS_dates.csv'>Headers should be tip,date,group. Click here to download an example.</a>
                   </div>
@@ -166,29 +182,31 @@ export function CSVInput(props: any) {
             </Table>
           </div>
           <div className='flex justify-between items-center'>
-            <div className='flex flex-grow items-center space-x-2 justify-start ml-4'>
-              <Tooltip
-                content="Clear"
-                trigger="hover">
-                <button onClick={() => setTableData(null)} className='text-sm font-medium text-slate-400 hover:text-slate-500'>
-                  <HiX className="h-5 w-5" />
-                </button>
-              </Tooltip>
+            <div className='flex flex-grow items-center space-x-2 justify-start'>
+              <div className='mr-8'>
+                <Tooltip
+                  content="Clear"
+                  trigger="hover">
+                  <button onClick={() => {setTableData(null); setCSVData([])}} className='text-slate-400 hover:text-slate-500 align-middle p-2'>
+                    <HiX className="h-5 w-5" />
+                  </button>
+                </Tooltip>
+              </div>
             </div>
             <div className='flex flex-grow items-center space-x-2 justify-end mr-4'>
               <Tooltip
                 content="Use YYYY-MM-DD for YYYY-MM and YYYY"
                 trigger="hover">
-                <div className=' text-sm font-medium'>Date format</div>
+                <div className='text-sm font-medium whitespace-nowrap'>Date format</div>
               </Tooltip>
               
               <Select
-                title="Use 'YYYY-MM-DD' for 'YYYY-MM'"
                 id="format"
                 required={true}
                 name="type"
                 value={format}
                 onChange={e => setFormat(e.target.value as "yyyy-mm-dd" | "decimal")}
+                className="w-36"
               >
                 <option value={"yyyy-mm-dd"}>
                   YYYY-MM-DD
