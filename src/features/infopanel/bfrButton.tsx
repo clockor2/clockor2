@@ -15,8 +15,6 @@ export function BFRButton() {
   const sourceData = useAppSelector(selectData);
   const bestFitData = useAppSelector(selectBestFittingRootData);
   const tipData = useAppSelector(selectTipData);
-  const mode = useAppSelector(selectMode);
-  const currentData = useAppSelector(selectCurrentData);
   const dispatch = useAppDispatch();
 
   const bfrCalculated = useRef<{ R2: boolean, RMS: boolean }>({ R2: false, RMS: false });
@@ -155,7 +153,7 @@ export function BFRButton() {
           <Label color="" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-700 pr-1 cursor-pointer" htmlFor="bestRoot">
             Best Fitting Root
           </Label >
-          <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} checked={useBestFittingRoot} />
+          <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} checked={useBestFittingRoot} onChange={() => {}} />
         </div>
         <div className="flex items-center !text-sm !text-gray-700 !font-medium">
           <Dropdown
