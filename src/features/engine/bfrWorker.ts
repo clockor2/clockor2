@@ -12,7 +12,9 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
 
   // first node case
   treePrime = readNewick(nwk);
-  treePrime.reroot(treePrime.getNodeList()[nodeNums[0]]);
+  const nodes = treePrime.getNodeList();
+
+  treePrime.reroot(nodes[nodeNums[0]]);
 
   if (bfrMode == "R2") {
     best = {
@@ -27,8 +29,7 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
     // compare to rest of nodes
     for (let i=1; i<nodeNums.length; i++) {
       
-      treePrime = readNewick(nwk);
-      treePrime.reroot(treePrime.getNodeList()[nodeNums[i]]);
+      treePrime.reroot(nodes[nodeNums[i]]);
 
       localOptimum = {
         ...localRootR2(
@@ -58,9 +59,8 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
 
     // compare to rest of nodes
     for (let i=1; i<nodeNums.length; i++) {
-      
-      treePrime = readNewick(nwk);
-      treePrime.reroot(treePrime.getNodeList()[nodeNums[i]]);
+
+      treePrime.reroot(nodes[nodeNums[i]]);
 
       localOptimum = {
         ...localRootRMS(
