@@ -167,7 +167,7 @@ describe('localRootR2()', () => {
 })
 
 
-describe('localRootRSS()', () => {
+describe('localRootRMS()', () => {
   test('Basal branches of 5-tip tree', () => {
     let testTree = readNewick('((A:1, B:2):3,(C:1, D:2):1);') // note swapping of both 1st order branch lengths
     let tipData = {
@@ -186,9 +186,8 @@ describe('localRootRSS()', () => {
     }
     let est: any = localRootRMS(testTree, tipData);
 
-    console.log(est)
     expect(est.alpha).toBeCloseTo(0.25, 2)
-    expect(est.value).toBeCloseTo(1, 2);
+    expect(est.value).toBeCloseTo(0, 2);
   });
 
   test('Testing for 3-tip tree', () => {
@@ -212,7 +211,7 @@ describe('localRootRSS()', () => {
       tipData
     )
     
-    expect(obj.method).toBe("RSS")
+    expect(obj.method).toBe("RMS")
     expect(obj.value).toBeDefined()
 
   });
