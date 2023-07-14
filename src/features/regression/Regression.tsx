@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
 import { plotify } from '../engine/core';
 import { selectCurrentData } from './regressionSlice';

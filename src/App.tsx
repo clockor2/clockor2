@@ -79,7 +79,8 @@ function App() {
       const gridRef = document.querySelector("#main")
       let height = gridRef?.getBoundingClientRect().height
       let width = gridRef?.getBoundingClientRect().width
-        setSize({height: height, width: width ? width/2 : undefined})  
+      let is_mobile = width ? width < 768 : false
+      setSize({height: is_mobile ? 200 : height, width: width ? is_mobile ? width : width / 2  : undefined})  
     }
     if (!size) {
       handleResize() 
@@ -94,35 +95,41 @@ function App() {
     setSettings(settings)
   }
 
-  return (
-    <div className="App h-screen overflow-hidden">
-      <div className='flex flex-col justify-between h-full'>
-        <Menu></Menu>
-        <main id="main" className='flex h-full'>
-          {currentTree === ""?
-          <div className='flex flex-col items-center w-full h-full overflow-auto'>
-            <div className='max-w-screen-lg' >
-              <TreeInput  />
-            </div>
+  const renderTreeButtons = () => {
+    return (
+      <div className='relative'>
+        <div className='flex absolute z-50 top-0 right-0'>
+          <div className='relative flex items-end justify-between space-x-2 px-2 pt-2'>
+            <DownloadButton 
+              source={currentTree} 
+              getNewick={() =>  {
+                return treeRef.current?.exportNewick()
+              }}
+              getSVG={() =>  {
+                return treeRef.current?.exportSVG()
+              }}
+              />
+            <SettingsButton saveSettings={onChange}   />
           </div>
-          :
-            <div id="Tree" className='w-1/2 h-full border-r-2'>
-              <div className='relative'>
-                <div className='flex absolute z-50 top-0 right-0'>
-                  <div className='relative flex items-end justify-between space-x-2 px-2 pt-2'>
-                    <DownloadButton 
-                      source={currentTree} 
-                      getNewick={() =>  {
-                        return treeRef.current?.exportNewick()
-                      }}
-                      getSVG={() =>  {
-                        return treeRef.current?.exportSVG()
-                      }}
-                      />
-                    <SettingsButton saveSettings={onChange}   />
-                  </div>
-                </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="App">
+      <div className='flex flex-col justify-between h-screen'>
+        <Menu></Menu>
+        <main id="main" className='flex flex-wrap md:flex-nowrap h-full'>
+          {currentTree === ""?
+            <div className='flex flex-col items-center w-full h-full overflow-auto'>
+              <div className='max-w-screen-lg' >
+                <TreeInput  />
               </div>
+            </div>
+          :
+            <div id="Tree" className=' w-full lg:w-1/2 border-b-2 md:border-r-2 md:border-b-0'>
+              {renderTreeButtons()}
               <Tree 
                 ref={treeRef}
                 source={currentTree}
@@ -144,10 +151,9 @@ function App() {
           {currentTree?
             <div className='w-full h-full'>
               {regressionData?.baseClock ?  
-                  <div className='flex flex-col justify-between h-full'>
+                  <div className='flex flex-col h-full'>
                     <Regression />
                     <InfoPanel />
-                    
                   </div>
                   :
                   <div className='flex flex-col items-center justify-center h-full'>
