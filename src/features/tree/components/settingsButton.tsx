@@ -24,10 +24,7 @@ type Props = {
 export function SettingsButton({
   saveSettings
 }: Props){
-  const [isToggled,setToggle] = useState(false);
-    const toggleModal = () => {
-      setToggle(!isToggled)
-    }
+    const [openModal, setOpenModal] = useState<string | undefined>();
     const [settings, setSettings] = useState<TreeSettings>(defaultSettings)
     
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -45,7 +42,7 @@ export function SettingsButton({
 
     return (
       <div>
-        <button onClick={toggleModal} className=' text-slate-400 hover:text-slate-500'>
+        <button onClick={() => setOpenModal('default')} className=' text-slate-400 hover:text-slate-500'>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
             </svg>
@@ -53,8 +50,9 @@ export function SettingsButton({
         <React.Fragment>
           <Modal
             dismissible={true}
-            show={isToggled}
-            onClose={toggleModal}
+            show={openModal === 'default'}
+            onClose={() => setOpenModal(undefined)}
+
           >
             <Modal.Header>
               Tree Display Settings
