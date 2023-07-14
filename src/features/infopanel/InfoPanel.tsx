@@ -60,7 +60,7 @@ export function InfoPanel() {
           <div className="w-48 text-3xl font-bold">
             {global ? "Global" : "Local"} Clock
           </div>
-          <div className="flex space-x-8 bg-slate-50 py-4">
+          <div className="flex flex-wrap space-x-3 bg-slate-50 py-4">
             <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={global ? baseFavoured["aic"] : ! baseFavoured["aic"]} />
             <MetricCard text="AIC" value={data?.baseIC.aic} isMin={global ? baseFavoured["aicc"] : ! baseFavoured["aicc"]} />
             <MetricCard text="BIC" value={data?.baseIC.bic} isMin={global ? baseFavoured["bic"] : ! baseFavoured["bic"]} />
@@ -75,7 +75,7 @@ export function InfoPanel() {
 
   return (
     <div>
-      <div className="flex justify-between items-center space-x-3 border-t-2 shadow-lg px-2 bg-slate-50">
+      <div className="flex justify-between items-center space-x-3 border-t-2 shadow-lg px-2 bg-slate-50 overflow-auto">
         <div className="flex flex-row items-center space-x-3 py-4" >
           <button onClick={togglePanel}>
             {isOpen
