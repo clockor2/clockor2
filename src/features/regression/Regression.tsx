@@ -118,6 +118,8 @@ export function Regression(props: any) {
     },
   };
 
+  const isMobile = window.innerWidth < 768
+
   return (
     <div className='h-full'>
       <Plot 
@@ -129,7 +131,7 @@ export function Regression(props: any) {
         data={PlotlyData}  
         // @ts-ignore
         layout={layout}
-        style={{width: "100%", height: "100%"}}
+        style={{width: "100%", height: isMobile ? "250px" : "100%" }}
         config={{
           responsive: true, 
           displaylogo: false, 

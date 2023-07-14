@@ -151,7 +151,7 @@ export function BFRButton() {
       <div className="flex items-center">
         <div className="flex items-center pr-2">
           <Label color="" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-700 pr-1 cursor-pointer" htmlFor="bestRoot">
-            Best Fitting Root
+            {window.innerWidth < 768 ? "BFR" : "Best Fitting Root"}
           </Label >
           <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} checked={useBestFittingRoot} onChange={() => {}} />
         </div>
