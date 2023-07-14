@@ -74,17 +74,17 @@ export function Menu(){
             <Navbar.Link className="!text-white cursor-pointer"  onClick={() => setOpenModal('default')}  >
               About
             </Navbar.Link >
-            <Navbar.Link className="!text-white"  href="https://clockor2.github.io/clockor2">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://clockor2.github.io/clockor2">
               Docs 
             </Navbar.Link>
             {showInstall()}
             <Navbar.Link className="!text-white"  href="/">
               Citation
             </Navbar.Link>
-            <Navbar.Link className="!text-white"  href="https://github.com/clockor2/clockor2">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://github.com/clockor2/clockor2">
               Code
             </Navbar.Link>
-            <Navbar.Link className="!text-white"  href="https://github.com/clockor2/clockor2/issues/new/choose">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://github.com/clockor2/clockor2/issues/new/choose">
               Report Bug
             </Navbar.Link>
           </Navbar.Collapse>
