@@ -33,7 +33,7 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
       x: lcm.baseClock.x.map(e => date_decimal(e)),
       y: lcm.baseClock.y,
       text: lcm.baseClock.tip,
-      marker: {color: '#000000', size: 5},
+      marker: {color: '#000000', size: 7},
       mode: "markers",
       name: "Global",
       legendgroup: "Global",
