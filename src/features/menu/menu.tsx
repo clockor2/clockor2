@@ -74,7 +74,7 @@ export function Menu(){
             <Navbar.Link className="!text-white cursor-pointer"  onClick={() => setOpenModal('default')}  >
               About
             </Navbar.Link >
-            <Navbar.Link className="!text-white"  target="_blank" href="https://clockor2.github.io/clockor2">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://clockor2.github.io/docs">
               Docs 
             </Navbar.Link>
             {showInstall()}
