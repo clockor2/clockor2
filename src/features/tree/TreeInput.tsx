@@ -45,7 +45,7 @@ export function TreeInput(props: any) {
     }, [acceptedFiles, dispatch])
 
     return (
-        <section className="flex flex-col justify-center mx-6 pt-6 pb-16 text-slate-500 ">
+        <section className="flex flex-col justify-center mx-6 pt-6 text-slate-500 ">
             <div className=' ' >
                 <div className='flex justify-center '>
                     <div className=' max-w-xl'  >
