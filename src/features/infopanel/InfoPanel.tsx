@@ -75,7 +75,7 @@ export function InfoPanel() {
 
   return (
     <div>
-      <div className="flex justify-between items-center space-x-3 border-t-2 shadow-lg px-2 bg-slate-50 overflow-auto">
+      <div className="flex justify-between items-center space-x-3 border-t-2 px-2 bg-slate-50 overflow-x-auto">
         <div className="flex flex-row items-center space-x-3 py-4" >
           <button onClick={togglePanel}>
             {isOpen

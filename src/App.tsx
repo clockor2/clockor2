@@ -128,7 +128,7 @@ function App() {
               </div>
             </div>
           :
-            <div id="Tree" className=' w-full lg:w-1/2 border-b-2 md:border-r-2 md:border-b-0'>
+            <div id="Tree" className=' w-full md:w-1/2 border-b-2 md:border-r-2 md:border-b-0'>
               {renderTreeButtons()}
               <Tree 
                 ref={treeRef}
@@ -149,7 +149,7 @@ function App() {
           }
           
           {currentTree?
-            <div className='w-full h-full'>
+            <div className='w-full md:w-1/2 h-full'>
               {regressionData?.baseClock ?  
                   <div className='flex flex-col h-full'>
                     <Regression />
