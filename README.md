@@ -44,20 +44,7 @@ The initial design plan:
 
 ## Docs 
 
-Setting up the doc environment requires a few extra steps. 
-
-Create a virtual env && Install docs deps (only need to run once).
-
-```bash
-python3 -m venv env
-env/bin/pip install mkdocs-material
-```
-
-Start the docs server
-
-```bash
-npm run docs
-```
+For docs code see [https://github.com/clockor2/docs](https://github.com/clockor2/docs).
 
 ## [![Repography logo](https://images.repography.com/logo.svg)](https://repography.com) / Recent activity [![Time period](https://images.repography.com/39585511/clockor2/clockor2/recent-activity/HWdSf0SXwtp9_mklwOKq2DScvTBu7lvZLUTWwYjSImQ/otGhZiQCg-U_5MbUARZQ2daOH0BeNKCp1cQAYxh4FrI_badge.svg)](https://repography.com)
 [![Timeline graph](https://images.repography.com/39585511/clockor2/clockor2/recent-activity/HWdSf0SXwtp9_mklwOKq2DScvTBu7lvZLUTWwYjSImQ/otGhZiQCg-U_5MbUARZQ2daOH0BeNKCp1cQAYxh4FrI_timeline.svg)](https://github.com/clockor2/clockor2/commits)
