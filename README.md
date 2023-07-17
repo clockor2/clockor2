@@ -4,7 +4,11 @@ Welcome to the Clockor2 code base! The Clockor2 app is available at [clockor2.gi
 
 Clockor2 is a client-side web application for conducting root-to-tip (RTT) regression - the fastest and most widely used method to calibrate strict molecular clocks. See the [documentation](https://clockor2.github.io/docs) for more information.
 
-Clockor2 is open-source and licensed under the [GNU General Public License v3.0](https://github.com/clockor2/clockor2/blob/main/LICENSE). We welcome contributions, feature requests, and bug reports. See below for a guide on developing Clockor2.  
+Clockor2 is open-source and licensed under the [GNU General Public License v3.0](https://github.com/clockor2/clockor2/blob/main/LICENSE). We welcome contributions, feature requests, and bug reports. See below for a guide on developing Clockor2.
+
+## Citation
+
+> Featherstone, L. A., Rambaut, A., Duchene, S., & Wirth, W. (2023). Inferring global and local strict molecular clocks using root-to-tip regression. bioRxiv. https://doi.org/10.1101/2023.07.13.548947
 
 ## Development
 
