@@ -78,7 +78,7 @@ export function Menu(){
               Docs 
             </Navbar.Link>
             {showInstall()}
-            <Navbar.Link className="!text-white"  target="_blank" href="https://www.biorxiv.org/content/10.1101/2023.07.13.548947v1">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://doi.org/10.1101/2023.07.13.548947">
               Citation
             </Navbar.Link>
             <Navbar.Link className="!text-white"  target="_blank" href="https://github.com/clockor2/clockor2">
