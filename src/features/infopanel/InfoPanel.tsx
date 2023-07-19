@@ -9,7 +9,7 @@ import { BFRButton } from "./bfrButton";
 import { selectSelectedIds } from "../tree/treeSlice";
 import { AddClockButton } from "./addClockButton"
 import { ResetDataButton } from "./resetButton";
-import { LocalClockModel } from "../engine/core";
+import { InfoMetric } from "../engine/core";
 import { PanelToggleButton } from "./components/panelToggleButton";
 
 export function InfoPanel() {
@@ -54,7 +54,7 @@ export function InfoPanel() {
     )
   }, [data])
 
-  const renderRegressionInfo = (data:LocalClockModel|null, global: boolean) => {
+  const renderRegressionInfo = (criteria: InfoMetric, global: boolean) => {
     return (
       <div>
         <div className="flex flex-wrap ml-2 my-4 align-middle items-center">
@@ -63,13 +63,13 @@ export function InfoPanel() {
           </div>
           <div className="flex flex-wrap bg-slate-50 pt-4">
             <div className="mr-3 mb-3">
-              <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={global ? baseFavoured["aic"] : ! baseFavoured["aic"]} />
+              <MetricCard text="AICc" value={criteria.aicc} isMin={global ? baseFavoured["aic"] : ! baseFavoured["aic"]} />
             </div>
             <div className="mr-3 mb-3">
-              <MetricCard text="AIC" value={data?.baseIC.aic} isMin={global ? baseFavoured["aicc"] : ! baseFavoured["aicc"]} />
+              <MetricCard text="AIC" value={criteria.aic} isMin={global ? baseFavoured["aicc"] : ! baseFavoured["aicc"]} />
             </div>
             <div className="mr-3 mb-3">
-              <MetricCard text="BIC" value={data?.baseIC.bic} isMin={global ? baseFavoured["bic"] : ! baseFavoured["bic"]} />
+              <MetricCard text="BIC" value={criteria.bic} isMin={global ? baseFavoured["bic"] : ! baseFavoured["bic"]} />
             </div>
           </div>
         </div>
@@ -129,10 +129,10 @@ export function InfoPanel() {
         ? // Nesting ternary operator for 1 or more clocks
           <div className="md:max-h-[62.5vh] overflow-y-auto border-t">
             <div className="flex shrink flex-col px-5 pb-5 bg-slate-50 justify-center">
-              {renderRegressionInfo(data, true)}
+              {renderRegressionInfo(data.baseIC, true)}
               {typeof data?.localClock !== "undefined"
                 ? 
-                renderRegressionInfo(data, false)
+                renderRegressionInfo(data.localIC, false)
                 :
                 <div></div>
               }

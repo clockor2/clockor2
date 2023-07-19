@@ -10,7 +10,7 @@ export interface LocalClockModel {
   groupNames: string[];
 }
 // interface for info metric data
-interface InfoMetric {
+export interface InfoMetric {
   aic: number;
   aicc: number;
   bic: number;
