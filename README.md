@@ -44,7 +44,7 @@ Some of the tools used by the project include:
 
 The initial design plan:
 
-![](docs/images/design-plan.png)
+![](https://raw.githubusercontent.com/clockor2/docs/main/docs/images/design-plan.png)
 
 ## Docs 
 
