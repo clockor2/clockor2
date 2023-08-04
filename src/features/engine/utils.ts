@@ -49,3 +49,8 @@ export function ladderiseNewick(nwk: string) {
   tr.ladderise()
   return writeNewick(tr)
 }
+export function numToScientific(num: number, dp: number) {
+  let exp = num.toExponential()
+  let str = exp.split('e')
+  return `${parseFloat(str[0]).toFixed(dp)} x 10^${str[1]}`
+}
