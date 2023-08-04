@@ -1,5 +1,6 @@
 import { Table } from "flowbite-react";
 import { LocalClockModel } from "../../engine/core";
+import { numToScientific } from "../../engine/utils";
 
 interface Props {
     model: LocalClockModel| undefined;
@@ -93,9 +94,3 @@ export function ResultsTable(props: Props) {
             </Table>
         )
     }
-
-function numToScientific(num: number, dp: number) {
-    let exp = num.toExponential()
-    let str = exp.split('e')
-    return `${parseFloat(str[0]).toFixed(dp)} x 10^${str[1]}`
-}
