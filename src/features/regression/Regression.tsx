@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
 import { plotify } from '../engine/core';
 import { selectCurrentData } from './regressionSlice';
@@ -114,9 +114,31 @@ export function Regression(props: any) {
     modebar: {
       // vertical modebar button layout
       orientation: 'v',
-      // for demonstration purposes
     },
   };
+
+  const isMobile = window.innerWidth < 768
+
+  const downloadDataButton: Plotly.ModeBarButton = {
+    name: 'Download plot data',
+    title: 'Download plot data',
+    icon: {
+      'svg': '<svg xmlns="http://www.w3.org/2000/svg" fill="none" class="text-slate-300 hover:text-slate-500 mt-1" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>',
+    },
+    click: () => {
+      downloadObjectAsJson(currentData, 'clockor2')
+    }
+  }
+
+  const downloadObjectAsJson = (exportObj: any, exportName: string) => {
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
 
   return (
     <div className='h-full'>
@@ -129,8 +151,11 @@ export function Regression(props: any) {
         data={PlotlyData}  
         // @ts-ignore
         layout={layout}
-        style={{width: "100%", height: "100%"}}
+        style={{width: "100%", height: isMobile ? "250px" : "100%" }}
         config={{
+          modeBarButtonsToAdd: [
+            downloadDataButton
+          ],
           responsive: true, 
           displaylogo: false, 
           toImageButtonOptions: {

@@ -3,10 +3,7 @@ import React, { useEffect, useState } from "react";
 
 
 export function Menu(){
-  const [isToggled,setToggle] = useState(false);
-  const toggleModal = () => {
-    setToggle(!isToggled)
-  }
+  const [openModal, setOpenModal] = useState<string | undefined>();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -74,20 +71,20 @@ export function Menu(){
           </Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse >
-            <Navbar.Link className="!text-white cursor-pointer"  onClick={toggleModal} >
+            <Navbar.Link className="!text-white cursor-pointer"  onClick={() => setOpenModal('default')}  >
               About
             </Navbar.Link >
-            <Navbar.Link className="!text-white"  href="https://clockor2.github.io/clockor2">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://clockor2.github.io/docs">
               Docs 
             </Navbar.Link>
             {showInstall()}
-            <Navbar.Link className="!text-white"  href="/">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://doi.org/10.1101/2023.07.13.548947">
               Citation
             </Navbar.Link>
-            <Navbar.Link className="!text-white"  href="https://github.com/clockor2/clockor2">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://github.com/clockor2/clockor2">
               Code
             </Navbar.Link>
-            <Navbar.Link className="!text-white"  href="https://github.com/clockor2/clockor2/issues/new/choose">
+            <Navbar.Link className="!text-white"  target="_blank" href="https://github.com/clockor2/clockor2/issues/new/choose">
               Report Bug
             </Navbar.Link>
           </Navbar.Collapse>
@@ -95,8 +92,9 @@ export function Menu(){
         
         <React.Fragment>
           <Modal
-            show={isToggled}
-            onClose={toggleModal}
+            dismissible={true}
+            show={openModal === 'default'}
+            onClose={() => setOpenModal(undefined)}
           >
             <Modal.Header>
               About

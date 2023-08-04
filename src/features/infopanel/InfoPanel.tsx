@@ -9,7 +9,8 @@ import { BFRButton } from "./bfrButton";
 import { selectSelectedIds } from "../tree/treeSlice";
 import { AddClockButton } from "./addClockButton"
 import { ResetDataButton } from "./resetButton";
-import { LocalClockModel } from "../engine/core";
+import { InfoMetric } from "../engine/core";
+import { PanelToggleButton } from "./components/panelToggleButton";
 
 export function InfoPanel() {
   const selectedIds = useAppSelector(selectSelectedIds)
@@ -53,17 +54,23 @@ export function InfoPanel() {
     )
   }, [data])
 
-  const renderRegressionInfo = (data:LocalClockModel|null, global: boolean) => {
+  const renderRegressionInfo = (criteria: InfoMetric, global: boolean) => {
     return (
       <div>
         <div className="flex flex-wrap ml-2 my-4 align-middle items-center">
           <div className="w-48 text-3xl font-bold">
             {global ? "Global" : "Local"} Clock
           </div>
-          <div className="flex space-x-8 bg-slate-50 py-4">
-            <MetricCard text="AICc" value={data?.baseIC.aicc} isMin={global ? baseFavoured["aic"] : ! baseFavoured["aic"]} />
-            <MetricCard text="AIC" value={data?.baseIC.aic} isMin={global ? baseFavoured["aicc"] : ! baseFavoured["aicc"]} />
-            <MetricCard text="BIC" value={data?.baseIC.bic} isMin={global ? baseFavoured["bic"] : ! baseFavoured["bic"]} />
+          <div className="flex flex-wrap bg-slate-50 pt-4">
+            <div className="mr-3 mb-3">
+              <MetricCard text="AICc" value={criteria.aicc} isMin={global ? baseFavoured["aic"] : ! baseFavoured["aic"]} />
+            </div>
+            <div className="mr-3 mb-3">
+              <MetricCard text="AIC" value={criteria.aic} isMin={global ? baseFavoured["aicc"] : ! baseFavoured["aicc"]} />
+            </div>
+            <div className="mr-3 mb-3">
+              <MetricCard text="BIC" value={criteria.bic} isMin={global ? baseFavoured["bic"] : ! baseFavoured["bic"]} />
+            </div>
           </div>
         </div>
       <div className=" overflow-x-auto">
@@ -73,21 +80,25 @@ export function InfoPanel() {
     )
   }
 
+  const renderPanelToggleButtonIfNotMobile = () => {
+    const is_mobile = window.innerWidth < 768
+    if (is_mobile) {
+      if (!isOpen) {
+        setOpen(true)
+      }
+      return <div></div>
+    }
+    return (
+      <PanelToggleButton onClick={togglePanel} isOpen={isOpen} />
+    )
+
+  }
+
   return (
     <div>
-      <div className="flex justify-between items-center space-x-3 border-t-2 shadow-lg px-2 bg-slate-50">
+      <div className="flex justify-between items-center space-x-3 border-t-2 px-2 bg-slate-50 overflow-x-auto">
         <div className="flex flex-row items-center space-x-3 py-4" >
-          <button onClick={togglePanel}>
-            {isOpen
-              ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 hover:text-blue-700">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
-              : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 hover:text-blue-700">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-              </svg>
-
-            }
-          </button>
+          {renderPanelToggleButtonIfNotMobile()}
           <div className="flex items-center">
             <span className="pr-1">Tips</span>
             <Badge>{data?.baseClock.tip.length}</Badge>
@@ -116,12 +127,12 @@ export function InfoPanel() {
       </div>
       {isOpen && data
         ? // Nesting ternary operator for 1 or more clocks
-          <div className="max-h-[62.5vh] overflow-y-auto border-t">
+          <div className="md:max-h-[62.5vh] overflow-y-auto border-t">
             <div className="flex shrink flex-col px-5 pb-5 bg-slate-50 justify-center">
-              {renderRegressionInfo(data, true)}
+              {renderRegressionInfo(data.baseIC, true)}
               {typeof data?.localClock !== "undefined"
                 ? 
-                renderRegressionInfo(data, false)
+                renderRegressionInfo(data.localIC, false)
                 :
                 <div></div>
               }

@@ -45,7 +45,7 @@ export function TreeInput(props: any) {
     }, [acceptedFiles, dispatch])
 
     return (
-        <section className="flex flex-col justify-center mx-6 pt-6 pb-16 text-slate-500 ">
+        <section className="flex flex-col justify-center mx-6 pt-6 text-slate-500 ">
             <div className=' ' >
                 <div className='flex justify-center '>
                     <div className=' max-w-xl'  >
@@ -85,7 +85,7 @@ export function TreeInput(props: any) {
                     <div>
                         <h2 className=' text-lg font-semibold'>How to use Clockor2</h2>
                         <p >
-                            To analyze your data, drag a newick tree file onto the upload box or select the file from the file browser. At the next screen you will be prompted to enter date information for the tips in your tree. Clockor2 will perform the root-to-tip regression on you data in your browser. <span className=' font-semibold'>Your data will never leave your computer</span>. Thus Clockor2 is safe for use with sensitive data. For more details on how to use Clockor2 please refer to the <a className=' hover:underline text-slate-400 hover:text-slate-500' href='https://clockor2.github.io/clockor2/'>documentation</a>. 
+                            To analyze your data, drag a newick tree file onto the upload box or select the file from the file browser. At the next screen you will be prompted to enter date information for the tips in your tree. Clockor2 will perform the root-to-tip regression on you data in your browser. <span className=' font-semibold'>Your data will never leave your computer</span>. Thus Clockor2 is safe for use with sensitive data. For more details on how to use Clockor2 please refer to the <a className=' hover:underline text-slate-400 hover:text-slate-500' href='https://clockor2.github.io/docs/'>documentation</a>. 
                         </p>
                     </div>
                 </div>
