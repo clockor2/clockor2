@@ -4,6 +4,7 @@ export class PhylocanvasGL extends Base {
     // this derived class allows us to monkey patch the PhylocanvasGL methods and add our own
     constructor(view: any, props: any, plugins:Array<any> = []) {
       super(view , props, plugins)
+      this.deck.props.useDevicePixels = 2;
       this.clickHandlers = [];
       this.hoverHandlers = [];
       this.view.style.backgroundImage = ''; // remove logo
