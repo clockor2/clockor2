@@ -18,7 +18,7 @@ export interface InfoMetric {
 
 // function to make plottable points
 // method for plotly plotting
-export function plotify(lcm: LocalClockModel | null): any[] | null {
+export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | null {
   const plot = [] as any[];
   if (lcm != null) {
     // generate colour scale. Use viridis-ish default
@@ -26,14 +26,14 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
       ?
       chroma.scale(['#fafa6e', '#2A4858']).mode('lch').colors(lcm.localClock.length)
       :
-      "DarkSlateGrey";
+      isDarkMode ? 'rgb(148,163,184)' : '#000000';
 
     // Pushing plotly object for base lock
     var point = {
       x: lcm.baseClock.x.map(e => date_decimal(e)),
       y: lcm.baseClock.y,
       text: lcm.baseClock.tip,
-      marker: {color: '#000000', size: 7},
+      marker: {color: isDarkMode ? 'rgb(148,163,184)' : '#000000', size: 7},
       mode: "markers",
       name: "Global",
       legendgroup: "Global",
@@ -46,7 +46,7 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
       x: lcm.baseClock.x.map(e => date_decimal(e)),
       y: lcm.baseClock.fitY,
       name: "Global",
-      marker : {color: '#000000'},
+      marker : {color: isDarkMode ? 'rgb(148,163,184)' : '#000000'},
       mode: "lines",
       text: lcm.localClock
       ? 
@@ -73,7 +73,7 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
           x: lcm.localClock[i].x.map(e => date_decimal(e)),
           y: lcm.localClock[i].y,
           text: lcm.localClock[i].tip,
-          marker: {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
+          marker: {color: cols[i], line: {width: 1, color: isDarkMode ? 'rgb(148,163,184)' : 'DarkSlateGrey'}},
           mode: "markers",
           legendgroup: legendGroup,
           name: lcm.groupNames[i+1],
@@ -86,7 +86,7 @@ export function plotify(lcm: LocalClockModel | null): any[] | null {
           x: lcm.localClock[i].x.map(e => date_decimal(e)),
           y: lcm.localClock[i].fitY,
           text: `${lcm.groupNames[i+1] ?? `Local Clock ${i+1}`}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}, RMS: ${numToScientific(lcm.localClock[i].rms, 2)}`,
-          marker : {color: cols[i], line: {width: 1, color: 'DarkSlateGrey'}},
+          marker : {color: cols[i], line: {width: 1}},
           mode: "lines",
           legendgroup: legendGroup,
           name: lcm.groupNames[i+1],

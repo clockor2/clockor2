@@ -140,7 +140,7 @@ export function BFRButton() {
   if (isCalculating) {
     return (
       <div className="flex items-center">
-        <Label className="text-sm font-medium !text-gray-700 dark:text-gray-300 pr-1" htmlFor="bestRoot">
+        <Label className="text-sm font-medium text-gray-700 dark:text-gray-400 pr-1" htmlFor="bestRoot">
           Finding Best Fitting Root
         </Label >
         <Spinner size="md" />
@@ -150,12 +150,12 @@ export function BFRButton() {
     return (
       <div className="flex items-center">
         <div className="flex items-center pr-2">
-          <Label color="" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-700 pr-1 cursor-pointer" htmlFor="bestRoot">
+          <Label color="" className="text-sm font-medium text-gray-700 dark:text-gray-400 hover:text-blue-700 pr-1 cursor-pointer" htmlFor="bestRoot">
             {window.innerWidth < 768 ? "BFR" : "Best Fitting Root"}
           </Label >
           <Checkbox className="cursor-pointer" id="bestRoot" onClick={toggleBestFittingRoot} checked={useBestFittingRoot} onChange={() => {}} />
         </div>
-        <div className="flex items-center !text-sm !text-gray-700 !font-medium">
+        <div className="flex items-center !text-sm text-gray-700 dark:text-gray-400 !font-medium">
           <Dropdown
             inline
             label={ bfrMethod === "RMS" ? "RMS" : 'R²' }

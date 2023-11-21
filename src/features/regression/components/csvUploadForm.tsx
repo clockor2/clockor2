@@ -128,7 +128,7 @@ export function CSVInput(props: any) {
 
           <section className="flex flex-col justify-center h-full w-full text-slate-500">
               <div className='mx-6'>
-                  <div {...getRootProps({className: styles.dropzone + " h-full bg-slate-100 border-zinc-500 hover:cursor-pointer hover:shadow-md"})}>
+                  <div {...getRootProps({className: styles.dropzone + " h-full bg-slate-100 dark:bg-slate-700 border-zinc-500 hover:cursor-pointer hover:shadow-md"})}>
                       <div className=' flex justify-center items-center space-x-12 w-full py-2'>
                         <img className=' w-20' src='images/csv.png' alt=""/>
                           <div className=' flex flex-col items-center'>

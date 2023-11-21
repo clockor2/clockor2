@@ -43,7 +43,7 @@ export function RegressionInput(props: any) {
       <TipLabelForm onSubmit={handleSubmit} tipNames={tipNames} />
       <div className=" inline-flex items-center justify-center w-full">
         <div className='border-b w-full'></div>
-        <div className='p-2'>or</div>
+        <div className='p-2 dark:text-white'>or</div>
         <div className='border-b w-full'></div>
       </div>
       <CSVInput onSubmit={handleSubmit} tipNames={tipNames} />
