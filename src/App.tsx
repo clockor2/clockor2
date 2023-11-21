@@ -12,6 +12,9 @@ import { Menu } from './features/menu/menu';
 import { defaultSettings, SettingsButton, TreeSettings } from './features/tree/components/settingsButton';
 import { DownloadButton } from './features/tree/components/downloadButton';
 import { LocalClockModel } from './features/engine/core';
+import { useDarkMode } from './features/utils/darkmode';
+import { Flowbite } from 'flowbite-react';
+
 const chroma = require("chroma-js")
 
 
@@ -46,6 +49,7 @@ function App() {
   const selectedIds = useAppSelector(selectSelectedIds)
   const [nodeStyles, setNodeStyles] = useState<NodeStyles>({});
   const treeRef = createRef<TreeExportFuctions>();
+  const isDarkMode = useDarkMode();
 
   interface NodeStyles {
     [key: string]: NodeStyle;
@@ -53,6 +57,17 @@ function App() {
   interface NodeStyle {
     [key: string]: any;
   }
+
+  // get darkMode setting from local storage
+  useEffect(() => {
+    const localData = localStorage.getItem('darkMode');
+    const isDarkMode =  (localData && JSON.parse(localData)) || false;
+      if (isDarkMode) {
+          document.documentElement.classList.add('dark');
+      } else {
+          document.documentElement.classList.remove('dark');
+      }
+  }, []);
 
   useEffect(() => {
     if (regressionData) {
@@ -66,12 +81,12 @@ function App() {
           });
       } else {
         Object.keys(groups).forEach(function(key: string, index: number) {
-          styles[key] = {fillColour: "#000000", };
+          styles[key] = {fillColour: isDarkMode ? 'rgb(148,163,184)' : '#000000', };
         });
       }
       setNodeStyles(styles)
     }
-  }, [regressionData])
+  }, [regressionData, isDarkMode])
 
   useEffect(() => {
     function handleResize() {
@@ -97,7 +112,7 @@ function App() {
 
   const renderTree = () => {
     return (
-      <div id="Tree" className='w-full md:w-1/2 border-b-2 md:border-r-2 md:border-b-0'>
+      <div id="Tree" className='w-full md:w-1/2 dark:border-slate-500 border-b-2 md:border-r-2 md:border-b-0'>
         <div className='relative'>
           <div className='flex absolute z-50 top-0 right-0'>
             <div className='relative flex items-end justify-between space-x-2 px-2 pt-2'>
@@ -123,10 +138,17 @@ function App() {
           styles={nodeStyles}
           shapeBorderAlpha={1}
           shapeBorderWidth={1}
-          strokeColour={[ 34, 34, 34, 255 ]}
+          strokeColour={isDarkMode ? [ 148, 163, 184, 255 ] : [ 34, 34, 34, 255]}
+          fontColour={isDarkMode ? [ 148, 163, 184, 255 ] : [ 34, 34, 34, 255]}
+          fillColour={isDarkMode ? 'rgb(148,163,184)' : '#000000'}
           showShapeBorders={true}
           padding={20}
-          scalebar={{position: {bottom: 10,left: 10}}}
+          scalebar={{
+            position: {bottom: 10,left: 10}, 
+            fillColour: isDarkMode ? [ 148, 163, 184, 255 ] : [ 34, 34, 34, 255],
+            strokeColour: isDarkMode ? [ 148, 163, 184, 255 ] : [ 34, 34, 34, 255],
+            background:  [ 148, 163, 184, 0 ],
+          }}
           {...settings}
         />
       </div>
@@ -144,37 +166,39 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <div className='flex flex-col md:h-screen'>
-        <Menu></Menu>
-        <main id="main" className='flex flex-wrap md:flex-nowrap h-full'>
-          {currentTree === ""?
-            renderTreeInput()
-          :
-            renderTree()
-          }
-          
-          {currentTree ?
-            <div className='w-full md:w-1/2'>
-              {regressionData?.baseClock ?  
-                  <div className='flex flex-col h-full'>
-                    <Regression />
-                    <InfoPanel />
-                  </div>
-                  :
-                  <div className='flex flex-col items-center md:justify-center h-full'>
-                    <div className="px-10 pt-8">
-                      <RegressionInput />
+    <Flowbite theme={{dark: isDarkMode}}>
+      <div className="App dark:bg-slate-900">
+        <div className='flex flex-col md:h-screen'>
+          <Menu></Menu>
+          <main id="main" className='flex flex-wrap md:flex-nowrap h-full'>
+            {currentTree === ""?
+              renderTreeInput()
+            :
+              renderTree()
+            }
+            
+            {currentTree ?
+              <div className='w-full md:w-1/2'>
+                {regressionData?.baseClock ?  
+                    <div className='flex flex-col h-full'>
+                      <Regression />
+                      <InfoPanel />
                     </div>
-                  </div>
-              }
-            </div>
-          :
-            <div></div>
-          }
-        </main>   
+                    :
+                    <div className='flex flex-col items-center md:justify-center h-full'>
+                      <div className="px-10 pt-8">
+                        <RegressionInput />
+                      </div>
+                    </div>
+                }
+              </div>
+            :
+              <div></div>
+            }
+          </main>   
+        </div>
       </div>
-    </div>
+    </Flowbite>
   );
 }
 

@@ -43,7 +43,7 @@ return (
           content="Local Clock Search"
           placement="top"
         >
-          <button onClick={() => setOpenModal('default')} className='flex items-center text-gray-700 hover:text-blue-700 '>
+          <button onClick={() => setOpenModal('default')} className='flex items-center text-gray-700 dark:text-gray-400 hover:text-blue-700 '>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.3" stroke="currentColor" className="w-6 h-6 font-medium">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -67,10 +67,10 @@ return (
             value='Minimum Group Size'
           /> 
           <div className = "flex items-center">
-            <div className="w-12">{minCladeSize}</div>
+            <div className="w-12 text-gray-900 dark:text-white">{minCladeSize}</div>
             <input
             id="minGrpSize"
-            className="w-1/2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+            className="w-1/2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointe"
             placeholder={minCladeSize.toString()}
             type="range"
             min={3} 
@@ -87,9 +87,9 @@ return (
             htmlFor='maxClocks'
             value='Maximum number of local clocks'
           />
-          <div className="flex items-center">
-            {/* <div className="w-12">{maxClocks}</div> */}
+          <div className="flex items-center ">
             <input
+              className="bg-gray-200"
               id="maxClocks"
               placeholder={maxClocks.toString()}
               type="number"

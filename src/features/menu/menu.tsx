@@ -1,11 +1,14 @@
 import { Modal, Navbar } from "flowbite-react";
 import React, { useEffect, useState } from "react";
-
+import { DarkThemeToggle } from 'flowbite-react';
+import { useDarkMode } from "../utils/darkmode";
+import { is } from "immer/dist/internal";
 
 export function Menu(){
   const [openModal, setOpenModal] = useState<string | undefined>();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-
+  const isDarkMode = useDarkMode();
+  
   useEffect(() => {
     const beforeInstallPromptListener = (e: Event) => {
       e.preventDefault();
@@ -41,12 +44,25 @@ export function Menu(){
   const showInstall = () =>  {
     if (deferredPrompt) {
       return (
-        <Navbar.Link className="!text-white cursor-pointer"  onClick={handleInstallClick}>
+        <Navbar.Link className="text-white cursor-pointer"  onClick={handleInstallClick}>
           Install 
         </Navbar.Link>
       )
       }
   }
+
+
+  const renderLogo = () => {
+    
+    return (
+      <img
+        src={isDarkMode ? '/logo-dark.png' : '/logo.png'}
+        className="mr-1 h-8"
+        alt="Clockor2 Logo"
+      />
+    )
+  }
+
   return (
       <div>
         <Navbar
@@ -55,12 +71,8 @@ export function Menu(){
           className="!bg-slate-700 "
         >
           <Navbar.Brand href="/">
-            <img
-              src="logo.png"
-              className="mr-1 h-8"
-              alt="Clockor2 Logo"
-            />
-            <div className="whitespace-nowrap font-semibold text-white dark:text-white">
+            {renderLogo()}
+            <div className="whitespace-nowrap font-semibold text-white dark:text-gray-400 ">
               <span className="text-2xl">
                 Clockor2
               </span>
@@ -69,22 +81,25 @@ export function Menu(){
               </span>
             </div>
           </Navbar.Brand>
+          <div className="flex flex-grow justify-end">
+            <DarkThemeToggle className="mr-4" />
+          </div>
           <Navbar.Toggle />
-          <Navbar.Collapse >
-            <Navbar.Link className="!text-white cursor-pointer"  onClick={() => setOpenModal('default')}  >
+          <Navbar.Collapse>
+            <Navbar.Link className="text-white cursor-pointer"  onClick={() => setOpenModal('default')}  >
               About
             </Navbar.Link >
-            <Navbar.Link className="!text-white"  target="_blank" href="https://clockor2.github.io/docs">
+            <Navbar.Link className="text-white"  target="_blank" href="https://clockor2.github.io/docs">
               Docs 
             </Navbar.Link>
             {showInstall()}
-            <Navbar.Link className="!text-white"  target="_blank" href="https://doi.org/10.1101/2023.07.13.548947">
+            <Navbar.Link className="text-white"  target="_blank" href="https://doi.org/10.1101/2023.07.13.548947">
               Citation
             </Navbar.Link>
-            <Navbar.Link className="!text-white"  target="_blank" href="https://github.com/clockor2/clockor2">
+            <Navbar.Link className="text-white"  target="_blank" href="https://github.com/clockor2/clockor2">
               Code
             </Navbar.Link>
-            <Navbar.Link className="!text-white"  target="_blank" href="https://github.com/clockor2/clockor2/issues/new/choose">
+            <Navbar.Link className="text-white"  target="_blank" href="https://github.com/clockor2/clockor2/issues/new/choose">
               Report Bug
             </Navbar.Link>
           </Navbar.Collapse>
@@ -100,7 +115,7 @@ export function Menu(){
               About
             </Modal.Header>
             <Modal.Body>
-              <div className="space-y-6">
+              <div className="space-y-6 dark:text-slate-400">
                 <p>
                   Clockor2 is a client-side web application for conducting root-to-tip (RTT) regression - the fastest and most widely used method to calibrate strict molecular clocks. 
                 </p>

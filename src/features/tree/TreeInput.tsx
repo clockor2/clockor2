@@ -6,11 +6,21 @@ import styles from './Tree.module.css';
 import { exampleNewick } from './exampleNewick'
 import { setRegressionInputDefaults } from '../regression/regressionSlice';
 import { ladderiseNewick } from '../engine/utils';
+import { useDarkMode } from '../utils/darkmode';
 
 function validateNewickString(text: string) {
   console.log("Skipping newick validation!");
   return text
 }
+
+const LogoComponent = () => {
+    const isDarkMode = useDarkMode();
+    const logoSrc = isDarkMode ? '/logo-with-text-dark.png' : '/logo-with-text.png';
+
+    return (
+        <img src={logoSrc} alt="clockor2 logo" />
+    );
+};
 
 export function TreeInput(props: any) {
     const dispatch = useAppDispatch();
@@ -49,7 +59,7 @@ export function TreeInput(props: any) {
             <div className=' ' >
                 <div className='flex justify-center '>
                     <div className=' max-w-xl'  >
-                        <img src='/logo-with-text.png' alt="clockor2 logo"/>
+                        <LogoComponent/>
                     </div>
                 </div>
                 <div className=' text-center'>
@@ -58,7 +68,7 @@ export function TreeInput(props: any) {
                     </p>
 
                 </div>
-                <div {...getRootProps({className: styles.dropzone + " bg-slate-100 border-zinc-500 hover:cursor-pointer hover:shadow-md mt-6 md:mx-20"})}>
+                <div {...getRootProps({className: styles.dropzone + " bg-slate-100 dark:bg-slate-700 border-zinc-500 hover:cursor-pointer hover:shadow-md mt-6 md:mx-20"})}>
                     <div className=' flex justify-center items-center space-x-12 w-full py-6'>
                         <img className=' w-20' src='/newick.png' alt=""/>
                         <div className=' flex flex-col items-center'>

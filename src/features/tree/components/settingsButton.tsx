@@ -72,16 +72,16 @@ export function SettingsButton({
               <div>
                 <label htmlFor="fontSize" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Label font size</label>
                 <div className="flex items-center">
-                  <div className="w-12">{settings.fontSize}px</div>
-                  <input id="fontSize" type="range" min={1} max={20} value={settings.fontSize} name="fontSize" onChange={handleChange} className="w-1/2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"/>
+                  <div className="w-12 text-gray-900 dark:text-white">{settings.fontSize}px</div>
+                  <input id="fontSize" type="range" min={1} max={20} value={settings.fontSize} name="fontSize" onChange={handleChange} className="w-1/2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"/>
                 </div>
               </div>
               }
               <div>
                 <label htmlFor="nodeSize" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Node size</label>
                 <div className="flex items-center">
-                  <div className="w-12">{settings.nodeSize}px</div>
-                  <input id="nodeSize" type="range" min={1} max={20} value={settings.nodeSize} name="nodeSize" onChange={handleChange} className="w-1/2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"/>
+                  <div className="w-12 text-gray-900 dark:text-white">{settings.nodeSize}px</div>
+                  <input id="nodeSize" type="range" min={1} max={20} value={settings.nodeSize} name="nodeSize" onChange={handleChange} className="w-1/2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"/>
                 </div>
               </div>
               <div id="select">

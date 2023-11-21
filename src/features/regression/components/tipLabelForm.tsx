@@ -30,7 +30,7 @@ export function TipLabelForm(props: any) {
     return (
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div>
-        <div className='text-xl'>Parse from tip labels</div>
+        <div className='text-xl dark:text-white'>Parse from tip labels</div>
         <div className='text-slate-400 text-sm pt-1'>e.g. {props.tipNames[0]}</div>
       </div>
       <div className='flex justify-between space-x-4 '>
