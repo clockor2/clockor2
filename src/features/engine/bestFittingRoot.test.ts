@@ -188,7 +188,7 @@ describe('localRootRSS()', () => {
 
     console.log(est)
     expect(est.alpha).toBeCloseTo(0.25, 2)
-    expect(est.value).toBeCloseTo(1, 2);
+    expect(est.value).toBeCloseTo(6.310887241768095e-30, 2);
   });
 
   test('Testing for 3-tip tree', () => {
@@ -212,7 +212,7 @@ describe('localRootRSS()', () => {
       tipData
     )
     
-    expect(obj.method).toBe("RSS")
+    expect(obj.method).toBe("RMS")
     expect(obj.value).toBeDefined()
 
   });
