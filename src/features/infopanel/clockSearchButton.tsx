@@ -60,7 +60,7 @@ export function ClockSearchButton(props: any) {
           </Modal.Header>
           <Modal.Body>
             {/* Warning Box for clock-search below */}
-            <Alert color="warning" rounded>
+            <Alert color="warning" rounded className="mb-4">
               <span className="font-medium"><strong>Caution!</strong></span> This feature is exploratory and highly susceptible to overfitting. Refer to the Clockor2 paper and documentation to understand its limitations.
             </Alert>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
