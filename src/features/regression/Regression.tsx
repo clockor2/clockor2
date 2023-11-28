@@ -148,12 +148,11 @@ export function Regression(props: any) {
 
       exportObj.filter(item => item.mode === "markers").forEach((item: any) => {
           const group = item.name || 'Unknown Group'; // Default group if not present
-          item.x.forEach((date: Date, index: number) => {
+          item.x.forEach((ymd: string, index: number) => {
               const rootToTipDistance = item.y[index];
               const label = item.text[index];
-              const dateString = date.toISOString();
-              const decimalDate = decimal_date(date.toISOString().split('T')[0], 'yyyy-mm-dd')
-              const row = { group, dateString, decimalDate, rootToTipDistance, label };
+              const decimalDate = decimal_date(ymd, 'yyyy-mm-dd')
+              const row = { group, ymd, decimalDate, rootToTipDistance, label };
               csvContent += convertToCsvRow(row) + "\n";
           });
       });
