@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import Plotly from "plotly.js";
 import { plotify } from '../engine/core';
+import { decimal_date } from '../engine/utils';
 import { selectCurrentData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectSelectedIds, setHighlightedId, setSelectedIds } from '../tree/treeSlice';
@@ -132,19 +133,43 @@ export function Regression(props: any) {
       'svg': '<svg xmlns="http://www.w3.org/2000/svg" fill="none" class="dark:text-slate-500 text-slate-300 dark:hover:text-slate-300 hover:text-slate-500 mt-1" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>',
     },
     click: () => {
-      downloadObjectAsJson(currentData, 'clockor2')
+      if (currentData) downloadObjectAsCsv(currentData, 'clockor2')
     }
   }
 
-  const downloadObjectAsJson = (exportObj: any, exportName: string) => {
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
-    var downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href",     dataStr);
-    downloadAnchorNode.setAttribute("download", exportName + ".json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  }
+  const downloadObjectAsCsv = (exportObj:any[], exportName: any) => {
+      // Helper function to convert an object to a CSV row string
+      const convertToCsvRow = (obj: any) => {
+          return Object.values(obj).map(value => `"${value}"`).join(',');
+      };
+
+      // Convert exportObj to CSV
+      let csvContent = "group,date,decimal-date,root-to-tip-distance,label\n"; // Adding headers
+
+      exportObj.filter(item => item.mode === "markers").forEach((item: any) => {
+          const group = item.name || 'Unknown Group'; // Default group if not present
+          item.x.forEach((date: Date, index: number) => {
+              const rootToTipDistance = item.y[index];
+              const label = item.text[index];
+              const dateString = date.toISOString();
+              const decimalDate = decimal_date(date.toISOString().split('T')[0], 'yyyy-mm-dd')
+              const row = { group, dateString, decimalDate, rootToTipDistance, label };
+              csvContent += convertToCsvRow(row) + "\n";
+          });
+      });
+
+      // Create a data URI for the CSV data
+      var dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+
+      // Trigger the download of the CSV file
+      var downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", exportName + ".csv");
+      document.body.appendChild(downloadAnchorNode); // required for Firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+  };
+
 
   return (
     <div className='h-full'>
