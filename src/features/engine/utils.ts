@@ -2,34 +2,65 @@ import { readNewick, writeNewick } from "phylojs"
 
 export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal") => {
   if (format === "yyyy-mm-dd") {
-    let date = new Date(sampDate)
-    let yr = date.getFullYear();
-    let m = date.getMonth() ?? 0;
-    let d = date.getDate() ?? 0; // default to first day of month
+    // Parse the year, month, and day from sampDate
+    let year = parseInt(sampDate.substring(0, 4));
+    let month = parseInt(sampDate.substring(5, 7)) - 1; // Month is 0-indexed
+    if (isNaN(month)) month = 0
+    let day = parseInt(sampDate.substring(8, 10));
+    if (isNaN(day)) day = 1
 
-    let decimal_date_value = (
-      yr +
-      m / 12 +
-      d / 365.25
-    )
+    // Create Date objects for the given date, the start of the year, and the start of the next year in UTC
+    let date = new Date(Date.UTC(year, month, day));
+    let startOfYear = new Date(Date.UTC(year, 0, 1));
+    let endOfYear = new Date(Date.UTC(year + 1, 0, 1));
 
+    // Calculate the total number of days in the year
+    let daysInYear = (endOfYear.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000);
+
+    // Calculate the day of the year for the given date
+    let dayOfYear = (date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000);
+
+    // Calculate the decimal date value
+    let decimal_date_value = year + (dayOfYear / daysInYear);
     return decimal_date_value;
   } else {
-    let decimal_date = parseFloat(sampDate)
-    return decimal_date
+    // If the format is 'decimal', directly parse the input string as a float
+    return parseFloat(sampDate);
   }
 };
 
-export const date_decimal = (sampDate: number): Date => {
-  var year = parseInt(sampDate.toString());
-  var reminder = sampDate - year;
-  var daysPerYear = 365.25
-  var miliseconds = reminder * daysPerYear * 24 * 60 * 60 * 1000;
-  var yearDate = new Date(year, 0, 1);
-  var outDate = new Date(yearDate.getTime() + miliseconds);
+  
 
-  return outDate;
+export const date_decimal = (decimal: number): string => {
+  let year = Math.floor(decimal);
+  const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  const daysInYear = isLeapYear ? 366 : 365;
+  let remainingDays = Math.round((decimal - year) * daysInYear);
+
+  const daysPerMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let month = 0;
+
+  // Adjust for the case where the remaining days equal the total days in a year
+  if (remainingDays === daysInYear) {
+    year += 1;
+    remainingDays = 0;
+  }
+
+  while (remainingDays >= daysPerMonth[month]) {
+    remainingDays -= daysPerMonth[month];
+    month++;
+  }
+
+  // Formatting the date
+  const formattedMonth = (month + 1).toString().padStart(2, '0');
+  const formattedDay = (remainingDays + 1).toString().padStart(2, '0');
+
+  return `${year}-${formattedMonth}-${formattedDay}`;
 };
+
+
+
+
 
 const handelNegativeIndexes = (splitTipName: Array<string>, delimiter: string, loc: number): number => {
   if (loc < 0) {
