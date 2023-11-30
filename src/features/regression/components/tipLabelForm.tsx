@@ -11,19 +11,20 @@ export function TipLabelForm(props: any) {
     const [delimiter, setDelimiter] = useState<string>(defaults.delimiter);
     const [loc, setLoc] = useState<string>(defaults.loc);
     const [group, setGroup] = useState<string>(defaults.group);
-  
-    const decimal_dates = props.tipNames.map( (name: string) => {
-      let date = extractPartOfTipName(name, delimiter, loc)
-      return decimal_date(date, format)
-    })
-  
-    let groupings: string[]
-    groupings = props.tipNames.map((name: string) => {
-      return group !== undefined ? extractPartOfTipName(name, delimiter, group) : "Background"
-    })
 
     const handleSubmit = (event: any) => {
       event.preventDefault();
+
+      const decimal_dates = props.tipNames.map( (name: string) => {
+        let date = extractPartOfTipName(name, delimiter, loc)
+        return decimal_date(date, format)
+      })
+    
+      let groupings: string[]
+      groupings = props.tipNames.map((name: string) => {
+        return group !== undefined ? extractPartOfTipName(name, delimiter, group) : "Background"
+      })
+
       props.onSubmit(decimal_dates, groupings)
     }
   
