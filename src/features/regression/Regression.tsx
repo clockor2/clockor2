@@ -27,6 +27,7 @@ function getPointNumber(id:string, data: Plotly.Data[]) {
 export function Regression(props: any) {
   const isDarkMode = useDarkMode();
   const currentData = plotify(useAppSelector(selectCurrentData), isDarkMode);
+  const plotlyDataRef = useRef(currentData);
   const selectedIds = useAppSelector(selectSelectedIds)
   const highlightedId = useAppSelector(selectHighlightedId)
   const isMounted = useRef(false);
@@ -94,7 +95,8 @@ export function Regression(props: any) {
       return { ...obj, selectedpoints: selectedpoints[index]};
     });
   }
- 
+  plotlyDataRef.current = PlotlyData; // store data for download
+  
   const layout = { 
     uirevision: 'time',
     showlegend: currentData && currentData?.length > 2 ? true : false,
@@ -133,20 +135,22 @@ export function Regression(props: any) {
       'svg': '<svg xmlns="http://www.w3.org/2000/svg" fill="none" class="dark:text-slate-500 text-slate-300 dark:hover:text-slate-300 hover:text-slate-500 mt-1" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>',
     },
     click: () => {
-      if (currentData) downloadObjectAsCsv(currentData, 'clockor2')
+      downloadObjectAsCsv('clockor2')
     }
   }
 
-  const downloadObjectAsCsv = (exportObj:any[], exportName: any) => {
+  const downloadObjectAsCsv = (exportName: any) => {
       // Helper function to convert an object to a CSV row string
       const convertToCsvRow = (obj: any) => {
           return Object.values(obj).map(value => `"${value}"`).join(',');
       };
+      // ensure data is up to date
+      let currentData = plotlyDataRef.current
+      if (!currentData) return 
 
       // Convert exportObj to CSV
       let csvContent = "group,date,decimal-date,root-to-tip-distance,label\n"; // Adding headers
-
-      exportObj.filter(item => item.mode === "markers").forEach((item: any) => {
+      currentData.filter(item => item.mode === "markers").forEach((item: any) => {
           const group = item.name || 'Unknown Group'; // Default group if not present
           item.x.forEach((ymd: string, index: number) => {
               const rootToTipDistance = item.y[index];
