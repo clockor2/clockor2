@@ -60,7 +60,7 @@ export function InfoPanel() {
     return (
       <div>
         <div className="flex flex-wrap ml-2 my-4 align-middle items-center">
-          <div className="w-48 text-3xl font-bold dark:text-slate-400">
+          <div className="w-48 text-3xl font-bold dark:text-slate-300">
             {global ? "Global" : "Local"} Clock
           </div>
           <div className="flex flex-wrap pt-4">

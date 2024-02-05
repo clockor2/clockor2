@@ -132,7 +132,7 @@ export function CSVInput(props: any) {
                       <div className=' flex justify-center items-center space-x-12 w-full py-2'>
                         <img className=' w-20' src='images/csv.png' alt=""/>
                           <div className=' flex flex-col items-center'>
-                                  <p className='text-2xl text-center'>Drag & drop</p>
+                                  <p className='text-2xl text-center dark:text-slate-300'>Drag & drop</p>
                                   or
                                   <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2">
                                       Select file
