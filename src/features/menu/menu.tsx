@@ -93,7 +93,7 @@ export function Menu(){
               Docs 
             </Navbar.Link >
             {showInstall()}
-            <Navbar.Link className="text-white dark:text-slate-300"  target="_blank" href="https://doi.org/10.1101/2023.07.13.548947">
+            <Navbar.Link className="text-white dark:text-slate-300"  target="_blank" href="https://doi.org/10.1093/sysbio/syae003">
               Citation
             </Navbar.Link>
             <Navbar.Link className="text-white dark:text-slate-300"  target="_blank" href="https://github.com/clockor2/clockor2">
