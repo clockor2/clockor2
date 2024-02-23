@@ -21,6 +21,7 @@ export interface InfoMetric {
 export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | null {
   const plot = [] as any[];
   if (lcm != null) {
+    const plotType = lcm.baseClock.tip.length > 5000 ? "scattergl" : "scatter";
     // generate colour scale. Use viridis-ish default
     const cols = lcm.localClock !== undefined
       ?
@@ -38,7 +39,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
       name: "Global",
       legendgroup: "Global",
       showlegend: false,
-      type: "scattergl"
+      type: plotType
     }
     plot.push(point);
 
@@ -55,7 +56,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
         `R2: ${lcm.baseClock.r2.toFixed(2)}, RMS: ${numToScientific(lcm.baseClock.rms, 2)}`,
 
       legendgroup: "Global",
-      type: "scattergl"
+      type: plotType
     }
     plot.push(line);
 
@@ -78,7 +79,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
           legendgroup: legendGroup,
           name: lcm.groupNames[i+1],
           showlegend: false,
-          type: "scattergl"
+          type: plotType
         }
         plot.push(point1);
 
@@ -90,7 +91,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
           mode: "lines",
           legendgroup: legendGroup,
           name: lcm.groupNames[i+1],
-          type: "scattergl"
+          type: plotType
         }
         plot.push(line1);
       }
