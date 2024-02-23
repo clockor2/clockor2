@@ -7,6 +7,7 @@ import { selectSource, setBestFittingRoot, setCurrentTree, selectTipData, select
 import { globalRootParallel } from "../engine/bestFittingRoot";
 import { regression } from "../engine/core";
 import { readNewick } from "phylojs";
+import { addNotification } from "../notifications/notificationsSlice";
 
 export function BFRButton() {
 
@@ -108,6 +109,12 @@ export function BFRButton() {
           
           bfrCalculated.current[bfrMethod] = true
           invertBestFittingRoot(!useBestFittingRoot);
+          setCalculating(false)
+        }).catch((error) => {          
+          dispatch(addNotification(
+            {title: "Error", message: "Failed to calculate best fitting root", type: "error"}
+            )
+          )
           setCalculating(false)
         }
       )

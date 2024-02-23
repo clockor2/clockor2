@@ -14,6 +14,7 @@ import { DownloadButton } from './features/tree/components/downloadButton';
 import { LocalClockModel } from './features/engine/core';
 import { useDarkMode } from './features/utils/darkmode';
 import { Flowbite } from 'flowbite-react';
+import { Notifications } from './features/notifications/Notifications';
 
 const chroma = require("chroma-js")
 
@@ -167,6 +168,7 @@ function App() {
 
   return (
     <Flowbite theme={{dark: isDarkMode}}>
+      <Notifications />
       <div className="App dark:bg-slate-900">
         <div className='flex flex-col md:h-screen'>
           <Menu></Menu>

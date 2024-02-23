@@ -5,6 +5,7 @@ import { setData } from './regressionSlice';
 import { TipLabelForm } from './components/tipLabelForm';
 import { CSVInput } from './components/csvUploadForm';
 import { readNewick } from 'phylojs'
+import { addNotification } from '../notifications/notificationsSlice';
 
 export function RegressionInput(props: any) {
   const dispatch = useAppDispatch();
@@ -13,6 +14,22 @@ export function RegressionInput(props: any) {
   const tipNames = inputTree.getTipLabels()
 
   const handleSubmit =  (decimal_dates: number[], groupings: string[]) => {
+    // assert all decimal dates are numbers
+    if (decimal_dates.some(isNaN)) {
+      // find index all the NaNs and print the corresponding tip names
+      let nanIndices = decimal_dates.map((e, i) => isNaN(e) ? i : -1).filter(e => e !== -1)
+      let nanTipNames = nanIndices.map(e => tipNames[e])
+      console.log(nanTipNames)
+      // join the tip names into a string
+      // if the string is too long, truncate it
+      if (nanTipNames.length > 100) {
+        nanTipNames = nanTipNames.slice(0, 4)
+        nanTipNames.push(`... (${nanTipNames.length} more)`)
+      } 
+      let nanTipNamesStr = nanTipNames.join(", ")
+      dispatch(addNotification({title: "Some tips could not be parsed", message: `${nanTipNamesStr}`, type: "error"}))
+      throw new Error('All dates must be numbers')
+    }
     const tipHeights = inputTree.getRTTDist()
 
     const regression_data = regression(

@@ -7,6 +7,7 @@ import { exampleNewick } from './exampleNewick'
 import { setRegressionInputDefaults } from '../regression/regressionSlice';
 import { ladderiseNewick } from '../engine/utils';
 import { useDarkMode } from '../utils/darkmode';
+import { addNotification } from '../notifications/notificationsSlice';
 
 function validateNewickString(text: string) {
   console.log("Skipping newick validation!");
@@ -45,8 +46,12 @@ export function TreeInput(props: any) {
         reader.onload = async (e:ProgressEvent) => { 
             const text = (e.target as FileReader).result
             if (typeof(text) === 'string') {
-                const newick = validateNewickString(text)
-                dispatch(setSource(ladderiseNewick(newick)))
+                try {
+                    const newick = validateNewickString(text)
+                    dispatch(setSource(ladderiseNewick(newick)))
+                } catch (error) {
+                    dispatch(addNotification({title: "Error", message: "Invalid newick file", type: "error"}))
+                }
             }
         };
         if (acceptedFiles.length === 1) {
