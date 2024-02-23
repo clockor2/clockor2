@@ -19,9 +19,9 @@ export interface InfoMetric {
 // function to make plottable points
 // method for plotly plotting
 export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | null {
+  const plotType = "scattergl";
   const plot = [] as any[];
   if (lcm != null) {
-    const plotType = lcm.baseClock.tip.length > 3000 ? "scattergl" : "scatter";
     // generate colour scale. Use viridis-ish default
     const cols = lcm.localClock !== undefined
       ?

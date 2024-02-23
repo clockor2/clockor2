@@ -35,7 +35,7 @@ export function ClockSearchButton(props: any) {
     dispatch(setMode("clockSearch"))
     setIsSearching(false)
     setOpenModal(undefined)
-    dispatch(addNotification({ title: "Warning", message: "Please interpret the results of the Clock Search with caution.", type: "warning" }))
+    dispatch(addNotification({ title: "Warning", message: "Please interpret the results of the Clock Search with caution", type: "warning" }))
 
   }
 
