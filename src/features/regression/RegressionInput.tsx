@@ -24,8 +24,9 @@ export function RegressionInput(props: any) {
       // if the string is too long, truncate it
       const limit = 4
       if (nanTipNames.length > limit) {
+        const length = nanTipNames.length
         nanTipNames = nanTipNames.slice(0, limit)
-        nanTipNames.push(`... (${nanTipNames.length} more)`)
+        nanTipNames.push(`... (${length - limit} more)`)
       } 
       let nanTipNamesStr = nanTipNames.join(", ")
       dispatch(addNotification({title: "Some tips could not be parsed", message: `${nanTipNamesStr}`, type: "error"}))
