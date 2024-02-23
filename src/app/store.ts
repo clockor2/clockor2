@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import treeReducer from '../features/tree/treeSlice';
 import regressionReducer from '../features/regression/regressionSlice';
+import notificationsReducer from '../features/notifications/notificationsSlice';
 
 export const store = configureStore({
   reducer: {
     tree: treeReducer,
     regression: regressionReducer,
+    notifications: notificationsReducer,
   },
 });
 
