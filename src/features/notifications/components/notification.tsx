@@ -26,15 +26,15 @@ export function NotificationToast(notification: Notification) {
   let color;
   switch (notification.type) {
     case "error":
-      icon = <HiFire className="h-5 w-5" />;
+      icon = <HiFire className="h-8 w-8" />;
       color = "red";
       break;
     case "warning":
-      icon = <HiExclamationCircle className="h-5 w-5" />;
+      icon = <HiExclamationCircle className="h-8 w-8" />;
       color = "yellow";
       break;
     case "info":
-      icon = <HiInformationCircle className="h-5 w-5" />;
+      icon = <HiInformationCircle className="h-8 w-8" />;
       color = "cyan";
       break;
     default:
@@ -43,12 +43,12 @@ export function NotificationToast(notification: Notification) {
   }
   return (
     <Toast className=" max-w-sm" >
-      <div className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-${color}-100 text-${color}-500 dark:bg-${color}-800 dark:text-${color}-200`}>
+      <div className={`inline-flex shrink-0 items-center justify-center rounded-lg text-${color}-500 dark:bg-${color}-800 dark:text-${color}-200`}>
         {icon}
       </div>
       <div className="p-1">
-        <div className="ml-3 text-sm font-medium">{notification.title}</div>
-        <div className="ml-3 text-xs font-normal">{notification.message}</div>
+        <div className="mx-2 text-sm font-medium">{notification.title}</div>
+        <div className="mx-2 text-xs font-normal">{notification.message}</div>
       </div>
       <Toast.Toggle onClick={handleRemove}  />
     </Toast>

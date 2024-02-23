@@ -22,8 +22,9 @@ export function RegressionInput(props: any) {
       console.log(nanTipNames)
       // join the tip names into a string
       // if the string is too long, truncate it
-      if (nanTipNames.length > 100) {
-        nanTipNames = nanTipNames.slice(0, 4)
+      const limit = 4
+      if (nanTipNames.length > limit) {
+        nanTipNames = nanTipNames.slice(0, limit)
         nanTipNames.push(`... (${nanTipNames.length} more)`)
       } 
       let nanTipNamesStr = nanTipNames.join(", ")
