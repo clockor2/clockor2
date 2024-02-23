@@ -42,13 +42,13 @@ export function NotificationToast(notification: Notification) {
       color = "cyan";
   }
   return (
-    <Toast >
+    <Toast className=" max-w-sm" >
       <div className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-${color}-100 text-${color}-500 dark:bg-${color}-800 dark:text-${color}-200`}>
         {icon}
       </div>
-      <div>
+      <div className="p-1">
         <div className="ml-3 text-sm font-medium">{notification.title}</div>
-        <div className="ml-3 text-xs font-normal break-all">{notification.message}</div>
+        <div className="ml-3 text-xs font-normal">{notification.message}</div>
       </div>
       <Toast.Toggle onClick={handleRemove}  />
     </Toast>

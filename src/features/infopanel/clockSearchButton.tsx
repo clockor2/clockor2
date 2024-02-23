@@ -4,6 +4,7 @@ import { selectCurrentTree } from "../tree/treeSlice";
 import React, { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import { createClockSearchWorker } from "../engine/clockSearch";
+import { addNotification } from "../notifications/notificationsSlice";
 
 export function ClockSearchButton(props: any) {
   var nTips = useAppSelector(selectCurrentData)?.baseClock.x.length ?? 0;
@@ -34,6 +35,7 @@ export function ClockSearchButton(props: any) {
     dispatch(setMode("clockSearch"))
     setIsSearching(false)
     setOpenModal(undefined)
+    dispatch(addNotification({ title: "Warning", message: "Please interpret the results of the Clock Search with caution.", type: "warning" }))
 
   }
 

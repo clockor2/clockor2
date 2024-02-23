@@ -23,11 +23,11 @@ export function RegressionInput(props: any) {
       // join the tip names into a string
       // if the string is too long, truncate it
       if (nanTipNames.length > 100) {
-        nanTipNames = nanTipNames.slice(0, 5)
+        nanTipNames = nanTipNames.slice(0, 4)
         nanTipNames.push(`... (${nanTipNames.length} more)`)
       } 
       let nanTipNamesStr = nanTipNames.join(", ")
-      dispatch(addNotification({message: `Some tip could not be parsed: ${nanTipNamesStr}`, type: "error"}))
+      dispatch(addNotification({title: "Some tips could not be parsed", message: `${nanTipNamesStr}`, type: "error"}))
       throw new Error('All dates must be numbers')
     }
     const tipHeights = inputTree.getRTTDist()

@@ -50,7 +50,7 @@ export function TreeInput(props: any) {
                     const newick = validateNewickString(text)
                     dispatch(setSource(ladderiseNewick(newick)))
                 } catch (error) {
-                    dispatch(addNotification({message: "Invalid newick file", type: "error"}))
+                    dispatch(addNotification({title: "Error", message: "Invalid newick file", type: "error"}))
                 }
             }
         };
