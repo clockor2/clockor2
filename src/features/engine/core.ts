@@ -21,7 +21,7 @@ export interface InfoMetric {
 export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | null {
   const plot = [] as any[];
   if (lcm != null) {
-    const plotType = lcm.baseClock.tip.length > 5000 ? "scattergl" : "scatter";
+    const plotType = lcm.baseClock.tip.length > 3000 ? "scattergl" : "scatter";
     // generate colour scale. Use viridis-ish default
     const cols = lcm.localClock !== undefined
       ?
@@ -74,7 +74,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
           x: lcm.localClock[i].x.map(e => date_decimal(e)),
           y: lcm.localClock[i].y,
           text: lcm.localClock[i].tip,
-          marker: {color: cols[i], line: {width: 1, color: isDarkMode ? 'rgb(148,163,184)' : 'DarkSlateGrey'}},
+          marker: {color: cols[i], line: {width: 1, color: isDarkMode ? '#94a3b8' : 'black'}},
           mode: "markers",
           legendgroup: legendGroup,
           name: lcm.groupNames[i+1],
