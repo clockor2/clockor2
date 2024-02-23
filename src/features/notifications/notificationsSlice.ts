@@ -5,6 +5,7 @@ type NotificationType = "info" | "warning" | "error";
 
 export interface Notification {
   id: string;
+  title: string;
   message: string;
   type: NotificationType
   read: boolean;
@@ -27,7 +28,7 @@ export const notificationsSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     // Use the PayloadAction type to declare the contents of `action.payload`
-    addNotification: (state, action: PayloadAction<{message: string, type: NotificationType}>) => {
+    addNotification: (state, action: PayloadAction<{title: string, message: string, type: NotificationType}>) => {
       const id = state.notifications.length.toString();
       const notification = {...action.payload, read: false, date: new Date().toISOString(), id};
       state.notifications.push(notification);
