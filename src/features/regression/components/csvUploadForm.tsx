@@ -3,7 +3,7 @@ import { useAppDispatch } from '../../../app/hooks';
 import { decimal_date } from '../../engine/utils';
 import {useDropzone} from 'react-dropzone';
 import styles from '../Regression.module.css';
-import { Select, Table, Tooltip } from 'flowbite-react';
+import { Label, Select, Table, Tooltip } from 'flowbite-react';
 import { HiX } from 'react-icons/hi';
 
 function parseCSV(csvData: string, delimiter: string = ','): string[][] {
@@ -74,7 +74,6 @@ type RowObject = {
 };
 
 export function CSVInput(props: any) {
-    const dispatch = useAppDispatch();
     const [csvData, setCSVData] = useState<string[][]>([]);
     const [tableData, setTableData] = useState<RowObject[]|null>(null);
     const [format, setFormat] = useState<"yyyy-mm-dd" | "decimal">("yyyy-mm-dd");
@@ -197,7 +196,10 @@ export function CSVInput(props: any) {
               <Tooltip
                 content="Use YYYY-MM-DD for YYYY-MM and YYYY"
                 trigger="hover">
-                <div className='text-sm font-medium whitespace-nowrap'>Date format</div>
+                <Label
+                    htmlFor='format'
+                    value='Date format'
+                  />
               </Tooltip>
               
               <Select

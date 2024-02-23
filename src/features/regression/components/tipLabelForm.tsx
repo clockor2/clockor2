@@ -38,7 +38,7 @@ export function TipLabelForm(props: any) {
         <div className='flex-auto w-64'>
   
          <Tooltip
-            content="Use YYYY-MM-DD for YYYY-MM"
+            content="Use YYYY-MM-DD for YYYY-MM and YYYY"
             trigger="hover">
             <Label
               htmlFor='format'
