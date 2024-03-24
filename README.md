@@ -8,7 +8,7 @@ Clockor2 is open-source and licensed under the [GNU General Public License v3.0]
 
 ## Citation
 
-> Featherstone, L. A., Rambaut, A., Duchene, S., & Wirth, W. (2023). Inferring global and local strict molecular clocks using root-to-tip regression. bioRxiv. https://doi.org/10.1101/2023.07.13.548947
+> Leo A Featherstone, Andrew Rambaut, Sebastian Duchene, Wytamma Wirth, Clockor2: Inferring global and local strict molecular clocks using root-to-tip regression, Systematic Biology, 2024;, syae003, https://doi.org/10.1093/sysbio/syae003
 
 ## Development
 
