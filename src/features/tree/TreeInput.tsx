@@ -42,6 +42,55 @@ export function TreeInput(props: any) {
     }
 
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Check if newick is in the URL and load it
+                const urlParams = new URLSearchParams(window.location.search);
+                const newickUrl = urlParams.get('newick');
+    
+                if (newickUrl) {
+                    console.log("Newick URL: ", newickUrl);
+    
+                    const response = await fetch(newickUrl);
+                    const newick = await response.text();
+    
+                    if (newick) {
+                        const validNewick = validateNewickString(newick);
+                        dispatch(setSource(ladderiseNewick(validNewick)));
+                    }
+                }
+    
+                // Check if there are date parameters in the URL and load them
+                const format = urlParams.get('format');
+                const delimiter = urlParams.get('delimiter');
+                const loc = urlParams.get('loc');
+                const group = urlParams.get('group') || "";
+    
+                // Only format, delimiter, loc are required
+                if (format && delimiter && loc) {
+                    // Assert format is "yyyy-mm-dd" or "decimal"
+                    if (format === "yyyy-mm-dd" || format === "decimal") {
+                        dispatch(setRegressionInputDefaults({
+                            format: format,
+                            delimiter: delimiter,
+                            loc: loc,
+                            group: group
+                        }));
+
+                    }
+
+                }
+            } catch (error) {
+                dispatch(addNotification({title: "Error", message: "Error fetching or processing Newick data", type: "error"}))
+            }
+        };
+    
+        fetchData();
+    }, [dispatch]);
+    
+
+
+    useEffect(() => {
         const reader = new FileReader()
         reader.onload = async (e:ProgressEvent) => { 
             const text = (e.target as FileReader).result
