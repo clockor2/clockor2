@@ -35,7 +35,7 @@ const initialState: RegressionState = {
     format: "yyyy-mm-dd",
     delimiter: "",
     loc: "",
-    group: "number"
+    group: ""
   }
 };
 
