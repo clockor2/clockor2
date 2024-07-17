@@ -9,7 +9,7 @@ export function Notifications() {
         <div className="absolute z-50 bottom-0 right-0 m-5">
             {notifications.map((notification: Notification) => {
                 return (
-                    <div className=" mt-2">
+                    <div key={notification.id} className=" mt-2">
                         <NotificationToast key={notification.id} {...notification} />
                     </div>
                 )
