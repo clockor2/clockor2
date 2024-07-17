@@ -1,6 +1,6 @@
 import { HiFire, HiExclamationCircle, HiInformationCircle } from "react-icons/hi";
 import { Toast } from "flowbite-react";
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { useAppDispatch } from "../../../app/hooks";
 import { Notification, removeNotification } from "../notificationsSlice";
 import { useEffect } from "react";
 
@@ -46,7 +46,7 @@ export function NotificationToast(notification: Notification) {
       <div className={`inline-flex shrink-0 items-center justify-center rounded-lg text-${color}-500 dark:bg-${color}-800 dark:text-${color}-200`}>
         {icon}
       </div>
-      <div className="p-1">
+      <div className="p-1 overflow-hidden">
         <div className="mx-2 text-sm font-medium">{notification.title}</div>
         <div className="mx-2 text-xs font-normal">{notification.message}</div>
       </div>
