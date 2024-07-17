@@ -5,6 +5,7 @@ import {useDropzone} from 'react-dropzone';
 import styles from '../Regression.module.css';
 import { Label, Select, Table, Tooltip } from 'flowbite-react';
 import { HiX } from 'react-icons/hi';
+import { addNotification } from '../../notifications/notificationsSlice';
 
 function parseCSV(csvData: string, delimiter: string = ','): string[][] {
   let parsedCSV = csvData.trim().split('\n').map((line) => line.split(delimiter).map((cell) => cell.trim()));
@@ -37,6 +38,40 @@ function sortRowsByList(parsedData: string[][], sortBy: string, orderList: strin
   return [headers, ...sortedData];
 }
 
+
+const validateTips = (tipNames: string[], sortedData: string[][], dispatch: ReturnType<typeof useAppDispatch>) => {
+  const notification_line_limit = 5;
+  // Validate missing tips
+  const errors = tipNames.filter((tip) => !sortedData.map((row) => row[0]).includes(tip));
+  if (errors.length > 0) {
+    let message = errors.slice(0, notification_line_limit).join('\n');
+    if (errors.length > notification_line_limit) {
+      message = message.concat(`... and ${errors.length - notification_line_limit} more`);
+    }
+    dispatch(addNotification({ title: "Some tips are missing from the CSV file", message: `${message}`, type: "error" }));
+    throw new Error('Some tips are missing from the CSV file');
+  }
+
+  // Validate additional tips
+  const additionalTips = sortedData.map((row) => row[0]).filter((tip) => !tipNames.includes(tip));
+  if (additionalTips.length > 0) {
+    let message = additionalTips.slice(0, notification_line_limit).join('\n');
+    if (additionalTips.length > notification_line_limit) {
+      message = message.concat(`... and ${additionalTips.length - notification_line_limit} more`);
+    }
+    dispatch(addNotification({ title: "There are additional tips in the CSV file", message: `${message}`, type: "warning" }));
+  }
+
+  // Validate duplicate tips
+  const duplicates = sortedData.map((row) => row[0]).filter((tip, index, self) => self.indexOf(tip) !== index);
+  if (duplicates.length > 0) {
+    let message = duplicates.slice(0, notification_line_limit).join('\n');
+    if (duplicates.length > notification_line_limit) {
+      message = message.concat(`... and ${duplicates.length - notification_line_limit} more`);
+    }
+    dispatch(addNotification({ title: "There are duplicate tips in the CSV file", message: `${message}`, type: "warning" }));
+  }
+};
 
 function processCSVData(parsedData: string[][]): RowObject[] {
   const headers = parsedData[0];
@@ -77,12 +112,14 @@ export function CSVInput(props: any) {
     const [csvData, setCSVData] = useState<string[][]>([]);
     const [tableData, setTableData] = useState<RowObject[]|null>(null);
     const [format, setFormat] = useState<"yyyy-mm-dd" | "decimal">("yyyy-mm-dd");
+    const dispatch = useAppDispatch();
+
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone(
         {
           multiple: false,
         }
     );
-    const tipNames  = props.tipNames
+    const tipNames: string[]  = props.tipNames
 
     useEffect(() => {
         const reader = new FileReader()
@@ -93,6 +130,8 @@ export function CSVInput(props: any) {
           if (typeof(data) === 'string') {
             const parsedData = parseCSV(data, delimiter);
             const sortedData = sortRowsByList(parsedData, 'tip', tipNames);
+            // check for missing tips, additional tips, and duplicate tips
+            validateTips(tipNames, sortedData, dispatch);
             const tableData = processCSVData(sortedData)
             // // TODO check that all the tips are in the csv
             setCSVData(sortedData)
@@ -106,7 +145,7 @@ export function CSVInput(props: any) {
             }
             reader.readAsText(acceptedFiles[0])
         }
-    }, [acceptedFiles, tipNames])
+    }, [acceptedFiles, tipNames, dispatch])
 
     const handleSubmit = () => {
 
