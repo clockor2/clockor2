@@ -213,7 +213,7 @@ export function CSVInput(props: any) {
                     </Table.Cell>
                   </Table.Row>
                 :
-                  <div></div>
+                  <></>
                 }
               </Table.Body>
             </Table>
