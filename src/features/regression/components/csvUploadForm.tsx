@@ -51,7 +51,16 @@ const validateTips = (tipNames: string[], sortedData: string[][], dispatch: Retu
     dispatch(addNotification({ title: "Some tips are missing from the CSV file", message: `${message}`, type: "error" }));
     throw new Error('Some tips are missing from the CSV file');
   }
-
+  // Validate duplicate tips
+  const duplicates = sortedData.map((row) => row[0]).filter((tip, index, self) => self.indexOf(tip) !== index);
+  if (duplicates.length > 0) {
+    let message = duplicates.slice(0, notification_line_limit).join('\n');
+    if (duplicates.length > notification_line_limit) {
+      message = message.concat(`... and ${duplicates.length - notification_line_limit} more`);
+    }
+    dispatch(addNotification({ title: "There are duplicate tips in the CSV file", message: `${message}`, type: "error" }));
+    throw new Error('There are duplicate tips in the CSV file');
+  }
   // Validate additional tips
   const additionalTips = sortedData.map((row) => row[0]).filter((tip) => !tipNames.includes(tip));
   if (additionalTips.length > 0) {
@@ -60,16 +69,6 @@ const validateTips = (tipNames: string[], sortedData: string[][], dispatch: Retu
       message = message.concat(`... and ${additionalTips.length - notification_line_limit} more`);
     }
     dispatch(addNotification({ title: "There are additional tips in the CSV file", message: `${message}`, type: "warning" }));
-  }
-
-  // Validate duplicate tips
-  const duplicates = sortedData.map((row) => row[0]).filter((tip, index, self) => self.indexOf(tip) !== index);
-  if (duplicates.length > 0) {
-    let message = duplicates.slice(0, notification_line_limit).join('\n');
-    if (duplicates.length > notification_line_limit) {
-      message = message.concat(`... and ${duplicates.length - notification_line_limit} more`);
-    }
-    dispatch(addNotification({ title: "There are duplicate tips in the CSV file", message: `${message}`, type: "warning" }));
   }
 };
 
