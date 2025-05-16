@@ -28,12 +28,12 @@ describe('MOCK globalRootParallel()', () => {
     )
     let tipData = Object.fromEntries(tipDataArr)
 
-    var nodes = tree.getNodeList()
+    var nodes = tree.nodeList
     var primes: any[] = [];
 
     for (let n of nodes) {
       tr = readNewick(nwk)
-      if (n.id !== 0) tr.reroot(n)
+      if (!n.isRoot) tr.reroot(n)
       var tipNames = tr.getTipLabels()
       var decimal_dates = tipNames.map((name: string) => {
         let date = extractPartOfTipName(name, "_", "-1")
@@ -42,7 +42,6 @@ describe('MOCK globalRootParallel()', () => {
 
       primes.push(localRootR2(tr, tipData))
     }
-
 
     expect(Math.max(...primes.map(e => e.value))).toBeCloseTo(0.173, 4)
 
@@ -146,12 +145,12 @@ describe('localRootR2()', () => {
       )
       let tipData = Object.fromEntries(tipDataArr)
   
-      var nodes = tree.getNodeList()
+      var nodes = tree.nodeList
       var primes: any[] = [];
   
       for (let n of nodes) {
         tr = readNewick(nwk)
-        if (n.id !== 0) tr.reroot(n)
+        if (!n.isRoot) tr.reroot(n)
         var tipNames = tr.getTipLabels()
         var decimal_dates = tipNames.map((name: string) => {
           let date = extractPartOfTipName(name, "_", "-1")
@@ -239,12 +238,12 @@ describe('localRootRSS()', () => {
     )
     let tipData = Object.fromEntries(tipDataArr)
 
-    var nodes = tree.getNodeList()
+    var nodes = tree.nodeList
     var primes: any[] = [];
 
     for (let n of nodes) {
       tr = readNewick(nwk)
-      if (n.id !== 0) tr.reroot(n)
+      if (!n.isRoot) tr.reroot(n)
       var tipNames = tr.getTipLabels()
       var decimal_dates = tipNames.map((name: string) => {
         let date = extractPartOfTipName(name, "_", "-1")
@@ -300,7 +299,7 @@ describe('bfrProp()', () => {
     })
     var y: number[] = tree.getRTTDist();
   
-    var leftBranchTips: string[] = tree.getSubtree(tree.root.children[0]).getTipLabels();
+    var leftBranchTips: string[] = tree.getClade(tree.root.children[0]).getTipLabels();
     var c: number[] = [];
     for (let i = 0; i < tipNames.length; i++) {
       leftBranchTips.includes(tipNames[i]) ? c.push(0) : c.push(1);

@@ -46,7 +46,7 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
   var t0 = new Date().getTime();
 
   const tree: Tree = readNewick(nwk);
-  var nodes = tree.getNodeList();
+  var nodes = tree.nodeList;
   var nodeNums = nodes.map((e: any, i: number) => i).slice(1);
 
   var nodeNumsChunked =
@@ -112,7 +112,7 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
 export function rerootAndScale(bestTree: Tree, best: any): void {
 
   if (best.nodeIndx !== 0) {
-    bestTree.reroot(bestTree.getNodeList()[best.nodeIndx]);
+    bestTree.reroot(bestTree.nodeList[best.nodeIndx]);
   }
 
   let bl = bestTree.root.children.map(
@@ -147,7 +147,7 @@ export function localRootR2(tree: Tree, tipData: any) {
   var tipHeights: number[] = tree.getRTTDist();
   var dates = tipNames.map(e => tipData[e].date)
 
-  var desc0: string[] = tree.getSubtree(tree.root.children[0]).getTipLabels();
+  var desc0: string[] = tree.getClade(tree.root.children[0]).getTipLabels();
 
   var indicator: number[] = [];
   for (let i = 0; i < tipNames.length; i++) {
@@ -233,7 +233,7 @@ export function localRootRMS(tree: Tree, tipData: any) {
   var tipHeights: number[] = tree.getRTTDist();
   var t = tipNames.map(e => tipData[e].date)
 
-  var leftBranchTips: string[] = tree.getSubtree(tree.root.children[0]).getTipLabels();
+  var leftBranchTips: string[] = tree.getClade(tree.root.children[0]).getTipLabels();
   var c: number[] = [];
   for (let i = 0; i < tipNames.length; i++) {
     leftBranchTips.includes(tipNames[i]) ? c.push(0) : c.push(1);

@@ -12,7 +12,7 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
 
   // first node case
   treePrime = readNewick(nwk);
-  const nodes = treePrime.getNodeList();
+  const nodes = treePrime.nodeList;
 
   treePrime.reroot(nodes[nodeNums[0]]);
 
