@@ -14,7 +14,7 @@ describe('counter reducer', () => {
       format: "yyyy-mm-dd",
       delimiter: "",
       loc: "",
-      group: "number"
+      group: ""
     }
   };
   it('should handle initial state', () => {
