@@ -29,7 +29,7 @@
     "flowbite": "^1.7.0",
     "flowbite-react": "^0.4.11",
     "minimize-golden-section-1d": "^3.0.0",
-    "phylojs": "^1.4.0",
+    "phylojs": "^1.11.0",
     "plotly.js": "^2.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
