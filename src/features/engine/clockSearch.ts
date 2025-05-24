@@ -1,5 +1,5 @@
 import { regression } from "./rttRegression"
-import { LocalClockModel } from "./types";
+import { Model } from "./types";
 import { Tree, readNewick } from "phylojs";
 
 /**
@@ -18,7 +18,7 @@ export function createClockSearchWorker(
   maxClocks: number,
   dates: number[], 
   icMetric: "aic" | "aicc" | "bic"
-  ): Promise<LocalClockModel> {
+  ): Promise<Model> {
   return new Promise(function (resolve, reject) {
     const worker = new Worker(new URL("./clockSearchWorker.ts", import.meta.url));
     worker.postMessage({
@@ -73,7 +73,7 @@ export const clockSearch = (
         e)
     )
     
-    var fits: LocalClockModel[] = [];
+    var fits: Model[] = [];
     for (let i = 0; i < allGroups.length; i++){
         fits.push(
             regression(

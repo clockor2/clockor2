@@ -1,9 +1,9 @@
 import { Table } from "flowbite-react";
-import { LocalClockModel } from "../../engine/types";
+import { Model } from "../../engine/types";
 import { numToScientific } from "../../engine/utils";
 
 interface Props {
-    model: LocalClockModel| undefined;
+    model: Model| undefined;
     clock: "global" | "local";
 }
 

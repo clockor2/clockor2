@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-import { LocalClockModel } from '../engine/types';
+import { Model } from '../engine/types';
 
 interface RegressionInputDefaults {
   format: "yyyy-mm-dd" | "decimal"
@@ -10,15 +10,15 @@ interface RegressionInputDefaults {
 }
 
 interface BFRData {
-  R2: LocalClockModel | null,
-  RMS : LocalClockModel | null
+  R2: Model | null,
+  RMS : Model | null
 }
 
 export interface RegressionState {
-  data: LocalClockModel | null;
+  data: Model | null;
   bestFittingRootData: BFRData;
-  currentData: LocalClockModel | null;
-  clockSearchData: LocalClockModel | null;
+  currentData: Model | null;
+  clockSearchData: Model | null;
   mode: null | "userSelected" | "clockSearch";
   usingBFR: boolean;
   regressionInputDefaults: RegressionInputDefaults
@@ -45,17 +45,17 @@ export const regressionSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     // Use the PayloadAction type to declare the contents of `action.payload`
-    setData: (state, action: PayloadAction<LocalClockModel>) => {
+    setData: (state, action: PayloadAction<Model>) => {
       state.data = action.payload;
       state.currentData = state.data;
     },
-    setCurrentData: (state, action: PayloadAction<LocalClockModel>) => {
+    setCurrentData: (state, action: PayloadAction<Model>) => {
       state.currentData = action.payload;
     },
     setBestFittingRootData: (state, action: PayloadAction<BFRData>) => {
       state.bestFittingRootData = action.payload;
     },
-    setClockSearchData: (state, action: PayloadAction<LocalClockModel>) => {
+    setClockSearchData: (state, action: PayloadAction<Model>) => {
       state.clockSearchData = action.payload;
     },
     setMode: (state, action: PayloadAction<null | "userSelected" | "clockSearch">) => {

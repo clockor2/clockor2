@@ -1,13 +1,13 @@
 // class to contain local clock model, incl. data points and information criteria
-export interface LocalClockModel {
+export interface Model {
   baseClock: Regression;
   localClock: Regression[];
-  baseIC: InfoMetric;
-  localIC: InfoMetric;
+  baseIC: InfoCriteria;
+  localIC: InfoCriteria;
   groupNames: string[];
 }
 // interface for info metric data
-export interface InfoMetric {
+export interface InfoCriteria {
   aic: number;
   aicc: number;
   bic: number;

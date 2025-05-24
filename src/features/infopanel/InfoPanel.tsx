@@ -9,7 +9,7 @@ import { BFRButton } from "./bfrButton";
 import { selectSelectedIds } from "../tree/treeSlice";
 import { AddClockButton } from "./addClockButton"
 import { ResetDataButton } from "./resetButton";
-import { InfoMetric } from "../engine/types";
+import { InfoCriteria } from "../engine/types";
 import { PanelToggleButton } from "./components/panelToggleButton";
 import { useDarkMode } from "../utils/darkmode";
 
@@ -56,7 +56,7 @@ export function InfoPanel() {
     )
   }, [data])
 
-  const renderRegressionInfo = (criteria: InfoMetric, global: boolean) => {
+  const renderRegressionInfo = (criteria: InfoCriteria, global: boolean) => {
     return (
       <div>
         <div className="flex flex-wrap ml-2 my-4 align-middle items-center">
