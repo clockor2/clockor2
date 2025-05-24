@@ -1,4 +1,4 @@
-import { linearRegression } from "./core";
+import { linearRegression } from "./statistical";
 import { Tree, readNewick, writeNewick } from "phylojs";
 var minimize = require("minimize-golden-section-1d");
 

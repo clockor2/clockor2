@@ -1,5 +1,5 @@
 import { Table } from "flowbite-react";
-import { LocalClockModel } from "../../engine/core";
+import { LocalClockModel } from "../../engine/types";
 import { numToScientific } from "../../engine/utils";
 
 interface Props {

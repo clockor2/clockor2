@@ -11,7 +11,7 @@ import { selectCurrentTree, selectSelectedIds } from './features/tree/treeSlice'
 import { Menu } from './features/menu/menu';
 import { defaultSettings, SettingsButton, TreeSettings } from './features/tree/components/settingsButton';
 import { DownloadButton } from './features/tree/components/downloadButton';
-import { LocalClockModel } from './features/engine/core';
+import { LocalClockModel } from './features/engine/types';
 import { useDarkMode } from './features/utils/darkmode';
 import { Flowbite } from 'flowbite-react';
 import { Notifications } from './features/notifications/Notifications';

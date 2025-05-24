@@ -2,7 +2,7 @@ import { Tooltip } from "flowbite-react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { setCurrentData, selectCurrentData, setMode } from '../regression/regressionSlice';
 import { selectTipData, selectCurrentTree, selectSelectedIds, setSelectedIds} from '../tree/treeSlice';
-import { regression } from "../engine/core";
+import { regression } from "../engine/rttRegression";
 import { readNewick } from "phylojs";
 import { HiPlus } from 'react-icons/hi';
 

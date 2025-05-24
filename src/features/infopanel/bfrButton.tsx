@@ -5,7 +5,7 @@ import { setCurrentData, selectCurrentData, selectData, selectBestFittingRootDat
 import { setBestFittingRootData } from "../regression/regressionSlice";
 import { selectSource, setBestFittingRoot, setCurrentTree, selectTipData, selectBestFittingRoot } from '../tree/treeSlice';
 import { globalRootParallel } from "../engine/bestFittingRoot";
-import { regression } from "../engine/core";
+import { regression } from "../engine/rttRegression";
 import { readNewick } from "phylojs";
 import { addNotification } from "../notifications/notificationsSlice";
 

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-import { LocalClockModel } from '../engine/core';
+import { LocalClockModel } from '../engine/types';
 
 interface RegressionInputDefaults {
   format: "yyyy-mm-dd" | "decimal"

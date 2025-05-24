@@ -1,6 +1,6 @@
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectCurrentTree, setTipData} from '../tree/treeSlice';
-import { regression } from '../engine/core';
+import { regression } from '../engine/rttRegression';
 import { setData } from './regressionSlice';
 import { TipLabelForm } from './components/tipLabelForm';
 import { CSVInput } from './components/csvUploadForm';

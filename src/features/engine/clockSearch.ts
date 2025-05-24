@@ -1,4 +1,5 @@
-import { regression, LocalClockModel } from "./core"
+import { regression } from "./rttRegression"
+import { LocalClockModel } from "./types";
 import { Tree, readNewick } from "phylojs";
 
 /**

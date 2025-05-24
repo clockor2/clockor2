@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Plotly, {ScatterData} from "plotly.js";
-import { plotify } from '../engine/core';
+import { formatPlotly } from '../engine/visualisation';
 import { decimal_date } from '../engine/utils';
 import { selectCurrentData } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -35,7 +35,7 @@ export function Regression(props: any) {
 
   useEffect(() => {
     // convert data to plotly format
-    const currentData = plotify(currentDataSelector, isDarkMode);
+    const currentData = formatPlotly(currentDataSelector, isDarkMode);
     // @ts-ignore
     // plotly bug fix
     var PlotlyData = currentData.map(el => {return {...el, marker:{...el.marker}}})

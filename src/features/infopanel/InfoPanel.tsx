@@ -9,7 +9,7 @@ import { BFRButton } from "./bfrButton";
 import { selectSelectedIds } from "../tree/treeSlice";
 import { AddClockButton } from "./addClockButton"
 import { ResetDataButton } from "./resetButton";
-import { InfoMetric } from "../engine/core";
+import { InfoMetric } from "../engine/types";
 import { PanelToggleButton } from "./components/panelToggleButton";
 import { useDarkMode } from "../utils/darkmode";
 
