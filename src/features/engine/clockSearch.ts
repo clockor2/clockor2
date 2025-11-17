@@ -96,8 +96,8 @@ export const clockSearch = (
   }
   
   export function getGroups (tree: Tree, minGroupSize: number, numClocks: number): string[][][] {
-    var tipNodes = tree.getNodeList().map(
-      e => tree.getSubtree(e).getTipLabels()
+    var tipNodes = tree.nodeList.map(
+      e => tree.getClade(e).getTipLabels()
     )
 
     // TODO: Throw error if numClocks > nTips / minGroupSize. Needs Parse Int

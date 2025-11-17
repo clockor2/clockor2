@@ -46,7 +46,7 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
   var t0 = new Date().getTime();
 
   const tree: Tree = readNewick(nwk);
-  var nodes = tree.getNodeList();
+  var nodes = tree.nodeList;
   var nodeNums = nodes.map((e: any, i: number) => i).slice(1);
 
   var nodeNumsChunked =
@@ -112,7 +112,7 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
 export function rerootAndScale(bestTree: Tree, best: any): void {
 
   if (best.nodeIndx !== 0) {
-    bestTree.reroot(bestTree.getNodeList()[best.nodeIndx]);
+    bestTree.reroot(bestTree.nodeList[best.nodeIndx]);
   }
 
   let bl = bestTree.root.children.map(
@@ -120,18 +120,18 @@ export function rerootAndScale(bestTree: Tree, best: any): void {
   ).map(
     e => e === undefined ? 0 : e
   )
-  console.log("BL Reroot and rescale")
-  console.log(bl)
+  // Sanity checks commented out below:
+  // console.log("BL Reroot and rescale")
+  // console.log(bl)
   let len = bl[0] + bl[1] // TODO: Ensure bifurcating here
 
-  let tLen1 = bestTree.getTotalBranchLength()
+  // let tLen1 = bestTree.getTotalBranchLength()
 
   bestTree.root.children[0].branchLength = (best.alpha * len);
   bestTree.root.children[1].branchLength = ((1 - best.alpha) * len);
 
-  let tlen2 = bestTree.getTotalBranchLength();
-
-  console.log(`Same Tree-length? : ${tLen1 - tlen2}`)
+  // let tlen2 = bestTree.getTotalBranchLength();
+  // console.log(`Same Tree-length? : ${tLen1 - tlen2}`)
 }
 
 
@@ -145,9 +145,9 @@ export function rerootAndScale(bestTree: Tree, best: any): void {
 export function localRootR2(tree: Tree, tipData: any) {
   var tipNames: string[] = tree.getTipLabels();
   var tipHeights: number[] = tree.getRTTDist();
-  var dates = tipNames.map(e => tipData[e].date)
 
-  var desc0: string[] = tree.getSubtree(tree.root.children[0]).getTipLabels();
+  var dates = tipNames.map(e => tipData[e].date)
+  var desc0: string[] = tree.getClade(tree.root.children[0]).getTipLabels();
 
   var indicator: number[] = [];
   for (let i = 0; i < tipNames.length; i++) {
@@ -214,10 +214,10 @@ export function bfrPropRMS(y: number[], t: number[], c: number[]) {
 
 // Auxiliary 
 export function sumProduct(arr1: number[], arr2?: number[]): number {
-    if (arr2) {
-        return arr1.reduce((acc, curr, index) => acc + curr * arr2[index], 0);
-    }
-    return arr1.reduce((acc, curr) => acc + curr, 0);
+  if (arr2) {
+    return arr1.reduce((acc, curr, index) => acc + curr * arr2[index], 0);
+  }
+  return arr1.reduce((acc, curr) => acc + curr, 0);
 }
 
 /**
@@ -233,7 +233,7 @@ export function localRootRMS(tree: Tree, tipData: any) {
   var tipHeights: number[] = tree.getRTTDist();
   var t = tipNames.map(e => tipData[e].date)
 
-  var leftBranchTips: string[] = tree.getSubtree(tree.root.children[0]).getTipLabels();
+  var leftBranchTips: string[] = tree.getClade(tree.root.children[0]).getTipLabels();
   var c: number[] = [];
   for (let i = 0; i < tipNames.length; i++) {
     leftBranchTips.includes(tipNames[i]) ? c.push(0) : c.push(1);
@@ -251,18 +251,18 @@ export function localRootRMS(tree: Tree, tipData: any) {
 
   let y = tipHeights;
   // Hoist all basal branch length to right
-  for (let j = 0; j < y.length; j++) { 
-    y[j] = y[j] + (1-c[j])*(sumLength-bl[0]) - c[j]*(sumLength-bl[0]);
+  for (let j = 0; j < y.length; j++) {
+    y[j] = y[j] + (1 - c[j]) * (sumLength - bl[0]) - c[j] * (sumLength - bl[0]);
     //y[j] = y[j] + (1-c[j])*(bl[0]) - c[j]*(bl[0]);
   }
 
   let x = bfrPropRMS(y, t, c) / sumLength;
   x = Math.min(Math.max(x, 0.0), 1.0);
-  let alpha = 1-x;
+  let alpha = 1 - x;
   //let alpha = x;
 
   // rms
-  let yPrime = y.map((e,i) => e + c[i]*((1-alpha)*sumLength) - (1-c[i])*((1-alpha)*sumLength))
+  let yPrime = y.map((e, i) => e + c[i] * ((1 - alpha) * sumLength) - (1 - c[i]) * ((1 - alpha) * sumLength))
   //let yPrime = y.map((e,i) => e + c[i]*(alpha*sumLength) - (1-c[i])*(alpha*sumLength))
 
   let rms = linearRegression({ x: t, y: yPrime, tip: tipNames, name: 'NA' }).rms
