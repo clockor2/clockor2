@@ -32,10 +32,10 @@ export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal")
   
 
 export const date_decimal = (decimal: number): string => {
-  let year = Math.floor(decimal);
+  let year = Math.floor(Math.abs(decimal));
   const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
   const daysInYear = isLeapYear ? 366 : 365;
-  let remainingDays = Math.round((decimal - year) * daysInYear);
+  let remainingDays = Math.round((Math.abs(decimal) - year) * daysInYear);
 
   const daysPerMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   let month = 0;
@@ -52,10 +52,15 @@ export const date_decimal = (decimal: number): string => {
   }
 
   // Formatting the date
+  const formattedYear = year.toString().padStart(4, '0');
   const formattedMonth = (month + 1).toString().padStart(2, '0');
   const formattedDay = (remainingDays + 1).toString().padStart(2, '0');
 
-  return `${year}-${formattedMonth}-${formattedDay}`;
+  if (decimal < 0) {
+    return `-${formattedYear}-${formattedMonth}-${formattedDay}`;
+  }
+
+  return `${formattedYear}-${formattedMonth}-${formattedDay}`;
 };
 
 
