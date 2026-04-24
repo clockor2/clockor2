@@ -55,6 +55,27 @@ describe('date_decimal()', () => {
 
     expect(testYMD).toEqual(targetYMD);
   });
+  test('small decimal dates', () => {
+    let targetYMD = "0100-01-01"
+
+    let testYMD = date_decimal(100.0)
+
+    expect(testYMD).toEqual(targetYMD);
+  });
+  test('small negative decimal dates', () => {
+    let targetYMD = "-0100-01-01"
+
+    let testYMD = date_decimal(-100.0)
+
+    expect(testYMD).toEqual(targetYMD);
+  });
+  test('normal size negative decimal dates', () => {
+    let targetYMD = "-2000-01-01"
+
+    let testYMD = date_decimal(-2000.0)
+
+    expect(testYMD).toEqual(targetYMD);
+  });
 }); 
 
 describe('extractPartOfTipName()', () => {
