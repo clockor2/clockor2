@@ -18,9 +18,13 @@ export interface InfoMetric {
 
 // function to make plottable points
 // method for plotly plotting
-export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | null {
+export function plotify(lcm: LocalClockModel | null, isDarkMode=false, xMode: "date" | "height" = "date"): any[] | null {
   const plotType = "scattergl";
   const plot = [] as any[];
+  // In "date" mode the x values are decimal years and are rendered as calendar
+  // dates; in "height" mode they are ages (time before the most recent tip) and
+  // are plotted as raw numbers.
+  const fmtX = (e: number) => xMode === "height" ? e : date_decimal(e);
   if (lcm != null) {
     // generate colour scale. Use viridis-ish default
     const cols = lcm.localClock !== undefined
@@ -31,7 +35,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
 
     // Pushing plotly object for base lock
     var point = {
-      x: lcm.baseClock.x.map(e => date_decimal(e)),
+      x: lcm.baseClock.x.map(fmtX),
       y: lcm.baseClock.y,
       text: lcm.baseClock.tip,
       marker: {color: isDarkMode ? 'rgb(148,163,184)' : '#000000', size: 7},
@@ -44,7 +48,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
     plot.push(point);
 
     var line = {
-      x: lcm.baseClock.x.map(e => date_decimal(e)),
+      x: lcm.baseClock.x.map(fmtX),
       y: lcm.baseClock.fitY,
       name: "Global",
       marker : {color: isDarkMode ? 'rgb(148,163,184)' : '#000000'},
@@ -71,7 +75,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
         }
         
         var point1 = {
-          x: lcm.localClock[i].x.map(e => date_decimal(e)),
+          x: lcm.localClock[i].x.map(fmtX),
           y: lcm.localClock[i].y,
           text: lcm.localClock[i].tip,
           marker: {color: cols[i], line: {width: 1, color: isDarkMode ? '#94a3b8' : 'black'}},
@@ -84,7 +88,7 @@ export function plotify(lcm: LocalClockModel | null, isDarkMode=false): any[] | 
         plot.push(point1);
 
         var line1 = {
-          x: lcm.localClock[i].x.map(e => date_decimal(e)),
+          x: lcm.localClock[i].x.map(fmtX),
           y: lcm.localClock[i].fitY,
           text: `${lcm.groupNames[i+1] ?? `Local Clock ${i+1}`}<br>R2: ${lcm.localClock[i].r2.toFixed(2)}, RMS: ${numToScientific(lcm.localClock[i].rms, 2)}`,
           marker : {color: cols[i], line: {width: 1}},

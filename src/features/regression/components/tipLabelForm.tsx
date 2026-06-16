@@ -7,7 +7,7 @@ import { extractPartOfTipName } from '../../engine/utils';
 
 export function TipLabelForm(props: any) {
     const defaults = useAppSelector(selectRegressionInputDefaults);
-    const [format, setFormat] = useState<"yyyy-mm-dd" | "decimal">(defaults.format);
+    const [format, setFormat] = useState<"yyyy-mm-dd" | "decimal" | "tipHeight">(defaults.format);
     const [delimiter, setDelimiter] = useState<string>(defaults.delimiter);
     const [loc, setLoc] = useState<string>(defaults.loc);
     const [group, setGroup] = useState<string>(defaults.group);
@@ -25,7 +25,7 @@ export function TipLabelForm(props: any) {
         return group !== undefined ? extractPartOfTipName(name, delimiter, group) : "Background"
       })
 
-      props.onSubmit(decimal_dates, groupings)
+      props.onSubmit(decimal_dates, groupings, format === "tipHeight" ? "height" : "date")
     }
   
     return (
@@ -52,13 +52,16 @@ export function TipLabelForm(props: any) {
             required={true}
             name="type"
             value={format}
-            onChange={e => setFormat(e.target.value as "yyyy-mm-dd" | "decimal")}
+            onChange={e => setFormat(e.target.value as "yyyy-mm-dd" | "decimal" | "tipHeight")}
           >
             <option value={"yyyy-mm-dd"}>
               YYYY-MM-DD
             </option>
             <option value={"decimal"}>
               Decimal Date
+            </option>
+            <option value={"tipHeight"}>
+              Tip Height (age)
             </option>
           </Select>
   

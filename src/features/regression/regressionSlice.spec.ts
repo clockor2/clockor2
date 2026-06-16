@@ -10,6 +10,7 @@ describe('counter reducer', () => {
     clockSearchData: null,
     mode: null,
     usingBFR: false,
+    xMode: "date",
     regressionInputDefaults: {
       format: "yyyy-mm-dd",
       delimiter: "",

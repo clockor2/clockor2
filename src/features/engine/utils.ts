@@ -1,6 +1,6 @@
 import { readNewick, writeNewick } from "phylojs"
 
-export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal") => {
+export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal" | "tipHeight") => {
   if (format === "yyyy-mm-dd") {
     // Parse the year, month, and day from sampDate
     let year = parseInt(sampDate.substring(0, 4));
@@ -24,7 +24,9 @@ export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal")
     let decimal_date_value = year + (dayOfYear / daysInYear);
     return decimal_date_value;
   } else {
-    // If the format is 'decimal', directly parse the input string as a float
+    // 'decimal' (forward decimal year) and 'tipHeight' (age before the most
+    // recent tip) are both raw numeric values, so parse directly as a float.
+    // The distinction is carried by the regression xMode, not the parse.
     return parseFloat(sampDate);
   }
 };

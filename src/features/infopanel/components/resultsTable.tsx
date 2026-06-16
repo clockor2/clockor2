@@ -1,6 +1,8 @@
 import { Table } from "flowbite-react";
 import { LocalClockModel } from "../../engine/core";
 import { numToScientific } from "../../engine/utils";
+import { useAppSelector } from "../../../app/hooks";
+import { selectXMode } from "../../regression/regressionSlice";
 
 interface Props {
     model: LocalClockModel| undefined;
@@ -8,6 +10,11 @@ interface Props {
 }
 
 export function ResultsTable(props: Props) {
+        const xMode = useAppSelector(selectXMode);
+        // With tip heights (ages) the fitted slope is the negative of the clock
+        // rate, so flip its sign for display. The x-intercept (-intercept/slope)
+        // is already the root age and needs no adjustment.
+        const rate = (slope: number) => xMode === "height" ? -slope : slope;
 
         if (props.model === undefined) {
             return(<div></div>)
@@ -43,7 +50,7 @@ export function ResultsTable(props: Props) {
                     <Table.Row key={`row${i}Data`}>
                         <Table.Cell >{props.model.groupNames[i+1]}</Table.Cell>
                         <Table.Cell >{props.model.localClock[i].x.length}</Table.Cell>
-                        <Table.Cell  className=" whitespace-nowrap" >{numToScientific(props.model.localClock[i].slope, 3)}</Table.Cell>
+                        <Table.Cell  className=" whitespace-nowrap" >{numToScientific(rate(props.model.localClock[i].slope), 3)}</Table.Cell>
                         <Table.Cell >{props.model.localClock[i].r2.toFixed(3)}</Table.Cell>
                         <Table.Cell  className=" whitespace-nowrap" >{numToScientific(props.model.localClock[i].rms, 3)}</Table.Cell>
                         <Table.Cell >{(-1 * props.model.localClock[i].intercept / props.model.localClock[i].slope).toFixed(3)}</Table.Cell>
@@ -77,7 +84,7 @@ export function ResultsTable(props: Props) {
                     <Table.Row key="trow">
                         <Table.Cell key="name">Global</Table.Cell>
                         <Table.Cell key="rowNTip">{props.model.baseClock.x.length}</Table.Cell>
-                        <Table.Cell key="rowSlope" className=" whitespace-nowrap" >{numToScientific(props.model.baseClock.slope, 3)}</Table.Cell>
+                        <Table.Cell key="rowSlope" className=" whitespace-nowrap" >{numToScientific(rate(props.model.baseClock.slope), 3)}</Table.Cell>
                         <Table.Cell key="rowR2">{props.model.baseClock.r2.toFixed(3)}</Table.Cell>
                         <Table.Cell key="rowRMS" className=" whitespace-nowrap" >{numToScientific(props.model.baseClock.rms, 3)}</Table.Cell>
                         <Table.Cell key="rowXInt">{(-1 * props.model.baseClock.intercept / props.model.baseClock.slope).toFixed(3)}</Table.Cell>
