@@ -255,7 +255,7 @@ export function CSVInput(props: any) {
                   Decimal Date
                 </option>
                 <option value={"tipHeight"}>
-                  Tip Height (age)
+                  Tip age (decimal)
                 </option>
               </Select>
             </div>
