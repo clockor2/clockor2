@@ -1,7 +1,7 @@
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectCurrentTree, setTipData} from '../tree/treeSlice';
 import { regression } from '../engine/core';
-import { setData } from './regressionSlice';
+import { setData, setXMode, XMode } from './regressionSlice';
 import { TipLabelForm } from './components/tipLabelForm';
 import { CSVInput } from './components/csvUploadForm';
 import { readNewick } from 'phylojs'
@@ -13,7 +13,7 @@ export function RegressionInput(props: any) {
   const inputTree = readNewick(currentTree)
   const tipNames = inputTree.getTipLabels()
 
-  const handleSubmit =  (decimal_dates: number[], groupings: string[]) => {
+  const handleSubmit =  (decimal_dates: number[], groupings: string[], xMode: XMode = "date") => {
     // assert all decimal dates are numbers
     if (decimal_dates.some(isNaN)) {
       // find index all the NaNs and print the corresponding tip names
@@ -41,6 +41,7 @@ export function RegressionInput(props: any) {
       tipNames
     );
 
+    dispatch(setXMode(xMode))
     dispatch(setData(regression_data))
 
     let tipDataArr = tipNames.map( // TODO: Make tip date arr using phylojs

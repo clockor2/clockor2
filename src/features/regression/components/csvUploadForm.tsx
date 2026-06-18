@@ -110,7 +110,7 @@ type RowObject = {
 export function CSVInput(props: any) {
     const [csvData, setCSVData] = useState<string[][]>([]);
     const [tableData, setTableData] = useState<RowObject[]|null>(null);
-    const [format, setFormat] = useState<"yyyy-mm-dd" | "decimal">("yyyy-mm-dd");
+    const [format, setFormat] = useState<"yyyy-mm-dd" | "decimal" | "tipHeight">("yyyy-mm-dd");
     const dispatch = useAppDispatch();
 
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone(
@@ -157,7 +157,7 @@ export function CSVInput(props: any) {
       if (indexedData.group === undefined) {
         indexedData.group = Array(indexedData.date.length).fill('Background')
       }
-      props.onSubmit(decimal_dates, indexedData.group)
+      props.onSubmit(decimal_dates, indexedData.group, format === "tipHeight" ? "height" : "date")
     }
 
     if (tableData === null) {
@@ -245,7 +245,7 @@ export function CSVInput(props: any) {
                 required={true}
                 name="type"
                 value={format}
-                onChange={e => setFormat(e.target.value as "yyyy-mm-dd" | "decimal")}
+                onChange={e => setFormat(e.target.value as "yyyy-mm-dd" | "decimal" | "tipHeight")}
                 className="w-36"
               >
                 <option value={"yyyy-mm-dd"}>
@@ -253,6 +253,9 @@ export function CSVInput(props: any) {
                 </option>
                 <option value={"decimal"}>
                   Decimal Date
+                </option>
+                <option value={"tipHeight"}>
+                  Tip age (decimal)
                 </option>
               </Select>
             </div>

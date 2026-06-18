@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import Plotly, {ScatterData} from "plotly.js";
 import { plotify } from '../engine/core';
 import { decimal_date } from '../engine/utils';
-import { selectCurrentData } from './regressionSlice';
+import { selectCurrentData, selectXMode } from './regressionSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectHighlightedId, selectSelectedIds, setHighlightedId, setSelectedIds } from '../tree/treeSlice';
 import { useDarkMode } from '../utils/darkmode';
@@ -32,10 +32,11 @@ export function Regression(props: any) {
   const highlightedId = useAppSelector(selectHighlightedId);
   const dispatch = useAppDispatch();
   const currentDataSelector = useAppSelector(selectCurrentData);
+  const xMode = useAppSelector(selectXMode);
 
   useEffect(() => {
     // convert data to plotly format
-    const currentData = plotify(currentDataSelector, isDarkMode);
+    const currentData = plotify(currentDataSelector, isDarkMode, xMode);
     // @ts-ignore
     // plotly bug fix
     var PlotlyData = currentData.map(el => {return {...el, marker:{...el.marker}}})
@@ -55,7 +56,7 @@ export function Regression(props: any) {
       });
     }
     plotlyDataRef.current = PlotlyData; // store data for download
-  }, [currentDataSelector, isDarkMode, selectedIds]); // Dependencies
+  }, [currentDataSelector, isDarkMode, selectedIds, xMode]); // Dependencies
   
   const onHover = (event:Plotly.PlotHoverEvent) => {
     // @ts-ignore
@@ -126,7 +127,15 @@ export function Regression(props: any) {
       plot_bgcolor: isDarkMode ? 'rgb(15,23,42)' : 'white',
       paper_bgcolor: isDarkMode ? 'rgb(15,23,42)' : 'white',
       yaxis: {showticklabels: true, zeroline: true, color: isDarkMode ? 'rgb(148,163,184)' : '#2c3e50'},
-      xaxis: { zeroline: false, color: isDarkMode ? 'rgb(148,163,184)' : '#2c3e50'},
+      xaxis: {
+        zeroline: false,
+        color: isDarkMode ? 'rgb(148,163,184)' : '#2c3e50',
+        title: xMode === "height" ? { text: 'Time before most recent tip' } : undefined,
+        // Heights are ages (time before the most recent tip), so reverse the
+        // axis to keep time flowing left→right: oldest on the left, most recent
+        // (age 0) on the right, matching a forward-time root-to-tip plot.
+        autorange: xMode === "height" ? 'reversed' : undefined,
+      },
     };
 
   const isMobile = window.innerWidth < 768
@@ -181,16 +190,20 @@ export function Regression(props: any) {
       let currentData = plotlyDataRef.current
       if (!currentData) return 
 
-      // Convert exportObj to CSV
-      let csvContent = "group,date,decimal-date,root-to-tip-distance,label\n"; // Adding headers
+      // Convert exportObj to CSV. In height mode the plotted x values are ages
+      // (raw numbers), so there is no calendar date to decode.
+      let csvContent = xMode === "height"
+        ? "group,tip-height,root-to-tip-distance,label\n"
+        : "group,date,decimal-date,root-to-tip-distance,label\n"; // Adding headers
 
       currentData.filter(item => (item as ScatterData).mode === "markers").forEach((item: any) => {
           const group = item.name || 'Unknown Group'; // Default group if not present
-          item.x.forEach((ymd: string, index: number) => {
+          item.x.forEach((x: string | number, index: number) => {
               const rootToTipDistance = item.y[index];
               const label = item.text[index];
-              const decimalDate = decimal_date(ymd, 'yyyy-mm-dd')
-              const row = { group, ymd, decimalDate, rootToTipDistance, label };
+              const row = xMode === "height"
+                ? { group, x, rootToTipDistance, label }
+                : { group, x, decimalDate: decimal_date(x as string, 'yyyy-mm-dd'), rootToTipDistance, label };
               csvContent += convertToCsvRow(row) + "\n";
           });
       });
