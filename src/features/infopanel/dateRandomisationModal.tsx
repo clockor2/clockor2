@@ -80,12 +80,12 @@ const DateRandomisationPlot = React.memo(function DateRandomisationPlot(props: D
     showlegend: false,
     bargap: 0.05,
     uirevision: "date-randomisation",
-    margin: { l: 60, r: 20, b: 60, t: isSmallScreen ? 82 : 60, pad: 0 },
+    margin: { l: isSmallScreen ? 44 : 60, r: isSmallScreen ? 8 : 20, b: isSmallScreen ? 48 : 60, t: isSmallScreen ? 70 : 60, pad: 0 },
     plot_bgcolor: props.isDarkMode ? "rgb(15,23,42)" : "white",
     paper_bgcolor: props.isDarkMode ? "rgb(31,41,55)" : "white",
     font: { color: props.isDarkMode ? "rgb(203,213,225)" : "#111827" },
     xaxis: {
-      title: { text: "Root-to-tip regression slope (substitutions/site/year)" },
+      title: { text: isSmallScreen ? "Root-to-tip regression slope" : "Root-to-tip regression slope (substitutions/site/year)" },
       color: props.isDarkMode ? "rgb(203,213,225)" : "#111827",
       zeroline: false,
     },
@@ -257,15 +257,15 @@ export function DateRandomisationModal(props: DateRandomisationModalProps) {
       <Modal.Header>
         Date Randomisation
       </Modal.Header>
-      <Modal.Body>
-        <form onSubmit={handleStart} className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="nRandomisations" value="Number of randomisations" />
+      <Modal.Body className="p-4 md:p-6">
+        <form onSubmit={handleStart} className="flex flex-col gap-3 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            <div className="min-w-0">
+              <Label htmlFor="nRandomisations" value={window.innerWidth < 640 ? "Randomisations" : "Number of randomisations"} />
               <input
                 id="nRandomisations"
                 ref={nRandomisationsInputRef}
-                className="mt-1 block w-full rounded border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full min-w-0 rounded border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 type="number"
                 min={1}
                 defaultValue={nRandomisations}
@@ -273,21 +273,21 @@ export function DateRandomisationModal(props: DateRandomisationModalProps) {
                 required
               />
             </div>
-            <div>
-              <Label htmlFor="dateRandomisationMode" value="Randomisation style" />
+            <div className="min-w-0">
+              <Label htmlFor="dateRandomisationMode" value={window.innerWidth < 640 ? "Style" : "Randomisation style"} />
               <Select
                 id="dateRandomisationMode"
-                className="mt-1"
+                className="mt-1 min-w-0"
                 value={mode}
                 disabled={isRunning || isCancelling}
                 onChange={e => setMode(e.target.value as DateRandomisationMode)}
                 required
               >
-                <option value="duchene">Duchene et al. 2015</option>
-                <option value="firth">Firth et al. 2010</option>
+                <option value="duchene">{window.innerWidth < 640 ? "Duchene" : "Duchene et al. 2015"}</option>
+                <option value="firth">{window.innerWidth < 640 ? "Firth" : "Firth et al. 2010"}</option>
               </Select>
             </div>
-            <div className="flex items-end">
+            <div className="col-span-2 md:col-span-1 flex items-end">
               <div className="text-sm text-gray-700 dark:text-slate-300">
                 <div>Observed slope: {numToScientific(observedSlope, 2)}</div>
                 <div>BFR method: {props.bfrMethod === "RMS" ? "RMS" : "R²"}</div>
@@ -295,7 +295,7 @@ export function DateRandomisationModal(props: DateRandomisationModalProps) {
               </div>
             </div>
           </div>
-          <div className="h-[420px] w-full">
+          <div className="h-[260px] w-full md:h-[420px]">
             <DateRandomisationPlot
               isDarkMode={isDarkMode}
               observedSlope={observedSlope}
