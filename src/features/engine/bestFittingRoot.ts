@@ -9,17 +9,69 @@ export interface localOptima {
   nodeIndx: number;
 }
 
+const bfrWorkerPool: Worker[] = [];
+const availableBFRWorkers: Worker[] = [];
+const pendingBFRWorkerLeases: Array<(worker: Worker) => void> = [];
+
+function getBFRWorkerLimit() {
+  return Math.max(1, window.navigator.hardwareConcurrency || 1);
+}
+
+function createBFRWorker() {
+  const worker = new Worker(new URL("./bfrWorker.ts", import.meta.url));
+  bfrWorkerPool.push(worker);
+  return worker;
+}
+
+function acquireBFRWorker(): Promise<Worker> {
+  const availableWorker = availableBFRWorkers.pop();
+  if (availableWorker) {
+    return Promise.resolve(availableWorker);
+  }
+
+  if (bfrWorkerPool.length < getBFRWorkerLimit()) {
+    return Promise.resolve(createBFRWorker());
+  }
+
+  return new Promise(resolve => {
+    pendingBFRWorkerLeases.push(resolve);
+  });
+}
+
+function releaseBFRWorker(worker: Worker) {
+  const nextLease = pendingBFRWorkerLeases.shift();
+  if (nextLease) {
+    nextLease(worker);
+    return;
+  }
+
+  availableBFRWorkers.push(worker);
+}
+
 /**
- * Creates a web worker for parallel processing and sets up message passing with the worker.
+ * Runs a BFR chunk on a pooled worker.
  *
  * @param {string} nwk - The Newick string representing the phylogenetic tree.
  * @param {number[]} dates - An array of dates associated with each tip of the tree.
  * @param {number[]} nodes - An array of node indices to be processed by the worker.
  * @returns {Promise} - A Promise that resolves with the worker's response data.
  */
-function createWorker(nwk: string, dates: number[], nodes: number[], tipData: any, bfrMode: "R2" | "RMS", allowNegativeRates: boolean) {
+async function runBFRWorkerChunk(nwk: string, dates: number[], nodes: number[], tipData: any, bfrMode: "R2" | "RMS", allowNegativeRates: boolean) {
+  const worker = await acquireBFRWorker();
+
   return new Promise(function (resolve, reject) {
-    const worker = new Worker(new URL("./bfrWorker.ts", import.meta.url));
+    worker.onmessage = (e) => {
+      worker.onmessage = null;
+      worker.onerror = null;
+      releaseBFRWorker(worker);
+      resolve(e.data);
+    };
+    worker.onerror = (e) => {
+      worker.onmessage = null;
+      worker.onerror = null;
+      releaseBFRWorker(worker);
+      reject(e.error);
+    };
     worker.postMessage({
       nwk: nwk,
       dates: dates,
@@ -28,10 +80,6 @@ function createWorker(nwk: string, dates: number[], nodes: number[], tipData: an
       bfrMode: bfrMode,
       allowNegativeRates: allowNegativeRates
     });
-    worker.onmessage = (e) => {
-      resolve(e.data);
-    };
-    worker.onerror = (e) => reject(e.error);
   });
 }
 
@@ -61,7 +109,7 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
       [nodeNums];
 
   var promises = nodeNumsChunked.map((e: number[]) =>
-    createWorker(nwk, dates, e, tipData, bfrMode, allowNegativeRates)
+    runBFRWorkerChunk(nwk, dates, e, tipData, bfrMode, allowNegativeRates)
   );
 
   var prime = (await Promise.all(promises));
