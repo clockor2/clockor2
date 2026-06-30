@@ -17,7 +17,7 @@ export interface localOptima {
  * @param {number[]} nodes - An array of node indices to be processed by the worker.
  * @returns {Promise} - A Promise that resolves with the worker's response data.
  */
-function createWorker(nwk: string, dates: number[], nodes: number[], tipData: any, bfrMode: "R2" | "RMS") {
+function createWorker(nwk: string, dates: number[], nodes: number[], tipData: any, bfrMode: "R2" | "RMS", allowNegativeRates: boolean) {
   return new Promise(function (resolve, reject) {
     const worker = new Worker(new URL("./bfrWorker.ts", import.meta.url));
     worker.postMessage({
@@ -25,7 +25,8 @@ function createWorker(nwk: string, dates: number[], nodes: number[], tipData: an
       dates: dates,
       nodeNums: nodes,
       tipData: tipData,
-      bfrMode: bfrMode
+      bfrMode: bfrMode,
+      allowNegativeRates: allowNegativeRates
     });
     worker.onmessage = (e) => {
       resolve(e.data);
@@ -41,7 +42,7 @@ function createWorker(nwk: string, dates: number[], nodes: number[], tipData: an
  * @param {number[]} dates - An array of dates associated with each tip of the tree.
  * @returns {Promise<string>} - A Promise that resolves with the Newick string of the best rooted tree.
  */
-export async function globalRootParallel(nwk: string, dates: number[], tipData: any, bfrMode: "R2" | "RMS") {
+export async function globalRootParallel(nwk: string, dates: number[], tipData: any, bfrMode: "R2" | "RMS", allowNegativeRates = true) {
 
   var t0 = new Date().getTime();
 
@@ -60,14 +61,15 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
       [nodeNums];
 
   var promises = nodeNumsChunked.map((e: number[]) =>
-    createWorker(nwk, dates, e, tipData, bfrMode)
+    createWorker(nwk, dates, e, tipData, bfrMode, allowNegativeRates)
   );
 
   var prime = (await Promise.all(promises));
 
   if (bfrMode == "R2") {
+    const localOptimum = localRootR2(tree, tipData, allowNegativeRates);
     prime.unshift({
-      ...localRootR2(tree, tipData),
+      ...localOptimum,
       nodeIndx: 0,
     })
 
@@ -77,17 +79,18 @@ export async function globalRootParallel(nwk: string, dates: number[], tipData: 
     var best: any = prime[bestIndx];
 
   } else if (bfrMode == "RMS") {
+    const localOptimum = localRootRMS(tree, tipData, allowNegativeRates);
     prime.unshift({
-      ...localRootRMS(tree, tipData),
+      ...localOptimum,
       nodeIndx: 0,
     })
 
     let rss = prime.map((e: any) => e.value);
-    let minRSS = Math.min(...rss);
+    let minRSS = Math.min(...rss.filter(e => e >= 0));
     let bestIndx = rss.indexOf(minRSS);
     var best: any = prime[bestIndx];
   }
-
+  
   let bestTree = readNewick(nwk);
 
   console.log(`Overall Best`)
@@ -142,7 +145,7 @@ export function rerootAndScale(bestTree: Tree, best: any): void {
  * @param {any} tipData - Object associating dates and tip names.
  * @returns {object} - An object containing the best alpha value and the corresponding R2 value.
  */
-export function localRootR2(tree: Tree, tipData: any) {
+export function localRootR2(tree: Tree, tipData: any, allowNegativeRates = true) {
   var tipNames: string[] = tree.getTipLabels();
   var tipHeights: number[] = tree.getRTTDist();
 
@@ -175,7 +178,11 @@ export function localRootR2(tree: Tree, tipData: any) {
       indicator[i] * (e - bl[0] + (x * len)) +
       (1 - indicator[i]) * (e - bl[1] + ((1 - x) * len))
     );
-    return -1 * linearRegression({ x: dates, y: tipHeightsNew, tip: tipNames, name: 'NA' }).r2;
+    let reg = linearRegression({ x: dates, y: tipHeightsNew, tip: tipNames, name: 'NA' });
+    if (!allowNegativeRates && reg.slope < 0) {
+      return Infinity;
+    }
+    return -1 * reg.r2;
   };
 
   let alpha = minimize(univariateFunction, { lowerBound: 0, upperBound: 1, tolerance: Number.EPSILON, maxIterations: 1000 });
@@ -227,7 +234,7 @@ export function sumProduct(arr1: number[], arr2?: number[]): number {
  * @param {any} tipData - Object associating dates and tip names.
  * @returns {object} - An object containing the best alpha value and the corresponding R2 value.
  */
-export function localRootRMS(tree: Tree, tipData: any) {
+export function localRootRMS(tree: Tree, tipData: any, allowNegativeRates = true) {
   // TODO: There is a lot of "1-x" stuff below. Refactor later to just work in terms of x / alpha
   var tipNames: string[] = tree.getTipLabels();
   var tipHeights: number[] = tree.getRTTDist();
@@ -265,7 +272,11 @@ export function localRootRMS(tree: Tree, tipData: any) {
   let yPrime = y.map((e, i) => e + c[i] * ((1 - alpha) * sumLength) - (1 - c[i]) * ((1 - alpha) * sumLength))
   //let yPrime = y.map((e,i) => e + c[i]*(alpha*sumLength) - (1-c[i])*(alpha*sumLength))
 
-  let rms = linearRegression({ x: t, y: yPrime, tip: tipNames, name: 'NA' }).rms
+  let reg = linearRegression({ x: t, y: yPrime, tip: tipNames, name: 'NA' })
+  let rms = reg.rms;
+  if (!allowNegativeRates && reg.slope < 0) {
+    rms = Infinity;
+  }
 
   return { alpha: alpha, value: rms, method: "RMS" };
 }

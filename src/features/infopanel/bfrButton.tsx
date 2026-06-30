@@ -21,6 +21,9 @@ export function BFRButton() {
   const bfrCalculated = useRef<{ R2: boolean, RMS: boolean }>({ R2: false, RMS: false });
 
   const [bfrMethod, swapBFRMethod] = useState<"RMS" | "R2">("RMS");
+  const [allowNegativeRates, setAllowNegativeRates] = useState(true);
+  const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
+  const [isCalculating, setCalculating] = useState(false);
 
   const handleMethodChange = (method: "RMS" | "R2") => {
     if (method !== bfrMethod && useBestFittingRoot) {
@@ -66,8 +69,23 @@ export function BFRButton() {
     }
   }
 
-  const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
-  const [isCalculating, setCalculating] = useState(false);
+  const handleAllowNegativeRatesChange = () => {
+    const nextAllowNegativeRates = !allowNegativeRates;
+    setAllowNegativeRates(nextAllowNegativeRates);
+    bfrCalculated.current = { R2: false, RMS: false };
+
+    if (useBestFittingRoot && sourceData && bfrTrees) {
+      dispatch(setCurrentTree(sourceNwk));
+      dispatch(setCurrentData(sourceData));
+      dispatch(setBestFittingRoot(
+        {
+          ...bfrTrees,
+          using: null
+        }
+      ));
+      invertBestFittingRoot(false);
+    }
+  }
 
   const toggleBestFittingRoot = () => {
 
@@ -75,7 +93,7 @@ export function BFRButton() {
       setCalculating(true)
 
       var dates = sourceData.baseClock.x;
-      globalRootParallel(sourceNwk, dates, tipData, bfrMethod).then(
+      globalRootParallel(sourceNwk, dates, tipData, bfrMethod, allowNegativeRates).then(
         (nwk: string) => {
 
           let newBFRState = {
@@ -118,6 +136,9 @@ export function BFRButton() {
           setCalculating(false)
         }
       )
+
+      dispatch(setMode(null))
+      return;
     }
 
     if (useBestFittingRoot && sourceData && bfrTrees) {
@@ -177,6 +198,25 @@ export function BFRButton() {
             </Dropdown.Item>
             <Dropdown.Item onClick={() => handleMethodChange("R2")} className={bfrMethod === "R2" ? "text-blue-700" : ''}>
               R-Squared
+            </Dropdown.Item>
+            <Dropdown.Divider />
+            <Dropdown.Item>
+              <div
+                className="flex items-center gap-2"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleAllowNegativeRatesChange();
+                }}
+              >
+                <Checkbox
+                  id="allowNegativeRates"
+                  checked={allowNegativeRates}
+                  onChange={() => {}}
+                />
+                <span className="cursor-pointer">
+                  Allow negative rates
+                </span>
+              </div>
             </Dropdown.Item>
           </Dropdown>
         </div>

@@ -204,6 +204,50 @@ describe('localRootRSS()', () => {
 
   });
 
+  test('Allows negative rates by default', () => {
+    let testTree = readNewick('((A:1, B:2):3,(C:1, D:2):1);')
+    let tipData = {
+      A: {
+        date: 5
+      },
+      B: {
+        date: 4
+      },
+      C: {
+        date: 3
+      },
+      D: {
+        date: 2
+      }
+    }
+
+    let est: any = localRootRMS(testTree, tipData);
+
+    expect(Number.isFinite(est.value)).toBe(true);
+  });
+
+  test('Can reject negative rates', () => {
+    let testTree = readNewick('((A:1, B:2):3,(C:1, D:2):1);')
+    let tipData = {
+      A: {
+        date: 5
+      },
+      B: {
+        date: 4
+      },
+      C: {
+        date: 3
+      },
+      D: {
+        date: 2
+      }
+    }
+
+    let est: any = localRootRMS(testTree, tipData, false);
+
+    expect(est.value).toBe(Infinity);
+  });
+
   test('Alpha defined for all reroots using empirical tree', () => {
     const nwk = readFileSync("src/features/engine/empiricalTestTree.nwk").toString();
     const tree = readNewick(nwk);
