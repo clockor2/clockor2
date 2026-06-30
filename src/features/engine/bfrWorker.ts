@@ -5,7 +5,7 @@ import { readNewick, Tree } from "phylojs";
 // this runs on the webworker, created with webpack 5 syntax new
 // Worker('./worker.ts'). in jest tests, this module is not used, instead the
 // workerMessageHandler is directly addressed
-self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-disable-line no-restricted-globals */
+self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode, allowNegativeRates } }) => { /* eslint-disable-line no-restricted-globals */
   var treePrime: Tree
   var localOptimum: localOptima
   var best: localOptima
@@ -20,7 +20,8 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
     best = {
       ...localRootR2(
         treePrime,
-        tipData
+        tipData,
+        allowNegativeRates
       ),
       nodeIndx: nodeNums[0],
       method: "R2"
@@ -34,7 +35,8 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
       localOptimum = {
         ...localRootR2(
           treePrime,
-          tipData
+          tipData,
+          allowNegativeRates
         ),
         nodeIndx: nodeNums[i],
         method: "R2"
@@ -51,7 +53,8 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
     best = {
       ...localRootRMS(
         treePrime,
-        tipData
+        tipData,
+        allowNegativeRates
       ),
       nodeIndx: nodeNums[0],
       method: "RMS"
@@ -65,7 +68,8 @@ self.onmessage = ({ data: { nwk, nodeNums, tipData, bfrMode } }) => { /* eslint-
       localOptimum = {
         ...localRootRMS(
           treePrime,
-          tipData
+          tipData,
+          allowNegativeRates
         ),
         nodeIndx: nodeNums[i],
         method: "RMS"
