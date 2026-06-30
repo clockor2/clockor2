@@ -1,4 +1,4 @@
-import { Label, Modal, Select, Spinner, Tooltip, Alert } from "flowbite-react";
+import { Alert, Label, Modal, Select, Spinner } from "flowbite-react";
 import { setClockSearchData, setCurrentData, selectCurrentData, setMode } from "../regression/regressionSlice";
 import { selectCurrentTree } from "../tree/treeSlice";
 import React, { useState } from "react";
@@ -6,12 +6,16 @@ import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import { createClockSearchWorker } from "../engine/clockSearch";
 import { addNotification } from "../notifications/notificationsSlice";
 
-export function ClockSearchButton(props: any) {
+interface ClockSearchButtonProps {
+  show: boolean;
+  onClose: () => void;
+}
+
+export function ClockSearchButton(props: ClockSearchButtonProps) {
   var nTips = useAppSelector(selectCurrentData)?.baseClock.x.length ?? 0;
   const [minCladeSize, setMinCladeSize] = useState<number>(Math.floor(nTips / 2));
   const [maxClocks, setMaxClocks] = useState<number>(2);
   const [icMetric, setICMetric] = useState<"aic" | "aicc" | "bic">("bic")
-  const [openModal, setOpenModal] = useState<string | undefined>();
   const [isSearching, setIsSearching] = useState(false);
   const dispatch = useAppDispatch();
   const nwk = useAppSelector(selectCurrentTree);
@@ -34,28 +38,17 @@ export function ClockSearchButton(props: any) {
     dispatch(setCurrentData(groupConfig))
     dispatch(setMode("clockSearch"))
     setIsSearching(false)
-    setOpenModal(undefined)
+    props.onClose()
     dispatch(addNotification({ title: "Warning", message: "Please interpret the results of the Clock Search with caution", type: "warning" }))
 
   }
 
   return (
-    <div>
-      <Tooltip
-        content="Local Clock Search"
-        placement="top"
-      >
-        <button onClick={() => setOpenModal('default')} className='flex items-center text-gray-700 dark:text-gray-400 hover:text-blue-700 '>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.3" stroke="currentColor" className="w-6 h-6 font-medium">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </button>
-      </Tooltip>
-      <React.Fragment>
+    <React.Fragment>
         <Modal
           dismissible={!isSearching}
-          show={openModal === 'default'}
-          onClose={() => setOpenModal(undefined)}
+          show={props.show}
+          onClose={props.onClose}
         >
           <Modal.Header>
             Perform Local Clock Search
@@ -150,6 +143,5 @@ export function ClockSearchButton(props: any) {
           </Modal.Body>
         </Modal>
       </React.Fragment>
-    </div>
   );
 }

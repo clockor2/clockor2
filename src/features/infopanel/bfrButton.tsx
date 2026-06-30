@@ -1,15 +1,23 @@
 import { Checkbox, Label, Spinner, Dropdown } from "flowbite-react";
 import { useState, useRef } from "react";
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { setCurrentData, selectCurrentData, selectData, selectBestFittingRootData, setMode, selectMode } from '../regression/regressionSlice';
+import { setCurrentData, selectData, selectBestFittingRootData, setMode } from '../regression/regressionSlice';
 import { setBestFittingRootData } from "../regression/regressionSlice";
 import { selectSource, setBestFittingRoot, setCurrentTree, selectTipData, selectBestFittingRoot } from '../tree/treeSlice';
 import { globalRootParallel } from "../engine/bestFittingRoot";
 import { regression } from "../engine/core";
 import { readNewick } from "phylojs";
 import { addNotification } from "../notifications/notificationsSlice";
+import { BFRMethod } from "../engine/dateRandomisation";
 
-export function BFRButton() {
+interface BFRButtonProps {
+  bfrMethod: BFRMethod;
+  setBFRMethod: (method: BFRMethod) => void;
+  allowNegativeRates: boolean;
+  setAllowNegativeRates: (allowNegativeRates: boolean) => void;
+}
+
+export function BFRButton(props: BFRButtonProps) {
 
   const sourceNwk = useAppSelector(selectSource);
   const bfrTrees = useAppSelector(selectBestFittingRoot);
@@ -20,13 +28,11 @@ export function BFRButton() {
 
   const bfrCalculated = useRef<{ R2: boolean, RMS: boolean }>({ R2: false, RMS: false });
 
-  const [bfrMethod, swapBFRMethod] = useState<"RMS" | "R2">("RMS");
-  const [allowNegativeRates, setAllowNegativeRates] = useState(true);
   const [useBestFittingRoot, invertBestFittingRoot] = useState(false);
   const [isCalculating, setCalculating] = useState(false);
 
   const handleMethodChange = (method: "RMS" | "R2") => {
-    if (method !== bfrMethod && useBestFittingRoot) {
+    if (method !== props.bfrMethod && useBestFittingRoot) {
 
       // reset if other bfr doesn't exist yet
       if (!bfrCalculated.current[method] && sourceData && bfrTrees) {
@@ -53,9 +59,9 @@ export function BFRButton() {
         ));
       }
 
-      swapBFRMethod(method)
+      props.setBFRMethod(method)
     }
-    if (!useBestFittingRoot && method !== bfrMethod && sourceData) {
+    if (!useBestFittingRoot && method !== props.bfrMethod && sourceData) {
       dispatch(setCurrentTree(sourceNwk));
         dispatch(setCurrentData(sourceData));
         dispatch(setBestFittingRoot(
@@ -65,13 +71,13 @@ export function BFRButton() {
           }
         ));
 
-      swapBFRMethod(method)
+      props.setBFRMethod(method)
     }
   }
 
   const handleAllowNegativeRatesChange = () => {
-    const nextAllowNegativeRates = !allowNegativeRates;
-    setAllowNegativeRates(nextAllowNegativeRates);
+    const nextAllowNegativeRates = !props.allowNegativeRates;
+    props.setAllowNegativeRates(nextAllowNegativeRates);
     bfrCalculated.current = { R2: false, RMS: false };
 
     if (useBestFittingRoot && sourceData && bfrTrees) {
@@ -89,17 +95,17 @@ export function BFRButton() {
 
   const toggleBestFittingRoot = () => {
 
-    if (sourceData && !bfrCalculated.current[bfrMethod]) {
+    if (sourceData && !bfrCalculated.current[props.bfrMethod]) {
       setCalculating(true)
 
       var dates = sourceData.baseClock.x;
-      globalRootParallel(sourceNwk, dates, tipData, bfrMethod, allowNegativeRates).then(
+      globalRootParallel(sourceNwk, dates, tipData, props.bfrMethod, props.allowNegativeRates).then(
         (nwk: string) => {
 
           let newBFRState = {
             ...bfrTrees,
-            [bfrMethod]: nwk,
-            using: bfrMethod
+            [props.bfrMethod]: nwk,
+            using: props.bfrMethod
           }
           dispatch(setBestFittingRoot(newBFRState))
 
@@ -118,14 +124,14 @@ export function BFRButton() {
 
           let newBFRData = {
             ...bestFitData,
-            [bfrMethod]: bestFitRegression
+            [props.bfrMethod]: bestFitRegression
           }
           dispatch(setBestFittingRootData(newBFRData))
 
           dispatch(setCurrentTree(nwk));
           dispatch(setCurrentData(bestFitRegression))
           
-          bfrCalculated.current[bfrMethod] = true
+          bfrCalculated.current[props.bfrMethod] = true
           invertBestFittingRoot(!useBestFittingRoot);
           setCalculating(false)
         }).catch((error) => {          
@@ -147,16 +153,16 @@ export function BFRButton() {
       dispatch(setBestFittingRoot(
         {
           ...bfrTrees,
-          using: bfrMethod
+          using: props.bfrMethod
         }
       ));
       invertBestFittingRoot(!useBestFittingRoot);
 
-    } else if (!useBestFittingRoot && bestFitData[bfrMethod] && bfrTrees[bfrMethod]) {
+    } else if (!useBestFittingRoot && bestFitData[props.bfrMethod] && bfrTrees[props.bfrMethod]) {
       //@ts-ignore
-      dispatch(setCurrentTree(bfrTrees[bfrMethod]));
+      dispatch(setCurrentTree(bfrTrees[props.bfrMethod]));
       //@ts-ignore
-      dispatch(setCurrentData(bestFitData[bfrMethod]));
+      dispatch(setCurrentData(bestFitData[props.bfrMethod]));
 
       invertBestFittingRoot(!useBestFittingRoot);
     }
@@ -186,17 +192,17 @@ export function BFRButton() {
         <div className="flex items-center !text-sm text-gray-700 dark:text-gray-400 !font-medium">
           <Dropdown
             inline
-            label={ bfrMethod === "RMS" ? "RMS" : 'R²' }
+            label={ props.bfrMethod === "RMS" ? "RMS" : 'R²' }
           >
             <Dropdown.Header>
               <span className="block text-sm font-bold text">
                 Select a method to find the best fitting root 
               </span>
             </Dropdown.Header>
-            <Dropdown.Item onClick={() => handleMethodChange("RMS")} className={bfrMethod === "RMS" ? "text-blue-700" : ''} >
+            <Dropdown.Item onClick={() => handleMethodChange("RMS")} className={props.bfrMethod === "RMS" ? "text-blue-700" : ''} >
               Residual-mean-squared
             </Dropdown.Item>
-            <Dropdown.Item onClick={() => handleMethodChange("R2")} className={bfrMethod === "R2" ? "text-blue-700" : ''}>
+            <Dropdown.Item onClick={() => handleMethodChange("R2")} className={props.bfrMethod === "R2" ? "text-blue-700" : ''}>
               R-Squared
             </Dropdown.Item>
             <Dropdown.Divider />
@@ -210,7 +216,7 @@ export function BFRButton() {
               >
                 <Checkbox
                   id="allowNegativeRates"
-                  checked={allowNegativeRates}
+                  checked={props.allowNegativeRates}
                   onChange={() => {}}
                 />
                 <span className="cursor-pointer">
