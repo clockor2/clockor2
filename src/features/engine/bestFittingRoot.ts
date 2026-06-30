@@ -11,7 +11,9 @@ export interface localOptima {
 
 const bfrWorkerPool: Worker[] = [];
 const availableBFRWorkers: Worker[] = [];
-const pendingBFRWorkerLeases: Array<(worker: Worker) => void> = [];
+const pendingBFRWorkerLeases: Array<{
+  resolve: (worker: Worker) => void;
+}> = [];
 
 function getBFRWorkerLimit() {
   return Math.max(1, window.navigator.hardwareConcurrency || 1);
@@ -34,14 +36,15 @@ function acquireBFRWorker(): Promise<Worker> {
   }
 
   return new Promise(resolve => {
-    pendingBFRWorkerLeases.push(resolve);
+    const lease = { resolve };
+    pendingBFRWorkerLeases.push(lease);
   });
 }
 
 function releaseBFRWorker(worker: Worker) {
   const nextLease = pendingBFRWorkerLeases.shift();
   if (nextLease) {
-    nextLease(worker);
+    nextLease.resolve(worker);
     return;
   }
 
@@ -60,15 +63,23 @@ async function runBFRWorkerChunk(nwk: string, dates: number[], nodes: number[], 
   const worker = await acquireBFRWorker();
 
   return new Promise(function (resolve, reject) {
-    worker.onmessage = (e) => {
+    let settled = false;
+    const cleanup = () => {
       worker.onmessage = null;
       worker.onerror = null;
+    }
+
+    worker.onmessage = (e) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
       releaseBFRWorker(worker);
       resolve(e.data);
     };
     worker.onerror = (e) => {
-      worker.onmessage = null;
-      worker.onerror = null;
+      if (settled) return;
+      settled = true;
+      cleanup();
       releaseBFRWorker(worker);
       reject(e.error);
     };
