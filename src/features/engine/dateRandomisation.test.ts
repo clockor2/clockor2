@@ -37,11 +37,11 @@ describe("randomiseTipDates()", () => {
 });
 
 describe("oneSidedEmpiricalPValue()", () => {
-  test("uses upper tail for positive observed slopes", () => {
-    expect(oneSidedEmpiricalPValue(3, [1, 2, 3, 4])).toBeCloseTo(3 / 5);
+  test("uses slope magnitude for positive observed slopes", () => {
+    expect(oneSidedEmpiricalPValue(3, [-4, -2, 3, 4])).toBeCloseTo(4 / 5);
   });
 
-  test("uses lower tail for negative observed slopes", () => {
-    expect(oneSidedEmpiricalPValue(-3, [-4, -3, -2, -1])).toBeCloseTo(3 / 5);
+  test("uses slope magnitude for negative observed slopes", () => {
+    expect(oneSidedEmpiricalPValue(-3, [-4, -3, 2, 1])).toBeCloseTo(3 / 5);
   });
 });

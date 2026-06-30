@@ -66,9 +66,8 @@ export function randomiseTipDates(
 }
 
 export function oneSidedEmpiricalPValue(observedSlope: number, randomisedSlopes: number[]): number {
-  const tailCount = randomisedSlopes.filter(slope =>
-    observedSlope >= 0 ? slope >= observedSlope : slope <= observedSlope
-  ).length;
+  const observedSignal = Math.abs(observedSlope);
+  const tailCount = randomisedSlopes.filter(slope => Math.abs(slope) >= observedSignal).length;
 
   return (tailCount + 1) / (randomisedSlopes.length + 1);
 }
