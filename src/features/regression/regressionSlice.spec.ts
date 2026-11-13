@@ -13,6 +13,7 @@ describe('counter reducer', () => {
     xMode: "date",
     regressionInputDefaults: {
       format: "yyyy-mm-dd",
+      customFormat: "YYYY-MM-DD",
       delimiter: "",
       loc: "",
       group: ""
