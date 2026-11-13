@@ -1,9 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 import { LocalClockModel } from '../engine/core';
+import { DateFormat } from '../engine/utils';
 
 interface RegressionInputDefaults {
-  format: "yyyy-mm-dd" | "decimal"
+  format: DateFormat
+  customFormat: string
   delimiter: string
   loc: string
   group: string
@@ -40,6 +42,7 @@ const initialState: RegressionState = {
   xMode: "date",
   regressionInputDefaults: {
     format: "yyyy-mm-dd",
+    customFormat: "YYYY-MM-DD",
     delimiter: "",
     loc: "",
     group: ""

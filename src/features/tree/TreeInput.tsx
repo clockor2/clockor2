@@ -35,6 +35,7 @@ export function TreeInput(props: any) {
         dispatch(setSource(ladderiseNewick(exampleNewick)))
         dispatch(setRegressionInputDefaults({
             format: "yyyy-mm-dd",
+            customFormat: "YYYY-MM-DD",
             delimiter: "_",
             loc: "-1",
             group: "-2"
@@ -65,13 +66,15 @@ export function TreeInput(props: any) {
                 const delimiter = urlParams.get('delimiter');
                 const loc = urlParams.get('loc');
                 const group = urlParams.get('group') || "";
+                const customFormat = urlParams.get('customFormat') || "YYYY-MM-DD";
     
                 // Only format, delimiter, loc are required
                 if (format && delimiter && loc) {
-                    // Assert format is "yyyy-mm-dd" or "decimal"
-                    if (format === "yyyy-mm-dd" || format === "decimal") {
+                    // Custom formats use day.js tokens, e.g. DD/MM/YYYY.
+                    if (format === "yyyy-mm-dd" || format === "decimal" || format === "tipHeight" || format === "custom") {
                         dispatch(setRegressionInputDefaults({
                             format: format,
+                            customFormat: customFormat,
                             delimiter: delimiter,
                             loc: loc,
                             group: group
