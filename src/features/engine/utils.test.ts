@@ -15,14 +15,51 @@ describe('decimal_date()', () => {
   test('2000-12-31 matches decimal', () => {
     expect(decimal_date('2000-12-31', 'yyyy-mm-dd')).toEqual(2000.9972677595629);
   });
-  test('yyyy-mm-NA matches decimal', () => {
-    expect(decimal_date('2000-12', 'yyyy-mm-dd')).toEqual(decimal_date('2000-12-01', 'yyyy-mm-dd'));
+  test('missing day uses the midpoint of the month', () => {
+    expect(decimal_date('2000-12', 'yyyy-mm-dd')).toEqual(2000.957650273224);
   });
-  test('yyyy-NA-NA matches decimal', () => {
-    expect(decimal_date('2000', 'yyyy-mm-dd')).toEqual(decimal_date('2000-01-01', 'yyyy-mm-dd'));
+  test('missing day uses the midpoint of a short month', () => {
+    expect(decimal_date('2001-02', 'yyyy-mm-dd')).toEqual(2001.123287671233);
+  });
+  test('missing month uses the midpoint of the year', () => {
+    expect(decimal_date('2000', 'yyyy-mm-dd')).toEqual(2000.5);
+  });
+  test('mixed precision resolves each date independently', () => {
+    expect(['2000-01-01', '2000-12', '2000'].map(d => decimal_date(d, 'yyyy-mm-dd')))
+      .toEqual([2000, 2000.957650273224, 2000.5]);
   });
   test('2000 matches decimal', () => {
     expect(decimal_date('2000', 'decimal')).toEqual(2000);
+  });
+  test('custom DD/MM/YYYY matches decimal', () => {
+    expect(decimal_date('05/11/2013', 'custom', 'DD/MM/YYYY')).toEqual(
+      decimal_date('2013-11-05', 'yyyy-mm-dd')
+    );
+  });
+  test('custom YYYY/MM/DD matches decimal', () => {
+    expect(decimal_date('2013/11/05', 'custom', 'YYYY/MM/DD')).toEqual(
+      decimal_date('2013-11-05', 'yyyy-mm-dd')
+    );
+  });
+  test('custom YYYY-MM uses the midpoint of the month', () => {
+    expect(decimal_date('2000-12', 'custom', 'YYYY-MM')).toEqual(2000.957650273224);
+  });
+  test('custom YYYY/MM/DD requires a complete date', () => {
+    expect(decimal_date('2013/11/05', 'custom', 'YYYY/MM/DD')).toEqual(2013.8438356164384);
+    expect(decimal_date('2013/11', 'custom', 'YYYY/MM/DD')).toBeNaN();
+    expect(decimal_date('2013', 'custom', 'YYYY/MM/DD')).toBeNaN();
+  });
+  test('custom YYYY uses the midpoint of the year', () => {
+    expect(decimal_date('2000', 'custom', 'YYYY')).toEqual(2000.5);
+  });
+  test('bracketed literals in a custom format are not treated as tokens', () => {
+    expect(decimal_date('2000 MM', 'custom', 'YYYY [MM]')).toEqual(2000.5);
+  });
+  test('custom format does not fall back on non-matching input', () => {
+    expect(decimal_date('2013-11-05', 'custom', 'DD/MM/YYYY')).toBeNaN();
+  });
+  test('custom format without a format string is NaN', () => {
+    expect(decimal_date('2013-11-05', 'custom')).toBeNaN();
   });
 }); 
 

@@ -1,119 +1,136 @@
-import { useState } from 'react';
-import { TextInput, Label, Select, Tooltip } from 'flowbite-react';
-import { useAppSelector } from '../../../app/hooks';
-import { decimal_date } from '../../engine/utils';
-import { selectRegressionInputDefaults } from '../regressionSlice';
-import { extractPartOfTipName } from '../../engine/utils';
+import { useState } from "react";
+import { TextInput, Label, Select, Tooltip } from "flowbite-react";
+import { useAppSelector } from "../../../app/hooks";
+import { DateFormat, decimal_date } from "../../engine/utils";
+import { selectRegressionInputDefaults } from "../regressionSlice";
+import { extractPartOfTipName } from "../../engine/utils";
 
 export function TipLabelForm(props: any) {
-    const defaults = useAppSelector(selectRegressionInputDefaults);
-    const [format, setFormat] = useState<"yyyy-mm-dd" | "decimal" | "tipHeight">(defaults.format);
-    const [delimiter, setDelimiter] = useState<string>(defaults.delimiter);
-    const [loc, setLoc] = useState<string>(defaults.loc);
-    const [group, setGroup] = useState<string>(defaults.group);
+  const defaults = useAppSelector(selectRegressionInputDefaults);
+  const [format, setFormat] = useState<DateFormat>(defaults.format);
+  const [customFormat, setCustomFormat] = useState<string>(
+    defaults.customFormat,
+  );
+  const [delimiter, setDelimiter] = useState<string>(defaults.delimiter);
+  const [loc, setLoc] = useState<string>(defaults.loc);
+  const [group, setGroup] = useState<string>(defaults.group);
 
-    const handleSubmit = (event: any) => {
-      event.preventDefault();
+  const handleSubmit = (event: any) => {
+    event.preventDefault();
 
-      const decimal_dates = props.tipNames.map( (name: string) => {
-        let date = extractPartOfTipName(name, delimiter, loc)
-        return decimal_date(date, format)
-      })
-    
-      let groupings: string[]
-      groupings = props.tipNames.map((name: string) => {
-        return group !== undefined ? extractPartOfTipName(name, delimiter, group) : "Background"
-      })
+    const decimal_dates = props.tipNames.map((name: string) => {
+      let date = extractPartOfTipName(name, delimiter, loc);
+      return decimal_date(date, format, customFormat);
+    });
 
-      props.onSubmit(decimal_dates, groupings, format === "tipHeight" ? "height" : "date")
-    }
-  
-    return (
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    let groupings: string[];
+    groupings = props.tipNames.map((name: string) => {
+      return group !== undefined
+        ? extractPartOfTipName(name, delimiter, group)
+        : "Background";
+    });
+
+    props.onSubmit(
+      decimal_dates,
+      groupings,
+      format === "tipHeight" ? "height" : "date",
+    );
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div>
-        <div className='text-xl dark:text-slate-300'>Parse from tip labels</div>
-        <div className='text-slate-400 text-sm pt-1'>e.g. {props.tipNames[0]}</div>
+        <div className="text-xl dark:text-slate-300">Parse from tip labels</div>
+        <div className="text-slate-400 text-sm pt-1">
+          e.g. {props.tipNames[0]}
+        </div>
       </div>
-      <div className='flex justify-between space-x-4 '>
-        <div className='flex-auto w-64'>
-  
-         <Tooltip
-            content="Use YYYY-MM-DD for YYYY-MM and YYYY"
-            trigger="hover">
-            <Label
-              htmlFor='format'
-              value='Date format'
-            />
+      <div className="flex justify-between space-x-4 ">
+        <div className="flex-auto w-64">
+          <Tooltip
+            content="Partial dates (YYYY-MM, YYYY) use the midpoint of the month or year"
+            trigger="hover"
+          >
+            <Label htmlFor="format" value="Date format" />
           </Tooltip>
-          
+
           <Select
-            title="Use 'YYYY-MM-DD' for 'YYYY-MM'"
+            title="Partial dates (YYYY-MM, YYYY) use the midpoint of the month or year"
             id="format"
             required={true}
             name="type"
             value={format}
-            onChange={e => setFormat(e.target.value as "yyyy-mm-dd" | "decimal" | "tipHeight")}
+            onChange={(e) => setFormat(e.target.value as DateFormat)}
           >
-            <option value={"yyyy-mm-dd"}>
-              YYYY-MM-DD
-            </option>
-            <option value={"decimal"}>
-              Decimal Date
-            </option>
-            <option value={"tipHeight"}>
-              Tip age (decimal)
-            </option>
+            <option value={"yyyy-mm-dd"}>YYYY-MM-DD</option>
+            <option value={"decimal"}>Decimal Date</option>
+            <option value={"tipHeight"}>Tip age (decimal)</option>
+            <option value={"custom"}>Custom format</option>
           </Select>
-  
+          {format === "custom" && (
+            <div className="text-xs text-slate-400 pt-1">
+              <a
+                className="hover:underline"
+                href="https://day.js.org/docs/en/parse/string-format"
+                target="_blank"
+                rel="noreferrer"
+              >
+                custom format tokens
+              </a>
+            </div>
+          )}
         </div>
-        <div className='flex-auto w-16'>
-          <Label
-            htmlFor='delimiter'
-            value='Delimiter'
-          />
+        {format === "custom" && (
+          <div className="flex-auto w-40">
+            <Label htmlFor="customFormat" value="Custom format" />
+            <TextInput
+              id="customFormat"
+              placeholder="DD/MM/YYYY"
+              type="text"
+              required={true}
+              onChange={(e) => setCustomFormat(e.target.value)}
+              value={customFormat}
+            />
+          </div>
+        )}
+        <div className="flex-auto w-16">
+          <Label htmlFor="delimiter" value="Delimiter" />
           <TextInput
             id="delimiter"
             placeholder="_"
             type="text"
             required={true}
-            onChange={e => setDelimiter(e.target.value)}
+            onChange={(e) => setDelimiter(e.target.value)}
             value={delimiter}
           />
         </div>
       </div>
-      <div className='flex justify-between space-x-4 '>
-          <div className='flex-auto w-32'>
-            <Label
-              htmlFor='loc'
-              value='Date Location'
-            />
-            <TextInput
-              id="loc"
-              placeholder="-1"
-              type="number"
-              required={true}
-              onChange={e => setLoc(e.target.value)}
-              value={loc}
-            />
-          </div>
-          <div className='flex-auto w-32'>
-            <Label
-              htmlFor='group'
-              value='Group Location'
-            />
-            <TextInput
-              id="group"
-              placeholder="-2"
-              type="number"
-              onChange={e => setGroup(e.target.value)}
-              value={group}
-            />
-          </div>
+      <div className="flex justify-between space-x-4 ">
+        <div className="flex-auto w-32">
+          <Label htmlFor="loc" value="Date Location" />
+          <TextInput
+            id="loc"
+            placeholder="-1"
+            type="number"
+            required={true}
+            onChange={(e) => setLoc(e.target.value)}
+            value={loc}
+          />
+        </div>
+        <div className="flex-auto w-32">
+          <Label htmlFor="group" value="Group Location" />
+          <TextInput
+            id="group"
+            placeholder="-2"
+            type="number"
+            onChange={(e) => setGroup(e.target.value)}
+            value={group}
+          />
+        </div>
       </div>
       <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2">
         Parse Tips
       </button>
     </form>
-    )
-  
-  }
+  );
+}

@@ -1,28 +1,70 @@
+import dayjs from "dayjs"
+import customParseFormat from "dayjs/plugin/customParseFormat"
 import { readNewick, writeNewick } from "phylojs"
 
-export const decimal_date = (sampDate: string, format: "yyyy-mm-dd" | "decimal" | "tipHeight") => {
+dayjs.extend(customParseFormat)
+
+export type DateFormat = "yyyy-mm-dd" | "decimal" | "tipHeight" | "custom"
+
+// Build a UTC date. Compared to Date.UTC, setUTCFullYear avoids mapping years
+// 0-99 to 1900-1999.
+const utcDate = (year: number, month: number, day: number): Date => {
+  const date = new Date(0)
+  date.setUTCFullYear(year, month, day)
+  date.setUTCHours(0, 0, 0, 0)
+  return date
+}
+
+const startOfYear = (year: number): number => utcDate(year, 0, 1).getTime()
+
+const endOfYear = (year: number): number => utcDate(year + 1, 0, 1).getTime()
+
+// Convert an instant to a decimal year using the length of its calendar year.
+const decimalYearFromTime = (time: number): number => {
+  const year = new Date(time).getUTCFullYear()
+  const start = startOfYear(year)
+  return year + (time - start) / (endOfYear(year) - start)
+}
+
+// A full date denotes the start of that day; a date missing the day denotes
+// the whole month and a date missing the month denotes the whole year. For
+// those partial dates use the midpoint of the represented interval.
+const decimalYearForMonth = (year: number, month: number): number => {
+  const start = utcDate(year, month, 1).getTime()
+  const end = utcDate(year, month + 1, 1).getTime()
+  return decimalYearFromTime(start + (end - start) / 2)
+}
+
+const decimalYearForYear = (year: number): number =>
+  decimalYearFromTime(startOfYear(year) + (endOfYear(year) - startOfYear(year)) / 2)
+
+// Whether the custom day.js format contains the given token, ignoring literal
+// text such as "[Month]". "X"/"x" (Unix timestamps) carry full precision.
+const formatHasToken = (format: string, token: RegExp): boolean =>
+  token.test(format.replace(/\[[^\]]*\]/g, ""))
+
+export const decimal_date = (sampDate: string, format: DateFormat, customFormat?: string): number => {
   if (format === "yyyy-mm-dd") {
-    // Parse the year, month, and day from sampDate
-    let year = parseInt(sampDate.substring(0, 4));
-    let month = parseInt(sampDate.substring(5, 7)) - 1; // Month is 0-indexed
-    if (isNaN(month)) month = 0
-    let day = parseInt(sampDate.substring(8, 10));
-    if (isNaN(day)) day = 1
+    // Parse the year, month, and day from sampDate. Partial dates are valid;
+    // missing components are resolved to the midpoint of their interval.
+    const year = parseInt(sampDate.substring(0, 4));
+    const month = parseInt(sampDate.substring(5, 7)) - 1; // Month is 0-indexed
+    const day = parseInt(sampDate.substring(8, 10));
 
-    // Create Date objects for the given date, the start of the year, and the start of the next year in UTC
-    let date = new Date(Date.UTC(year, month, day));
-    let startOfYear = new Date(Date.UTC(year, 0, 1));
-    let endOfYear = new Date(Date.UTC(year + 1, 0, 1));
-
-    // Calculate the total number of days in the year
-    let daysInYear = (endOfYear.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000);
-
-    // Calculate the day of the year for the given date
-    let dayOfYear = (date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000);
-
-    // Calculate the decimal date value
-    let decimal_date_value = year + (dayOfYear / daysInYear);
-    return decimal_date_value;
+    if (isNaN(year)) return NaN
+    if (isNaN(month)) return decimalYearForYear(year)
+    if (isNaN(day)) return decimalYearForMonth(year, month)
+    return decimalYearFromTime(utcDate(year, month, day).getTime())
+  } else if (format === "custom") {
+    // Custom values must match the user-supplied day.js format completely.
+    // A format that itself omits the day or month is complete at that
+    // precision and uses the midpoint of the interval.
+    if (!customFormat) return NaN
+    const date = dayjs(sampDate, customFormat, true)
+    if (!date.isValid()) return NaN
+    if (!formatHasToken(customFormat, /M/)) return decimalYearForYear(date.year())
+    if (!formatHasToken(customFormat, /D/)) return decimalYearForMonth(date.year(), date.month())
+    return decimalYearFromTime(utcDate(date.year(), date.month(), date.date()).getTime())
   } else {
     // 'decimal' (forward decimal year) and 'tipHeight' (age before the most
     // recent tip) are both raw numeric values, so parse directly as a float.
@@ -64,9 +106,6 @@ export const date_decimal = (decimal: number): string => {
 
   return `${formattedYear}-${formattedMonth}-${formattedDay}`;
 };
-
-
-
 
 
 const handelNegativeIndexes = (splitTipName: Array<string>, delimiter: string, loc: number): number => {
