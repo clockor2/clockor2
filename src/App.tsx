@@ -15,6 +15,7 @@ import { LocalClockModel } from './features/engine/core';
 import { useDarkMode } from './features/utils/darkmode';
 import { Flowbite } from 'flowbite-react';
 import { Notifications } from './features/notifications/Notifications';
+import { TabeeReceiver } from './features/tabee/TabeeReceiver';
 
 const chroma = require("chroma-js")
 
@@ -168,6 +169,7 @@ function App() {
 
   return (
     <Flowbite theme={{dark: isDarkMode}}>
+      <TabeeReceiver />
       <Notifications />
       <div className="App dark:bg-slate-900">
         <div className='flex flex-col md:h-screen'>

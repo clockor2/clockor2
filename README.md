@@ -41,6 +41,7 @@ Some of the tools used by the project include:
 - Phylocanvas - https://gitlab.com/cgps/phylocanvas/phylocanvas.gl  
 - Plotly - https://github.com/plotly/react-plotly.js
 - phylojs - https://github.com/clockor2/phylojs
+- tabEE - https://github.com/Wytamma/tabee (receives Newick trees from other browser apps)
 
 The initial design plan:
 
